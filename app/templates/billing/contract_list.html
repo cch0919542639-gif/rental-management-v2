@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Contract Bills{% endblock %}
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+  <div>
+    <h1 style="margin:0;">合約帳單</h1>
+    <div>{{ contract.tenant.name }} / {{ contract.room.property.name }} / {{ contract.room.room_number }}</div>
+  </div>
+  <a href="{{ url_for('billing.billing_contract_generate', contract_id=contract.id) }}">產生月帳單</a>
+</div>
+
+<div class="card">
+  {% if bills %}
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>月份</th>
+        <th>租金</th>
+        <th>總額</th>
+        <th>已繳</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for bill in bills %}
+      <tr>
+        <td>{{ bill.id }}</td>
+        <td>{{ bill.year_month | year_month_ui }}</td>
+        <td>{{ bill.rent }}</td>
+        <td>{{ bill.total }}</td>
+        <td>{{ "是" if bill.paid else "否" }}</td>
+        <td>
+          <a href="{{ url_for('billing.billing_edit', monthly_bill_id=bill.id) }}">編輯</a>
+          <form method="post" action="{{ url_for('billing.billing_toggle_paid', monthly_bill_id=bill.id) }}" style="display:inline;">
+            <button type="submit">切換已繳</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>此合約目前沒有帳單資料。</p>
+  {% endif %}
+</div>
+{% endblock %}

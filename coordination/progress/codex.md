@@ -1,14 +1,13 @@
 # codex
 
 Status: IN_PROGRESS
-Last Updated: 2026-06-28 15:22
+Last Updated: 2026-06-29 00:18
 
 ## Current Task
-- Phase 1 骨架實作主控
-- 已完成 `auth`、`dashboard`、`billing`、`rooms`、`contracts`、`tenants`、`properties`、`landlords`、`payments`、`electricity`、`water`、`reports`、`maintenance` 主幹骨架
-- 已完成第一批 integration smoke tests 與 demo seed script
-- 已完成 `dev runbook`、接手分工文件、啟動 / smoke 腳本
-- 下一批主幹目標為整理提交、更多測試覆蓋與更深層功能收斂
+- Phase 2 主幹收斂
+- 已補完 `billing create / edit / toggle paid / per-contract list / per-contract generate / batch generate`
+- `MonthlyBill` 正式建立阻塞已解除
+- 下一批主幹目標為 deeper algorithm、正式 migration、maintenance schema 前置決策
 
 ## Scope
 - 以 `rebuild/app/` 建立新版模組化主幹
@@ -24,11 +23,12 @@ Last Updated: 2026-06-28 15:22
 - 完成 `tenants`、`properties` CRUD 骨架
 - 完成 `landlords` CRUD 骨架
 - 完成 `payments` 統一流程骨架：create / verify / reject / link
+- 完成 `billing` 正式流程：create / edit / toggle paid / per-contract list / generate / batch generate
 - 完成 `electricity` 骨架：meter / bill / reading / calculate / post to monthly bill
 - 完成 `water` 骨架：water bill CRUD / shared_by_stay_days / independent_meter posting
 - 完成 `reports` 骨架：monthly / landlord summary / yearly overview query + presenter
 - 完成 `maintenance` 模組邊界頁：不新增 schema，只保留正式入口與 room snapshot
-- 完成 `tests/conftest.py` 與 2 支 integration smoke tests
+- 完成 `tests/conftest.py` 與多支 integration smoke / coverage tests
 - 完成 `scripts/seed_demo_data.py`
 - 完成 `docs/operations/dev-runbook.md`
 - 完成 `docs/operations/current-dispatch-and-handoff-plan.md`
@@ -38,6 +38,10 @@ Last Updated: 2026-06-28 15:22
 - 未登入 `/` 會轉向 `/auth/login`
 - 登入成功後可進入 dashboard
 - billing 頁面可顯示資料
+- billing 可建立單筆月帳單
+- billing 可依合約產生月帳單
+- billing 可批次產生月帳單
+- billing 可切換已繳狀態
 - create room / create contract / terminate contract 流程正確
 - create property / create tenant / list pages 流程正確
 - create landlord / create payment / verify payment / link payment 流程正確
@@ -45,7 +49,7 @@ Last Updated: 2026-06-28 15:22
 - create water bill / monthly posting 流程正確
 - reports monthly / landlord summary / yearly overview 流程正確
 - maintenance 邊界頁可用，且未發明新 schema
-- `pytest tests\integration -q` 通過（2 passed）
+- `pytest tests\integration -q` 通過（16 passed, 7 skipped）
 - `python .\scripts\seed_demo_data.py` 可成功建立 demo data
 - `powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke_tests.ps1` 通過
 
@@ -56,15 +60,15 @@ Last Updated: 2026-06-28 15:22
 - `box`: 適合承接 smoke tests、runbook、低風險支援腳本
 
 ## Next Step
-- 由 Codex 繼續整理提交、擴 tests、推進 deeper algorithm
+- 由 Codex 繼續推進 deeper billing/electricity/water algorithm 與正式 migration path
 - 並行交付：
-- `reasonix` 做 Phase 1 review note
-- `open` 做 route / gap inventory
-- `mimo` 做 UI gap check
-- `box` 做 tests / runbook 微調
+- `reasonix` 做 Phase 2 contract notes
+- `open` 做 implementation backlog
+- `mimo` 做 Phase 2 UI gap
+- `box` 做 tests / runbook / verification
 
 ## Risks / Blockers
 - 目前沒有結構性 blocker
 - 本機新增內容尚未推送到 GitHub
-- `payments`、`electricity`、`water` 已落地，但 deeper algorithm 仍需持續受控
+- `billing` blocking 已解除，但 deeper algorithm 與正式 migration 仍需持續受控
 - 中斷恢復時，請先讀 `docs/operations/phase1-master-status.md`

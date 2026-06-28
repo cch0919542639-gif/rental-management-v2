@@ -1,6 +1,6 @@
 # Dev Runbook
 
-Last Updated: 2026-06-28 15:18
+Last Updated: 2026-06-29
 
 ## Purpose
 
@@ -12,12 +12,24 @@ Last Updated: 2026-06-28 15:18
 - PowerShell
 - Git
 
+> **⚠️ Important — Python version**: This project requires Python 3.13 (or 3.12+).  
+> The system-level `python` command on some setups may point to a different Python (e.g., Hermes Agent's 3.11 venv) that does **not** have Flask installed.  
+> Always verify with:
+> ```powershell
+> python --version
+> pip list | findstr Flask
+> ```
+> If Flask is missing, use the bundled Python 3.13 launcher:
+> ```powershell
+> py -3 --version
+> ```
+
 ## Python Dependencies
 
 安裝：
 
 ```powershell
-python -m pip install -r .\requirements-dev.txt
+py -3 -m pip install -r .\requirements-dev.txt
 ```
 
 ## First-Time Setup
@@ -31,13 +43,23 @@ cd D:\CodexRuntime\rental\rebuild
 2. 建 demo data：
 
 ```powershell
-python .\scripts\seed_demo_data.py
+py -3 .\scripts\seed_demo_data.py
 ```
 
-3. 跑 smoke tests：
+3. 驗證 demo data：
+
+```powershell
+py -3 .\scripts\check_db_demo_state.py
+```
+
+4. 跑 smoke tests：
 
 ```powershell
 pytest tests\integration -q
+```
+或
+```powershell
+.\scripts\run_tests.bat
 ```
 
 ## Start Development Server
@@ -51,7 +73,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\run_dev.ps1
 方式二：
 
 ```powershell
-python -m flask --app app.wsgi run --debug
+py -3 -m flask --app app.wsgi run --debug
 ```
 
 預設 URL：
@@ -78,23 +100,38 @@ python -m flask --app app.wsgi run --debug
 
 ## Common Commands
 
-跑 smoke tests：
+| Command | Description |
+|---------|-------------|
+| `pytest tests\integration -q` | Run all integration tests (quick) |
+| `.\scripts\run_tests.bat` | Same, via batch wrapper |
+| `py -3 .\scripts\seed_demo_data.py` | Create / reset demo data (destructive) |
+| `.\scripts\reset_demo_data.bat` | Same, via batch wrapper |
+| `py -3 .\scripts\check_db_demo_state.py` | Verify demo data consistency |
+| `powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke_tests.ps1` | Run smoke tests via PS |
+| `powershell -ExecutionPolicy Bypass -File .\scripts\github_preflight_check.ps1` | Pre-push check |
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke_tests.ps1
-```
+## Available Scripts
 
-重新建立 demo data：
+| Script | Description |
+|--------|-------------|
+| `scripts/seed_demo_data.py` | Drop all tables, recreate, seed demo data |
+| `scripts/check_db_demo_state.py` | Verify demo data consistency (no destructive ops) |
+| `scripts/run_dev.ps1` | Start Flask dev server |
+| `scripts/run_smoke_tests.ps1` | Run `pytest tests\integration -q` |
+| `scripts/run_tests.bat` | Same as above, batch wrapper |
+| `scripts/reset_demo_data.bat` | Wrapper: drop + re-seed in one step |
+| `scripts/github_preflight_check.ps1` | Check for risky files before git push |
 
-```powershell
-python .\scripts\seed_demo_data.py
-```
+## Available Integration Tests
 
-檢查 GitHub 上傳前狀態：
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\github_preflight_check.ps1
-```
+| Test File | Coverage |
+|-----------|----------|
+| `test_auth_billing_payments_smoke.py` | Auth, dashboard, billing list, payment CRUD (create → verify → link) |
+| `test_utilities_reporting_smoke.py` | Electricity meter/bill/reading/calculate/post, water create/post, reports monthly, maintenance page |
+| `test_billing_placeholders_and_edges.py` | Billing edge cases (no-data month, default month) + placeholders for deeper billing tests |
+| `test_payments_reject_and_status.py` | Payment reject flow, list rendering + placeholders for duplicate TXN, reconciliation |
+| `test_electricity_meter_edit_and_post.py` | Meter edit, bill + reading → calculate → post to monthly bill + placeholders for status transitions |
+| `test_water_edit_and_independent_post.py` | Water bill edit, independent mode post, landlord summary, yearly overview + placeholders |
 
 ## Current Limitations
 

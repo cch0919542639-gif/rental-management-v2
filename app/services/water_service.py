@@ -54,8 +54,14 @@ class WaterService:
             )
             for item in active_contracts
         )
+        total_usage = (water_bill.actual_usage_1 or 0) + (water_bill.actual_usage_2 or 0)
         monthly_bill.water_amount = WaterAllocationService.allocate_shared_by_stay_days(
             total_amount=water_bill.total_amount,
+            contract_days=contract_days,
+            total_days=total_days,
+        )
+        monthly_bill.water_usage = WaterAllocationService.allocate_shared_usage_by_stay_days(
+            total_usage=total_usage,
             contract_days=contract_days,
             total_days=total_days,
         )

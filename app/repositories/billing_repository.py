@@ -20,6 +20,10 @@ class BillingRepository:
         return session_get_or_404(MonthlyBill, monthly_bill_id)
 
     @staticmethod
+    def find_by_contract_and_month(contract_id: int, year_month: str):
+        return MonthlyBill.query.filter_by(contract_id=contract_id, year_month=to_db_year_month(year_month)).first()
+
+    @staticmethod
     def sum_total_for_month(year_month: str, *, paid: bool | None = None):
         query = db.session.query(func.sum(MonthlyBill.total)).filter(MonthlyBill.year_month == to_db_year_month(year_month))
         if paid is not None:

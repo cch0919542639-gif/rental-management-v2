@@ -3,10 +3,14 @@
 {% block content %}
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
   <h1 style="margin:0;">Billing</h1>
-  <form class="inline" method="get">
-    <input type="month" name="month" value="{{ year_month }}">
-    <button type="submit">查詢</button>
-  </form>
+  <div style="display:flex; gap:12px; align-items:center;">
+    <a href="{{ url_for('billing.billing_create') }}">新增月帳單</a>
+    <a href="{{ url_for('billing.billing_batch_generate') }}">批次產生</a>
+    <form class="inline" method="get">
+      <input type="month" name="month" value="{{ year_month }}">
+      <button type="submit">查詢</button>
+    </form>
+  </div>
 </div>
 
 <div class="grid" style="margin-bottom:24px;">
@@ -21,11 +25,15 @@
       <tr>
         <th>ID</th>
         <th>月份</th>
+        <th>合約</th>
         <th>租金</th>
         <th>電費</th>
+        <th>公電</th>
         <th>水費</th>
+        <th>其他費用</th>
         <th>總額</th>
         <th>已繳</th>
+        <th>操作</th>
       </tr>
     </thead>
     <tbody>
@@ -33,11 +41,20 @@
       <tr>
         <td>{{ bill.id }}</td>
         <td>{{ bill.year_month | year_month_ui }}</td>
+        <td><a href="{{ url_for('billing.billing_contract_list', contract_id=bill.contract_id) }}">Contract {{ bill.contract_id }}</a></td>
         <td>{{ bill.rent }}</td>
         <td>{{ bill.electricity_amount }}</td>
+        <td>{{ bill.public_electricity }}</td>
         <td>{{ bill.water_amount }}</td>
+        <td>{{ bill.other_charges }}</td>
         <td>{{ bill.total }}</td>
         <td>{{ "是" if bill.paid else "否" }}</td>
+        <td>
+          <a href="{{ url_for('billing.billing_edit', monthly_bill_id=bill.id) }}">編輯</a>
+          <form method="post" action="{{ url_for('billing.billing_toggle_paid', monthly_bill_id=bill.id) }}" style="display:inline;">
+            <button type="submit">切換已繳</button>
+          </form>
+        </td>
       </tr>
       {% endfor %}
     </tbody>

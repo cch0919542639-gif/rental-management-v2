@@ -1,6 +1,6 @@
 # Phase 1 Master Status
 
-Last Updated: 2026-06-28 15:22
+Last Updated: 2026-06-29 00:18
 Owner: Codex
 
 ## Purpose
@@ -59,6 +59,7 @@ Owner: Codex
 - `auth/login` 可登入
 - `dashboard` 可載入 summary
 - `billing` 可依月份顯示帳單
+- `billing` 可建立、編輯、切換已繳、依合約產生、批次產生月帳單
 - `rooms` 可建立
 - `contracts` 可建立與終止，且會同步 `Room.status`
 - `properties` 可建立與列表
@@ -69,7 +70,7 @@ Owner: Codex
 - `water` 可建立水費單、編輯、以 shared / independent 模式回寫月帳單
 - `reports` 可查看月報表、房東彙總、年度總覽
 - `maintenance` 已建立模組入口與邊界頁，但正式資料 schema 尚未凍結
-- `tests` 已有第一批 integration smoke coverage
+- `tests` 已有 16 passed / 7 skipped 的 integration coverage
 - `scripts/seed_demo_data.py` 可建立 demo data
 - `docs/operations/dev-runbook.md` 已提供其他電腦接手流程
 - `scripts/run_smoke_tests.ps1` 可直接執行 smoke tests

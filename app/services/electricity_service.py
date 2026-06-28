@@ -4,11 +4,18 @@ from app.core.db import db
 from app.core.errors import DomainValidationError
 from app.core.year_month import to_db_year_month
 from app.models import ElectricityBill, ElectricityMeter, ElectricityReading, MonthlyBill
-from app.repositories import BillingRepository
+from app.repositories import BillingRepository, ContractRepository, ElectricityReadingRepository
 from app.services.billing_service import BillingService
+from app.services.rate_policy_service import RatePolicyService
 
 
 class ElectricityService:
+    @staticmethod
+    def _resolve_contract(room_id: int | None):
+        if not room_id:
+            return None
+        return ContractRepository.active_for_room(room_id)
+
     @staticmethod
     def create_meter(**payload):
         meter = ElectricityMeter(**payload)
@@ -51,7 +58,12 @@ class ElectricityService:
 
         payload["usage"] = usage
         confirmed_amount = payload.get("confirmed_amount")
-        payload["calculated_amount"] = payload.get("calculated_amount") or 0
+        calculated_amount = payload.get("calculated_amount")
+        if calculated_amount in (None, ""):
+            contract = ElectricityService._resolve_contract(payload.get("room_id"))
+            rate = RatePolicyService.resolve_electricity_rate(contract)
+            calculated_amount = (usage * rate).quantize(Decimal("0.01"))
+        payload["calculated_amount"] = calculated_amount
         if confirmed_amount is not None:
             payload["confirmed_amount"] = confirmed_amount
 
@@ -62,6 +74,18 @@ class ElectricityService:
 
     @staticmethod
     def calculate_bill(bill: ElectricityBill):
+        readings = ElectricityReadingRepository.list_for_bill(bill.id)
+        total_usage = sum((Decimal(str(item.usage or 0)) for item in readings), Decimal("0.0"))
+        flow_amount = sum(
+            (
+                Decimal(str(item.confirmed_amount if item.confirmed_amount is not None else item.calculated_amount or 0))
+                for item in readings
+            ),
+            Decimal("0.00"),
+        )
+        bill.total_usage = total_usage
+        bill.flow_amount = flow_amount.quantize(Decimal("0.01"))
+        bill.total_amount = (bill.flow_amount + Decimal(str(bill.public_amount or 0))).quantize(Decimal("0.01"))
         bill.status = "calculated"
         db.session.commit()
         return bill

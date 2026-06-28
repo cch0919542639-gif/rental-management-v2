@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+<form method="post" class="card" style="display:grid;gap:12px;max-width:860px;">
+  {{ form.hidden_tag() }}
+  {{ form.contract_id.label }} {{ form.contract_id() }}
+  {{ form.year_month.label }} {{ form.year_month() }}
+  {{ form.rent.label }} {{ form.rent() }}
+  {{ form.electricity_prev.label }} {{ form.electricity_prev() }}
+  {{ form.electricity_curr.label }} {{ form.electricity_curr() }}
+  {{ form.electricity_usage.label }} {{ form.electricity_usage() }}
+  {{ form.electricity_amount.label }} {{ form.electricity_amount() }}
+  {{ form.public_electricity.label }} {{ form.public_electricity() }}
+  {{ form.water_prev.label }} {{ form.water_prev() }}
+  {{ form.water_curr.label }} {{ form.water_curr() }}
+  {{ form.water_usage.label }} {{ form.water_usage() }}
+  {{ form.water_amount.label }} {{ form.water_amount() }}
+  {{ form.other_charges.label }} {{ form.other_charges() }}
+  {{ form.other_desc.label }} {{ form.other_desc() }}
+  <label>{{ form.paid() }} {{ form.paid.label.text }}</label>
+  {{ form.notes.label }} {{ form.notes(rows=4) }}
+  {{ form.submit() }}
+</form>
+{% endblock %}

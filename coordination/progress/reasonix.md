@@ -1,26 +1,30 @@
 # reasonix
 
 Status: DONE
-Last Updated: 2026-06-27
+Last Updated: 2026-06-28
 
 ## Current Task
-- ✅ 三份報告全部完成
+- ✅ Phase 1 Review 02 — Compliance check against frozen contracts
 
 ## Scope
-- 架構決策與資料契約凍結（Phase 0 收尾）
+- Phase 1 主幹規格審查（payments / electricity / water / reports / maintenance）
 
 ## Completed So Far
-- 已閱讀全部 data_contracts/（11 份）
-- 已閱讀 roadmap、target-structure、agent-work-rules、reasonix 任務書
-- 已釐清五大決策點
-- ✅ docs/reports/reasonix-architecture-decision.md（Parallel Rebuild，PaymentRecord 唯一付款實體，year_month YYYYMM，user 單表，Room.status 取代虛擬 tenant 名稱）
-- ✅ docs/reports/reasonix-data-contract-audit.md（5 實體審計：User 雙表、MonthlyBill.year_month 9 處散落、PaymentRecord 空表死碼、Room.status 脫鉤、Contract.status 過期風險）
-- ✅ docs/reports/reasonix-dependency-map.md（模組圖、實體圖、4 項循環依賴風險、13 項邊界違規、7 條切割線）
+- ✅ git checkout main + git pull origin main
+- ✅ 已閱讀 phase1-master-status.md / current-dispatch-and-handoff-plan.md / dev-runbook.md
+- ✅ 已閱讀 reasonix-architecture-decision.md / reasonix-data-contract-audit.md / reasonix-dependency-map.md
+- ✅ 審查 payments 模組 — compliant（PaymentRecord 狀態機完整，無 Payment 死碼）
+- ✅ 審查 electricity 模組 — compliant（無 hard-coded meter_id=1，year_month String(6)）
+- ✅ 審查 water 模組 — compliant（shared/independent 分攤邏輯正確）
+- ✅ 審查 reports 模組 — compliant（無虛擬 tenant 關鍵字比對，使用 Room.status）
+- ✅ 審查 maintenance 模組 — boundary 正確（無正式 schema，唯讀 snapshot）
+- ✅ docs/reports/reasonix-phase1-review-02.md 產出（5 模組合規確認，5 項低風險觀察，0 項違約）
+- ✅ Branch: agent/reasonix-review-02
 
 ## Next Step
-- 交接 open agent 啟動 Phase 1 骨架（core/、models/、year_month helper）
-- 交接 mimo agent 處理 PaymentRecord
-- 交接 box agent 處理 migration scripts
+- 交接 codex 知悉審查結果
+- 交接 open 進行 route-matrix 比對
+- 交接 mimo 進行 UI field alignment 驗證
 
 ## Risks / Blockers
-- 無（所有關鍵決策均可從既有契約文件中唯一推導）
+- 無（所有 5 個目標模組均符合已凍結契約）

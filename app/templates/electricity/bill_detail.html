@@ -4,6 +4,7 @@
 <div class="card" style="margin-bottom:16px;">
   <h1>電費單 #{{ bill.id }}</h1>
   <p><strong>月份：</strong>{{ bill.year_month|year_month_ui if bill.year_month else '-' }}</p>
+  <p><strong>物件：</strong>{{ bill.property.name if bill.property else bill.property_id }}</p>
   <p><strong>狀態：</strong>{{ bill.status }}</p>
   <p><strong>總額：</strong>{{ bill.total_amount or 0 }}</p>
   <a href="{{ url_for('electricity.reading_create', bill_id=bill.id) }}">新增抄表</a>
@@ -16,7 +17,7 @@
 </div>
 <table>
   <thead>
-    <tr><th>ID</th><th>房間</th><th>usage</th><th>calculated</th><th>confirmed</th></tr>
+    <tr><th>ID</th><th>房間</th><th>用電量</th><th>計算金額</th><th>確認金額</th></tr>
   </thead>
   <tbody>
     {% for reading in readings %}

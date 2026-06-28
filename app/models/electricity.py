@@ -22,6 +22,8 @@ class ElectricityMeter(BaseModel):
     room_number = db.Column(db.String(20))
     notes = db.Column(db.Text, default="")
 
+    property = db.relationship("Property", backref="electricity_meters", lazy=True)
+
 
 class ElectricityBill(BaseModel):
     __tablename__ = "electricity_bills"
@@ -41,6 +43,8 @@ class ElectricityBill(BaseModel):
     status = db.Column(db.String(20), default="pending")
     ocr_raw_text = db.Column(db.Text)
     notes = db.Column(db.Text, default="")
+
+    property = db.relationship("Property", backref="electricity_bills", lazy=True)
     created_by = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
 
 

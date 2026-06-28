@@ -36,3 +36,12 @@
   - 新增 ElectricityBill.status（pending/calculated）
   - 新增 MonthlyBill.paid 狀態機（false → true）
 - 所有測試情境與回歸清單的欄位名稱、SQL、Evidence 表格同步修正
+
+## 2026-06-28: Phase 1 UI Regression (Round 02)
+
+- Branch: agent/mimo-ui-regression-02
+- 輸出檔案：`docs/reports/mimo-phase1-ui-regression-02.md`
+- 逐頁比對 payments / electricity / water / reports / maintenance / dashboard / billing
+- 驗證所有 flash 訊息、導覽連結、欄位顯示
+- 識別 P1 gap 3 項（property_id 顯示問題）、P2 gap 10 項
+- 手動回歸證據：11 個頁面正常顯示、10 個 flash 訊息正確

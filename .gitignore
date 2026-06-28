@@ -39,4 +39,4 @@ dist/
 build/
 
 # Codebase memory local cache
-.codebase-memory/cache/
+.codebase-memory/

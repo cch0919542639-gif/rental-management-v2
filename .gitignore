@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local runtime data
+runtime.db
+*.db
+*.sqlite
+*.sqlite3
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Test / coverage outputs
+.coverage
+coverage.xml
+htmlcov/
+
+# Local secrets
+.env
+.env.*
+
+# Build artifacts
+dist/
+build/
+
+# Codebase memory local cache
+.codebase-memory/cache/

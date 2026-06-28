@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Contracts{% endblock %}
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+  <h1 style="margin:0;">Contracts</h1>
+  <a href="{{ url_for('contracts.contract_create') }}">新增合約</a>
+</div>
+<div class="card">
+  {% if contracts %}
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>房客</th>
+        <th>房間</th>
+        <th>起始日</th>
+        <th>到期日</th>
+        <th>狀態</th>
+        <th>租金</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for contract in contracts %}
+      <tr>
+        <td>{{ contract.id }}</td>
+        <td>{{ contract.tenant.name }}</td>
+        <td>{{ contract.room.property.name }} / {{ contract.room.room_number }}</td>
+        <td>{{ contract.start_date }}</td>
+        <td>{{ contract.end_date }}</td>
+        <td>{{ contract.status }}</td>
+        <td>{{ contract.rent }}</td>
+        <td>
+          <a href="{{ url_for('contracts.contract_edit', contract_id=contract.id) }}">編輯</a>
+          {% if contract.status == 'active' %}
+          <form method="post" action="{{ url_for('contracts.contract_terminate', contract_id=contract.id) }}" style="display:inline;">
+            <button type="submit">終止</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>目前沒有合約資料。</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="card" style="max-width: 760px;">
+  <h1 style="margin-top:0;">{{ title }}</h1>
+  <form method="post">
+    {{ form.csrf_token }}
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap: 12px;">
+      <div><label>{{ form.tenant_id.label }}</label><br>{{ form.tenant_id(style="width:100%;") }}</div>
+      <div><label>{{ form.room_id.label }}</label><br>{{ form.room_id(style="width:100%;") }}</div>
+      <div><label>{{ form.start_date.label }}</label><br>{{ form.start_date(style="width:100%;") }}</div>
+      <div><label>{{ form.end_date.label }}</label><br>{{ form.end_date(style="width:100%;") }}</div>
+      <div><label>{{ form.rent.label }}</label><br>{{ form.rent(style="width:100%;") }}</div>
+      <div><label>{{ form.deposit.label }}</label><br>{{ form.deposit(style="width:100%;") }}</div>
+      <div><label>{{ form.electricity_rate.label }}</label><br>{{ form.electricity_rate(style="width:100%;") }}</div>
+      <div><label>{{ form.water_rate.label }}</label><br>{{ form.water_rate(style="width:100%;") }}</div>
+      <div><label>{{ form.start_electricity_reading.label }}</label><br>{{ form.start_electricity_reading(style="width:100%;") }}</div>
+      <div><label>{{ form.start_water_reading.label }}</label><br>{{ form.start_water_reading(style="width:100%;") }}</div>
+    </div>
+    <div style="margin-top: 12px;">
+      <label>{{ form.notes.label }}</label><br>
+      {{ form.notes(style="width:100%; min-height:100px;") }}
+    </div>
+    <div style="margin-top: 16px;">{{ form.submit() }}</div>
+  </form>
+</div>
+{% endblock %}

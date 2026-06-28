@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="card" style="max-width: 760px;">
+  <h1 style="margin-top:0;">{{ title }}</h1>
+  <form method="post">
+    {{ form.csrf_token }}
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap: 12px;">
+      <div><label>{{ form.landlord_id.label }}</label><br>{{ form.landlord_id(style="width:100%;") }}</div>
+      <div><label>{{ form.name.label }}</label><br>{{ form.name(style="width:100%;") }}</div>
+      <div><label>{{ form.address.label }}</label><br>{{ form.address(style="width:100%;") }}</div>
+      <div><label>{{ form.total_rooms.label }}</label><br>{{ form.total_rooms(style="width:100%;") }}</div>
+      <div><label>{{ form.electricity_meter_type.label }}</label><br>{{ form.electricity_meter_type(style="width:100%;") }}</div>
+      <div><label>{{ form.water_meter_type.label }}</label><br>{{ form.water_meter_type(style="width:100%;") }}</div>
+      <div><label>{{ form.billing_rule.label }}</label><br>{{ form.billing_rule(style="width:100%;") }}</div>
+    </div>
+    <div style="margin-top: 16px;">{{ form.submit() }}</div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Properties{% endblock %}
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+  <h1 style="margin:0;">Properties</h1>
+  <a href="{{ url_for('properties.property_create') }}">新增物件</a>
+</div>
+<div class="card">
+  {% if properties %}
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>房東</th>
+        <th>名稱</th>
+        <th>地址</th>
+        <th>總房數</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for property in properties %}
+      <tr>
+        <td>{{ property.id }}</td>
+        <td>{{ property.landlord.name }}</td>
+        <td>{{ property.name }}</td>
+        <td>{{ property.address }}</td>
+        <td>{{ property.total_rooms }}</td>
+        <td><a href="{{ url_for('properties.property_edit', property_id=property.id) }}">編輯</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>目前沒有物件資料。</p>
+  {% endif %}
+</div>
+{% endblock %}

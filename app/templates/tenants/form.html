@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="card" style="max-width: 700px;">
+  <h1 style="margin-top:0;">{{ title }}</h1>
+  <form method="post">
+    {{ form.csrf_token }}
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap: 12px;">
+      <div><label>{{ form.name.label }}</label><br>{{ form.name(style="width:100%;") }}</div>
+      <div><label>{{ form.phone.label }}</label><br>{{ form.phone(style="width:100%;") }}</div>
+      <div><label>{{ form.id_number.label }}</label><br>{{ form.id_number(style="width:100%;") }}</div>
+      <div><label>{{ form.emergency_contact.label }}</label><br>{{ form.emergency_contact(style="width:100%;") }}</div>
+      <div><label>{{ form.emergency_phone.label }}</label><br>{{ form.emergency_phone(style="width:100%;") }}</div>
+    </div>
+    <div style="margin-top: 12px;">
+      <label>{{ form.notes.label }}</label><br>
+      {{ form.notes(style="width:100%; min-height:100px;") }}
+    </div>
+    <div style="margin-top: 16px;">{{ form.submit() }}</div>
+  </form>
+</div>
+{% endblock %}

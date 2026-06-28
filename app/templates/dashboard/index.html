@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+  <h1 style="margin:0;">Dashboard</h1>
+  <form class="inline" method="get">
+    <input type="month" name="month" value="{{ current_month }}">
+    <button type="submit">切換月份</button>
+  </form>
+</div>
+
+<div class="grid" style="margin-bottom:24px;">
+  <div class="card"><div>總房數</div><strong>{{ room_count }}</strong></div>
+  <div class="card"><div>已出租</div><strong>{{ occupied_count }}</strong></div>
+  <div class="card"><div>空房</div><strong>{{ vacant_count }}</strong></div>
+  <div class="card"><div>{{ current_month }} 已收</div><strong>{{ month_collected }}</strong></div>
+  <div class="card"><div>{{ current_month }} 未收</div><strong>{{ month_unpaid }}</strong></div>
+  <div class="card"><div>有效合約</div><strong>{{ active_contracts }}</strong></div>
+</div>
+
+<div class="card">
+  <h2 style="margin-top:0;">近期帳單</h2>
+  {% if recent_bills %}
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>月份</th>
+        <th>租金</th>
+        <th>總額</th>
+        <th>已繳</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for bill in recent_bills %}
+      <tr>
+        <td>{{ bill.id }}</td>
+        <td>{{ bill.year_month | year_month_ui }}</td>
+        <td>{{ bill.rent }}</td>
+        <td>{{ bill.total }}</td>
+        <td>{{ "是" if bill.paid else "否" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>暫無帳單。</p>
+  {% endif %}
+</div>
+{% endblock %}

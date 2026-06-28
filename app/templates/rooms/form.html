@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="card" style="max-width: 700px;">
+  <h1 style="margin-top:0;">{{ title }}</h1>
+  <form method="post">
+    {{ form.csrf_token }}
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap: 12px;">
+      <div><label>{{ form.property_id.label }}</label><br>{{ form.property_id(style="width:100%;") }}</div>
+      <div><label>{{ form.room_number.label }}</label><br>{{ form.room_number(style="width:100%;") }}</div>
+      <div><label>{{ form.rent.label }}</label><br>{{ form.rent(style="width:100%;") }}</div>
+      <div><label>{{ form.deposit.label }}</label><br>{{ form.deposit(style="width:100%;") }}</div>
+      <div><label>{{ form.area_ping.label }}</label><br>{{ form.area_ping(style="width:100%;") }}</div>
+      <div><label>{{ form.status.label }}</label><br>{{ form.status(style="width:100%;") }}</div>
+    </div>
+    <div style="margin-top: 12px;">
+      <label>{{ form.notes.label }}</label><br>
+      {{ form.notes(style="width:100%; min-height:100px;") }}
+    </div>
+    <div style="margin-top: 16px;">{{ form.submit() }}</div>
+  </form>
+</div>
+{% endblock %}

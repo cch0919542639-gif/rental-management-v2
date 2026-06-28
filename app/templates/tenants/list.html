@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Tenants{% endblock %}
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+  <h1 style="margin:0;">Tenants</h1>
+  <a href="{{ url_for('tenants.tenant_create') }}">新增房客</a>
+</div>
+<div class="card">
+  {% if tenants %}
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>姓名</th>
+        <th>電話</th>
+        <th>身分證</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for tenant in tenants %}
+      <tr>
+        <td>{{ tenant.id }}</td>
+        <td>{{ tenant.name }}</td>
+        <td>{{ tenant.phone }}</td>
+        <td>{{ tenant.id_number }}</td>
+        <td><a href="{{ url_for('tenants.tenant_edit', tenant_id=tenant.id) }}">編輯</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>目前沒有房客資料。</p>
+  {% endif %}
+</div>
+{% endblock %}

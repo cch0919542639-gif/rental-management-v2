@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Rooms{% endblock %}
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+  <h1 style="margin:0;">Rooms</h1>
+  <a href="{{ url_for('rooms.room_create') }}">新增房間</a>
+</div>
+<div class="card">
+  {% if rooms %}
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>房產</th>
+        <th>房號</th>
+        <th>狀態</th>
+        <th>租金</th>
+        <th>押金</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for room in rooms %}
+      <tr>
+        <td>{{ room.id }}</td>
+        <td>{{ room.property.name }}</td>
+        <td>{{ room.room_number }}</td>
+        <td>{{ room.status }}</td>
+        <td>{{ room.rent }}</td>
+        <td>{{ room.deposit }}</td>
+        <td><a href="{{ url_for('rooms.room_edit', room_id=room.id) }}">編輯</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>目前沒有房間資料。</p>
+  {% endif %}
+</div>
+{% endblock %}

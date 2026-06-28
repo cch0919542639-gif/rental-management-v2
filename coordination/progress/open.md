@@ -1,40 +1,35 @@
 # open
 
-Status: COMPLETED
+Status: IN_PROGRESS
 Last Updated: 2026-06-28
+Branch: `agent/open-phase2-implementation-backlog-01`
 
 ## Current Task
 
-- 所有 4 份報告已產出，待 reasonix 驗收
+- 根據 gap audit 整理 Phase 2 實作 backlog，拆分優先序與依賴關係
+- 產出 `docs/reports/open-phase2-implementation-backlog-01.md`
+- 不碰 billing create/generate 主幹、不修改資料契約、不修改 `app/models`
 
 ## Scope
 
-- 盤點 D:\rental\ 所有 route、template、table、external script
-- 映射到 rebuild 新模組結構
+- Phase 2 缺口分類（billing-dependent / low-risk CRUD / nested CRUD / electricity detail / integrations / Phase 3）
+- 每個項目標記 owner 建議、依賴、風險、是否需要 Codex 主控
+- 產出 task-board 可派發的 packet 建議
 
 ## Completed So Far
 
-1. 讀完 reasonix 三份報告（architecture-decision, data-contract-audit, dependency-map）
-2. 讀完 rewrite-roadmap、target-structure、agent-work-rules
-3. 掃描 app.py (1783行) 完整 route 清單
-4. 掃描 templates/ (37個檔案)
-5. 掃描外部 Python 腳本 (54個檔案)
-6. 掃描 app.aliyun.py、electricity_bp.py、water_bill.py、landlord_report.py
-7. 產出 open-route-template-matrix.md（35+11+4+1 routes 完整映射）
-8. 產出 open-schema-inventory.md（16 表 + field mismatches）
-9. 產出 open-cleanup-candidates.md（52 腳本分類）
-10. 產出 open-module-mapping.md（50+ 項目映射 + 6 大 tangle + 5 個 first moves）
+1. 讀完 4 份核心文件（phase1-master-status, dispatch-handoff, gap-audit, project-progress）
+2. 讀完現有 billing module（routes.py, repository, service, model, template）
+3. 讀完 electricity/water post flow 確認 monthyl_bill 依賴
+4. 建立 `agent/open-phase2-implementation-backlog-01` branch
+5. 產出 `docs/reports/open-phase2-implementation-backlog-01.md`
 
 ## Next Step
 
-- 等待 reasonix 驗收 Phase 0 關卡 A
+- 等待 Codex 審閱 backlog，決定下一輪任務派發
 
 ## Risks / Blockers
 
-- 無
-
-## New Discovery Summary
-
-1. **landlord_report.py Blueprint 從未註冊**（已在 cleanup-candidates 詳細記錄）
-2. **app.aliyun.py admin payment routes 在 main guard 後**，gunicorn/flask run 模式永不註冊
-3. **app.aliyun.py 累進稅率用 ROUND_HALF_UP**，app.py 用 ROUND_UP — 兩版本計算結果可能差 1 元以內
+- T1 (billing create/generate) 是 Phase 2 最大阻塞點 — electricity/water post flow 都依賴已存在的 MonthlyBill
+- 本次 backlog 不觸及 billing 主幹實作，需要 Codex 接手 T1
+- 其餘 T2-T5 無互鎖阻塞，可平行開發

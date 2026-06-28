@@ -34,3 +34,33 @@
 ### Not Completed / Handoff
 - 無未完成事項
 - 可交接對象：mimo（參考 module mapping 開始建 modules）、box（參考 schema inventory 開始 migration scripts）
+
+## 2026-06-28 (Session 2)
+
+### Completed: Phase 2 Implementation Backlog
+- Output: `docs/reports/open-phase2-implementation-backlog-01.md`
+- Branch: `agent/open-phase2-implementation-backlog-01`
+- Scope: 將 gap audit 中 22 個缺口 + 2 個 blocking dependency 拆成 7 個 Tier（T1-T7）
+- 明確標註：
+  - T1 (Codex 主控): billing create/generate — 不碰主幹，僅文件描述
+  - T2: post-to-monthly bridge (blocked by T1)
+  - T3: low-risk delete CRUD (可立即開發)
+  - T4: nested creation routes
+  - T5: electricity property detail
+  - T6: integrations 前置工作
+  - T7: 延期到 Phase 3
+- 所有項目標註 owner 建議、依賴關係、風險級別、是否需要 Codex 主控
+
+### Updated: Progress tracking
+- `coordination/progress/open.md` → 更新為 IN_PROGRESS，記錄 backlog 工作
+- Task board 派發建議已內嵌於 backlog 報告 §10
+
+### Verification
+- 未修改任何 `app/models` 檔案
+- 未觸及 billing create/generate 主幹程式碼
+- 未修改資料契約
+- 未自行實作第二套 billing/payment 流程
+
+### Not Completed / Handoff
+- T1 (billing create/generate) 需 Codex 主控接手
+- T2 (post-to-monthly bridge) 待 T1 完成後方可驗證

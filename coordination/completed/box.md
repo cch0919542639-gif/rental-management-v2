@@ -1,23 +1,70 @@
 # box Completed Log
 
-Completed Time: 2026-06-28 00:00
+Completed Time: 2026-06-29
 
 ## Completed Items
 
-- Script Index：整理舊專案 `D:\rental\` 內 `check_/fix_/debug_/verify_/create_/update_/test_` 與 `*.bak*` 腳本，分類 Keep/Archive/Rewrite，並建議新位置。
-- Module README Templates：建立可重複使用的模組 README 樣板（responsibility/inputs/outputs/dependencies/risks/tests），並標記 billing/electricity/water、payments、reports、integrations 等需額外章節的模組類型。
-- Small Fix Notes：僅記錄上游切割清楚的小修補與 migration/repair 候選（包含 `user/users` 合併、`MonthlyBill.year_month` 與 `ElectricityBill.year_month` 正規化、虛擬 tenant 清理、`Contract.status` 過期修正、`Room.status` 非標準 mapping、mimo 回歸 evidence SQL 修正候選）。
+### Phase 2 — Tests / Runbook / Script 補強
+
+#### Tests (4 new files, +8 active tests)
+
+| File | Active Tests | Placeholders | Coverage |
+|------|-------------|-------------|----------|
+| `tests/integration/test_billing_placeholders_and_edges.py` | 2 | 2 | Billing edge cases (no-data month, default month); placeholders for deeper billing algorithm tests |
+| `tests/integration/test_payments_reject_and_status.py` | 2 | 2 | Payment reject flow (create → reject → verify `record_status`); list rendering; placeholders for duplicate TXN & reconciliation |
+| `tests/integration/test_electricity_meter_edit_and_post.py` | 2 | 2 | Meter create+edit verify; bill+reading→calculate→post to monthly bill (verify `electricity_amount > 0`); placeholders for status transitions & format |
+| `tests/integration/test_water_edit_and_independent_post.py` | 4 | 1 | Water bill create+edit; independent mode post (verify `water_amount`); landlord summary; yearly overview; placeholder for shared allocation |
+
+Total: 15 active (up from 7) + 8 placeholders (up from 0)
+
+#### Scripts (3 new)
+
+| Script | Description |
+|--------|-------------|
+| `scripts/check_db_demo_state.py` | Read-only demo DB state checker — verifies 8 consistency rules (users, landlords, properties, rooms, tenants, contracts, monthly bills, relationships) |
+| `scripts/reset_demo_data.bat` | One-step wrapper: runs `seed_demo_data.py` from any directory |
+| `scripts/run_tests.bat` | Batch wrapper for `pytest tests\integration -q` |
+
+#### Documentation Updates
+
+- `docs/operations/dev-runbook.md` — Python version warning, scripts table, test coverage table, `py -3` usage throughout
+- `tests/README.md` — Phase 2 test matrix with coverage descriptions
+- `scripts/README.md` — Available scripts table with descriptions and destructive flags
+
+#### Validation
+
+- `pytest tests\integration -q` → **15 passed, 7 skipped** ✅
+- `py -3 scripts/seed_demo_data.py` → **Seed complete** ✅
+- `py -3 scripts/check_db_demo_state.py` → **All checks passed** ✅
+
+#### Constraints Honored
+
+- ✅ No data contract modifications
+- ✅ No maintenance schema additions
+- ✅ No core/service rule rewrites
+- ✅ No destructive reset/migration operations
+- ✅ No core billing logic changes
+- ✅ Placeholder tests are clearly marked `@pytest.mark.skip(reason="...")`
+- ✅ Only minimal test fixture fixes (form mode values, missing relationship access)
+
+#### Minor Fixes Made (test-required)
+
+1. `test_electricity_meter_edit_and_post.py`: Changed `bill.readings` (no relationship) → `ElectricityReadingRepository.list_for_bill(bill_id)` — repository access, not model change.
+2. `test_water_edit_and_independent_post.py`: Changed `mode: "independent"` → `mode: "independent_meter"` — the form's valid choice value is `"independent_meter"`, not the descriptive label.
 
 ## Output Files
 
-- `D:/CodexRuntime/rental/rebuild/docs/reports/box-script-index.md`
-- `D:/CodexRuntime/rental/rebuild/docs/reports/box-module-readme-templates.md`
-- `D:/CodexRuntime/rental/rebuild/evidence/box-small-fix-notes.md`
-
-## Validation / Verification
-
-- 檢查上述檔案已符合模板格式與欄位要求（表格欄位存在、必填章節/欄位已填入）。
-- 內容上遵守規範：不重新定義資料契約、不修改 reasonix 已凍結規則、僅做腳本索引/README 樣板/repair-migration 候選整理。
-
-Remaining: 無
-
+```
+tests/integration/test_billing_placeholders_and_edges.py
+tests/integration/test_payments_reject_and_status.py
+tests/integration/test_electricity_meter_edit_and_post.py
+tests/integration/test_water_edit_and_independent_post.py
+scripts/check_db_demo_state.py
+scripts/reset_demo_data.bat
+scripts/run_tests.bat
+docs/operations/dev-runbook.md (updated)
+tests/README.md (updated)
+scripts/README.md (updated)
+coordination/progress/box.md (updated)
+coordination/completed/box.md (this file)
+```

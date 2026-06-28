@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Payments{% endblock %}
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+  <h1>付款記錄</h1>
+  <a href="{{ url_for('payments.payment_create') }}">新增付款記錄</a>
+</div>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>交易日期</th>
+      <th>付款人</th>
+      <th>金額</th>
+      <th>狀態</th>
+      <th>帳單</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for payment in payments %}
+    <tr>
+      <td>{{ payment.id }}</td>
+      <td>{{ payment.transaction_date or '-' }}</td>
+      <td>{{ payment.payer_name or '-' }}</td>
+      <td>{{ payment.amount or 0 }}</td>
+      <td>{{ payment.record_status }}</td>
+      <td>{{ payment.monthly_bill_id or '-' }}</td>
+      <td>
+        {% if payment.record_status == 'pending' %}
+        <a href="{{ url_for('payments.payment_verify', payment_id=payment.id) }}">驗證</a>
+        <a href="{{ url_for('payments.payment_reject', payment_id=payment.id) }}" style="margin-left:8px;">駁回</a>
+        {% elif payment.record_status == 'verified' %}
+        <a href="{{ url_for('payments.payment_link', payment_id=payment.id) }}">連結帳單</a>
+        {% else %}
+        -
+        {% endif %}
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7">尚無付款記錄</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

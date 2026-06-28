@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Landlords{% endblock %}
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+  <h1>房東</h1>
+  <a href="{{ url_for('landlords.landlord_create') }}">新增房東</a>
+</div>
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>姓名</th>
+      <th>電話</th>
+      <th>電費設定</th>
+      <th>水費設定</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for landlord in landlords %}
+    <tr>
+      <td>{{ landlord.id }}</td>
+      <td>{{ landlord.name }}</td>
+      <td>{{ landlord.phone or '-' }}</td>
+      <td>{{ landlord.electricity_rate_type }} / {{ landlord.electricity_rate or 0 }}</td>
+      <td>{{ landlord.water_rate_type }} / {{ landlord.water_rate or 0 }}</td>
+      <td><a href="{{ url_for('landlords.landlord_edit', landlord_id=landlord.id) }}">編輯</a></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6">尚無房東資料</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

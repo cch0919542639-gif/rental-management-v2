@@ -1,4 +1,5 @@
 from app.models import Property
+from app.repositories._helpers import session_get_or_404
 
 
 class PropertyRepository:
@@ -8,4 +9,4 @@ class PropertyRepository:
 
     @staticmethod
     def get_or_404(property_id: int):
-        return Property.query.get_or_404(property_id)
+        return session_get_or_404(Property, property_id)

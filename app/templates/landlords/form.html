@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+<form method="post" class="card" style="display:grid;gap:12px;max-width:720px;">
+  {{ form.hidden_tag() }}
+  {{ form.name.label }} {{ form.name() }}
+  {{ form.phone.label }} {{ form.phone() }}
+  {{ form.electricity_account.label }} {{ form.electricity_account() }}
+  {{ form.water_account.label }} {{ form.water_account() }}
+  {{ form.electricity_rate_type.label }} {{ form.electricity_rate_type() }}
+  {{ form.electricity_rate.label }} {{ form.electricity_rate() }}
+  {{ form.water_rate_type.label }} {{ form.water_rate_type() }}
+  {{ form.water_rate.label }} {{ form.water_rate() }}
+  {{ form.notes.label }} {{ form.notes(rows=4) }}
+  {{ form.submit() }}
+</form>
+{% endblock %}

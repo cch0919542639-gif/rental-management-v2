@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Electricity Bill Detail{% endblock %}
+{% block content %}
+<div class="card" style="margin-bottom:16px;">
+  <h1>電費單 #{{ bill.id }}</h1>
+  <p><strong>月份：</strong>{{ bill.year_month|year_month_ui if bill.year_month else '-' }}</p>
+  <p><strong>狀態：</strong>{{ bill.status }}</p>
+  <p><strong>總額：</strong>{{ bill.total_amount or 0 }}</p>
+  <a href="{{ url_for('electricity.reading_create', bill_id=bill.id) }}">新增抄表</a>
+  <a href="{{ url_for('electricity.bill_post', bill_id=bill.id) }}" style="margin-left:8px;">回寫月帳單</a>
+  {% if bill.status == 'pending' %}
+  <form method="post" action="{{ url_for('electricity.bill_calculate', bill_id=bill.id) }}" class="inline" style="margin-left:8px;">
+    <button type="submit">標記 calculated</button>
+  </form>
+  {% endif %}
+</div>
+<table>
+  <thead>
+    <tr><th>ID</th><th>房間</th><th>usage</th><th>calculated</th><th>confirmed</th></tr>
+  </thead>
+  <tbody>
+    {% for reading in readings %}
+    <tr>
+      <td>{{ reading.id }}</td>
+      <td>{{ reading.room_id or '-' }}</td>
+      <td>{{ reading.usage }}</td>
+      <td>{{ reading.calculated_amount }}</td>
+      <td>{{ reading.confirmed_amount or '-' }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5">尚無抄表資料</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

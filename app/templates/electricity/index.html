@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Electricity{% endblock %}
+{% block content %}
+<div style="display:flex;gap:24px;align-items:flex-start;">
+  <div class="card" style="flex:1;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h2>電表</h2>
+      <a href="{{ url_for('electricity.meter_create') }}">新增電表</a>
+    </div>
+    <table>
+      <thead>
+        <tr><th>ID</th><th>物件</th><th>房間</th><th>主表</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for meter in meters %}
+        <tr>
+          <td>{{ meter.id }}</td>
+          <td>{{ meter.property_id }}</td>
+          <td>{{ meter.room_id or '-' }}</td>
+          <td>{{ 'Y' if meter.is_main else 'N' }}</td>
+          <td><a href="{{ url_for('electricity.meter_edit', meter_id=meter.id) }}">編輯</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5">尚無電表</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="card" style="flex:1;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h2>電費單</h2>
+      <a href="{{ url_for('electricity.bill_create') }}">新增電費單</a>
+    </div>
+    <table>
+      <thead>
+        <tr><th>ID</th><th>月份</th><th>物件</th><th>狀態</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for bill in bills %}
+        <tr>
+          <td>{{ bill.id }}</td>
+          <td>{{ bill.year_month|year_month_ui if bill.year_month else '-' }}</td>
+          <td>{{ bill.property_id }}</td>
+          <td>{{ bill.status }}</td>
+          <td><a href="{{ url_for('electricity.bill_detail', bill_id=bill.id) }}">查看</a></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5">尚無電費單</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

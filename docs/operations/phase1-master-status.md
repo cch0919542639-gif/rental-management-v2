@@ -1,6 +1,6 @@
 # Phase 1 Master Status
 
-Last Updated: 2026-06-28 11:20
+Last Updated: 2026-06-28 15:22
 Owner: Codex
 
 ## Purpose
@@ -46,6 +46,12 @@ Owner: Codex
 - `contracts`
 - `tenants`
 - `properties`
+- `landlords`
+- `payments`
+- `electricity`
+- `water`
+- `reports`
+- `maintenance`
 
 ## Verified Flows
 
@@ -57,16 +63,22 @@ Owner: Codex
 - `contracts` 可建立與終止，且會同步 `Room.status`
 - `properties` 可建立與列表
 - `tenants` 可建立與列表
+- `landlords` 可建立、編輯與列表
+- `payments` 可建立、驗證、駁回、連結帳單
+- `electricity` 可建立電表、電費單、抄表、標記 calculated、回寫月帳單
+- `water` 可建立水費單、編輯、以 shared / independent 模式回寫月帳單
+- `reports` 可查看月報表、房東彙總、年度總覽
+- `maintenance` 已建立模組入口與邊界頁，但正式資料 schema 尚未凍結
+- `tests` 已有第一批 integration smoke coverage
+- `scripts/seed_demo_data.py` 可建立 demo data
+- `docs/operations/dev-runbook.md` 已提供其他電腦接手流程
+- `scripts/run_smoke_tests.ps1` 可直接執行 smoke tests
 
 ## Not Yet Implemented
 
-- `landlords` module
-- `payments` module
-- `electricity` module
-- `water` module
-- `maintenance` module
-- 報表與匯出
-- migration / seed / smoke test 腳本正式化
+- 本機最新主幹尚未 push 到 GitHub
+- deeper algorithm 與正式 maintenance schema
+- migration 與正式資料導入
 
 ## Recommended Work Split
 

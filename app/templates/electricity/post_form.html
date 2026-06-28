@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+<p>Bill #{{ bill.id }}</p>
+<form method="post" class="card" style="display:grid;gap:12px;max-width:720px;">
+  {{ form.hidden_tag() }}
+  {{ form.monthly_bill_id.label }} {{ form.monthly_bill_id() }}
+  {{ form.reading_id.label }} {{ form.reading_id() }}
+  {{ form.public_electricity.label }} {{ form.public_electricity() }}
+  {{ form.submit() }}
+</form>
+{% endblock %}

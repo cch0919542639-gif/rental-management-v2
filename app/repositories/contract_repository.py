@@ -1,4 +1,5 @@
 from app.models import Contract
+from app.repositories._helpers import session_get_or_404
 
 
 class ContractRepository:
@@ -8,7 +9,7 @@ class ContractRepository:
 
     @staticmethod
     def get_or_404(contract_id: int):
-        return Contract.query.get_or_404(contract_id)
+        return session_get_or_404(Contract, contract_id)
 
     @staticmethod
     def active_for_room(room_id: int):

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Yearly Overview{% endblock %}
+{% block content %}
+<h1>年度總覽</h1>
+<form method="post" class="inline" style="margin-bottom:16px;">
+  {{ form.hidden_tag() }}
+  {{ form.year.label }} {{ form.year() }}
+  {{ form.submit() }}
+</form>
+<table>
+  <thead>
+    <tr>
+      <th>月份</th><th>總額</th><th>已收</th><th>未收</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in rows %}
+    <tr>
+      <td>{{ row.year_month }}</td>
+      <td>{{ row.total_amount }}</td>
+      <td>{{ row.paid_amount }}</td>
+      <td>{{ row.unpaid_amount }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4">無資料</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

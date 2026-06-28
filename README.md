@@ -44,3 +44,18 @@
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\github_preflight_check.ps1
 ```
+
+## Quick Start
+
+```powershell
+python -m pip install -r .\requirements-dev.txt
+python .\scripts\seed_demo_data.py
+pytest tests\integration -q
+powershell -ExecutionPolicy Bypass -File .\scripts\run_dev.ps1
+```
+
+接手前先讀：
+
+- `docs/operations/phase1-master-status.md`
+- `docs/operations/current-dispatch-and-handoff-plan.md`
+- `docs/operations/dev-runbook.md`

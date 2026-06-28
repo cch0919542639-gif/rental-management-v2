@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Water{% endblock %}
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+  <h1>水費單</h1>
+  <a href="{{ url_for('water.water_create') }}">新增水費單</a>
+</div>
+<table>
+  <thead>
+    <tr><th>ID</th><th>物件</th><th>帳期</th><th>總額</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for water_bill in water_bills %}
+    <tr>
+      <td>{{ water_bill.id }}</td>
+      <td>{{ water_bill.property_id }}</td>
+      <td>{{ water_bill.billing_start }} ~ {{ water_bill.billing_end }}</td>
+      <td>{{ water_bill.total_amount }}</td>
+      <td>
+        <a href="{{ url_for('water.water_edit', water_bill_id=water_bill.id) }}">編輯</a>
+        <a href="{{ url_for('water.water_post', water_bill_id=water_bill.id) }}" style="margin-left:8px;">回寫月帳單</a>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5">尚無水費單</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

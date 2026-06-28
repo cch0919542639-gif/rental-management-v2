@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Maintenance{% endblock %}
+{% block content %}
+<div class="card" style="margin-bottom:16px;">
+  <h1>Maintenance</h1>
+  <p>此模組已建立主幹邊界，但正式維修資料 schema 尚未凍結。</p>
+  <p>目前頁面只提供房間快照，避免再把「待修」塞回 `Room.status` 或虛擬 tenant 名稱。</p>
+</div>
+<table>
+  <thead>
+    <tr>
+      <th>Room ID</th><th>物件</th><th>房號</th><th>狀態</th><th>備註</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for room in rooms %}
+    <tr>
+      <td>{{ room.room_id }}</td>
+      <td>{{ room.property_name }}</td>
+      <td>{{ room.room_number }}</td>
+      <td>{{ room.status }}</td>
+      <td>{{ room.notes or '-' }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5">尚無房間資料</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+<form method="post" class="card" style="display:grid;gap:12px;max-width:760px;">
+  {{ form.hidden_tag() }}
+  {{ form.contract_id.label }} {{ form.contract_id() }}
+  {{ form.monthly_bill_id.label }} {{ form.monthly_bill_id() }}
+  {{ form.amount.label }} {{ form.amount() }}
+  {{ form.transaction_date.label }} {{ form.transaction_date() }}
+  {{ form.payer_name.label }} {{ form.payer_name() }}
+  {{ form.transaction_id.label }} {{ form.transaction_id() }}
+  {{ form.bank_name.label }} {{ form.bank_name() }}
+  {{ form.account_number.label }} {{ form.account_number() }}
+  {{ form.account_holder.label }} {{ form.account_holder() }}
+  {{ form.status_text.label }} {{ form.status_text() }}
+  {{ form.ocr_engine.label }} {{ form.ocr_engine() }}
+  {{ form.image_path.label }} {{ form.image_path() }}
+  {{ form.raw_ocr_text.label }} {{ form.raw_ocr_text(rows=4) }}
+  {{ form.raw_llm_response.label }} {{ form.raw_llm_response(rows=4) }}
+  {{ form.notes.label }} {{ form.notes(rows=4) }}
+  {{ form.submit() }}
+</form>
+{% endblock %}

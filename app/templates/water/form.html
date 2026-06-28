@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+<form method="post" class="card" style="display:grid;gap:12px;max-width:760px;">
+  {{ form.hidden_tag() }}
+  {{ form.property_id.label }} {{ form.property_id() }}
+  {{ form.billing_start.label }} {{ form.billing_start() }}
+  {{ form.billing_end.label }} {{ form.billing_end() }}
+  {{ form.total_amount.label }} {{ form.total_amount() }}
+  {{ form.meter_prev_1.label }} {{ form.meter_prev_1() }}
+  {{ form.meter_curr_1.label }} {{ form.meter_curr_1() }}
+  {{ form.sub_meter_1.label }} {{ form.sub_meter_1() }}
+  {{ form.actual_usage_1.label }} {{ form.actual_usage_1() }}
+  {{ form.meter_prev_2.label }} {{ form.meter_prev_2() }}
+  {{ form.meter_curr_2.label }} {{ form.meter_curr_2() }}
+  {{ form.sub_meter_2.label }} {{ form.sub_meter_2() }}
+  {{ form.actual_usage_2.label }} {{ form.actual_usage_2() }}
+  {{ form.notes.label }} {{ form.notes(rows=4) }}
+  {{ form.submit() }}
+</form>
+{% endblock %}

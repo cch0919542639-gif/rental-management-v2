@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Monthly Report{% endblock %}
+{% block content %}
+<h1>月報表</h1>
+<form method="post" class="inline" style="margin-bottom:16px;">
+  {{ form.hidden_tag() }}
+  {{ form.year_month.label }} {{ form.year_month() }}
+  {{ form.submit() }}
+</form>
+<table>
+  <thead>
+    <tr>
+      <th>月份</th><th>房東</th><th>物件</th><th>房號</th><th>房客</th><th>租金</th><th>電費</th><th>用電</th><th>水費</th><th>用水</th><th>其他</th><th>總額</th><th>已付</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in rows %}
+    <tr>
+      <td>{{ row.year_month }}</td>
+      <td>{{ row.landlord_name }}</td>
+      <td>{{ row.property_name }}</td>
+      <td>{{ row.room_number }}</td>
+      <td>{{ row.tenant_name }}</td>
+      <td>{{ row.rent }}</td>
+      <td>{{ row.electricity_amount }}</td>
+      <td>{{ row.electricity_usage }}</td>
+      <td>{{ row.water_amount }}</td>
+      <td>{{ row.water_usage }}</td>
+      <td>{{ row.other_charges }}</td>
+      <td>{{ row.total }}</td>
+      <td>{{ 'Y' if row.paid else 'N' }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="13">該月份尚無資料</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

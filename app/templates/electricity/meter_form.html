@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+<form method="post" class="card" style="display:grid;gap:12px;max-width:720px;">
+  {{ form.hidden_tag() }}
+  {{ form.property_id.label }} {{ form.property_id() }}
+  {{ form.room_id.label }} {{ form.room_id() }}
+  {{ form.meter_number.label }} {{ form.meter_number() }}
+  {{ form.room_number.label }} {{ form.room_number() }}
+  <label>{{ form.is_main() }} {{ form.is_main.label.text }}</label>
+  {{ form.notes.label }} {{ form.notes(rows=4) }}
+  {{ form.submit() }}
+</form>
+{% endblock %}

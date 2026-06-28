@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<div class="grid">
+  <div class="card">
+    <h2>月報表</h2>
+    <p>依月份查看每筆房間/房客帳單。</p>
+    <a href="{{ url_for('reports.monthly_report', year_month=current_month) }}">開啟 {{ current_month }}</a>
+  </div>
+  <div class="card">
+    <h2>房東彙總</h2>
+    <p>依房東與物件彙總已收/未收。</p>
+    <a href="{{ url_for('reports.landlord_summary', year_month=current_month) }}">開啟 {{ current_month }}</a>
+  </div>
+  <div class="card">
+    <h2>年度總覽</h2>
+    <p>查看全年 total / paid / unpaid 趨勢。</p>
+    <a href="{{ url_for('reports.yearly_overview', year=current_year) }}">開啟 {{ current_year }}</a>
+  </div>
+</div>
+{% endblock %}

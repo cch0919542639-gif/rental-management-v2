@@ -2,6 +2,7 @@ from sqlalchemy import func
 
 from app.core.db import db
 from app.models import Room
+from app.repositories._helpers import session_get_or_404
 
 
 class RoomRepository:
@@ -11,7 +12,7 @@ class RoomRepository:
 
     @staticmethod
     def get_or_404(room_id: int):
-        return Room.query.get_or_404(room_id)
+        return session_get_or_404(Room, room_id)
 
     @staticmethod
     def find_by_property_and_number(property_id: int, room_number: str):

@@ -1,0 +1,20 @@
+請接手把目前本機已完成的 Phase 1 baseline 推到 GitHub。
+
+先讀：
+- D:\CodexRuntime\rental\rebuild\docs\operations\push-phase1-baseline-instructions.md
+- D:\CodexRuntime\rental\rebuild\docs\operations\dev-runbook.md
+- D:\CodexRuntime\rental\rebuild\docs\operations\current-dispatch-and-handoff-plan.md
+
+執行順序：
+1. `python .\scripts\seed_demo_data.py`
+2. `powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke_tests.ps1`
+3. `git status --short`
+4. `git add .`
+5. `git commit -m "feat: add phase1 runnable baseline modules tests and runbook"`
+6. `git push origin main`
+
+回報：
+- `git status --short --branch`
+- 最新 commit hash
+- push 是否成功
+- 若失敗卡在哪一步

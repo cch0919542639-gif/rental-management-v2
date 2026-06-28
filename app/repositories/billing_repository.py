@@ -3,12 +3,21 @@ from sqlalchemy import func
 from app.core.db import db
 from app.core.year_month import to_db_year_month
 from app.models import MonthlyBill
+from app.repositories._helpers import session_get_or_404
 
 
 class BillingRepository:
     @staticmethod
+    def list_all():
+        return MonthlyBill.query.order_by(MonthlyBill.year_month.desc(), MonthlyBill.created_at.desc()).all()
+
+    @staticmethod
     def list_for_contract(contract_id: int):
         return MonthlyBill.query.filter_by(contract_id=contract_id).order_by(MonthlyBill.year_month.desc()).all()
+
+    @staticmethod
+    def get_or_404(monthly_bill_id: int):
+        return session_get_or_404(MonthlyBill, monthly_bill_id)
 
     @staticmethod
     def sum_total_for_month(year_month: str, *, paid: bool | None = None):

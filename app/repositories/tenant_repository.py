@@ -1,4 +1,5 @@
 from app.models import Tenant
+from app.repositories._helpers import session_get_or_404
 
 
 class TenantRepository:
@@ -8,4 +9,4 @@ class TenantRepository:
 
     @staticmethod
     def get_or_404(tenant_id: int):
-        return Tenant.query.get_or_404(tenant_id)
+        return session_get_or_404(Tenant, tenant_id)

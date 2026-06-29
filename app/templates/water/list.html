@@ -19,6 +19,9 @@
       <td>
         <a href="{{ url_for('water.water_edit', water_bill_id=water_bill.id) }}">編輯</a>
         <a href="{{ url_for('water.water_post', water_bill_id=water_bill.id) }}" style="margin-left:8px;">回寫月帳單</a>
+        <form method="post" action="{{ url_for('water.water_delete', water_bill_id=water_bill.id) }}" class="inline" style="margin-left:8px;">
+          <button type="submit">刪除</button>
+        </form>
       </td>
     </tr>
     {% else %}

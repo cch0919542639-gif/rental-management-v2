@@ -36,3 +36,16 @@
   - 新增 ElectricityBill.status（pending/calculated）
   - 新增 MonthlyBill.paid 狀態機（false → true）
 - 所有測試情境與回歸清單的欄位名稱、SQL、Evidence 表格同步修正
+
+## 2026-06-29: Phase 2 UI Regression Round 3
+
+- water/list.html: property_id → property.name
+- electricity/bill_detail.html: English headers → Chinese (用電量/計算金額/確認金額)
+- payments/list.html: +bank_name, +account_number, +transaction_id
+- reports/monthly.html: +public_electricity, +other_desc
+- report_repository.py: +public_electricity, +other_desc query
+- Created 3 incidents for Codex blockers:
+  - report_service.py missing public_electricity/other_desc
+  - ElectricityMeter/ElectricityBill missing property relationship
+  - Maintenance module missing CRUD routes
+- 交付 docs/reports/mimo-phase2-ui-regression-03.md

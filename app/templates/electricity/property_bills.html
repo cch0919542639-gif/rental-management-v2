@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Electricity Bills - {{ property_obj.name }}{% endblock %}
+{% block content %}
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+  <h1>{{ property_obj.name }} - 電費單</h1>
+  <a href="{{ url_for('electricity.electricity_dashboard') }}">回電費總覽</a>
+</div>
+<div class="card">
+  <table>
+    <thead>
+      <tr><th>ID</th><th>月份</th><th>狀態</th><th>總額</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for bill in bills %}
+      <tr>
+        <td>{{ bill.id }}</td>
+        <td>{{ bill.year_month|year_month_ui if bill.year_month else '-' }}</td>
+        <td>{{ bill.status }}</td>
+        <td>{{ bill.total_amount or 0 }}</td>
+        <td><a href="{{ url_for('electricity.bill_detail', bill_id=bill.id) }}">查看</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5">此物件尚無電費單</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

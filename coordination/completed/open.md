@@ -64,3 +64,51 @@
 ### Not Completed / Handoff
 - T1 (billing create/generate) 需 Codex 主控接手
 - T2 (post-to-monthly bridge) 待 T1 完成後方可驗證
+
+## 2026-06-29 (Session 7)
+
+### Completed: Integrations Gap Check (Round 7)
+- Output: `docs/reports/open-phase2-integrations-gap-check-07.md`
+- Baseline: `codex-phase2-mainline-01` HEAD
+- Scope: 僅盤點 `app/integrations/`、相關 route、docs、runbook
+
+### Key Findings
+- OCR/sheets interfaces ✅、LINE webhook placeholder ✅、error pages ✅、migration entry ✅、repair scripts ✅
+- 44 passed / 15 skipped
+- 剩餘 6 項均符合 Phase 2 defer rule，不阻擋結案
+- 無 blocking gap，無需 incident
+
+### Verification
+- 未修改任何 `app/models` 檔案
+- 未觸及 billing/payments/maintenance 主流程
+- 未修改資料契約
+
+## 2026-06-29 (Session 6)
+
+### Completed: Phase 2 Gap Recheck (Round 6)
+- Output: `docs/reports/open-phase2-gap-recheck-06.md`
+- Baseline: `codex-phase2-mainline-01` HEAD
+- Scope: 以最新主幹重新盤點 Phase 2 尚未落地的缺口
+
+### Key Findings vs closeout-05
+- `nested creation`、`maintenance Phase 2B`、`electricity detail/new-bill/quick-reading/reading-log` — 已全數進主幹
+- Phase 2 完成度從約 60% → 約 90%
+- 剩餘缺口：error pages (P1)、integrations (P2)、migration docs (P3)、water preview (P3)
+
+### Verification
+- 未修改任何 `app/models` 檔案
+- 未觸及 billing/payments/maintenance 主流程
+- 未修改資料契約
+
+### open Phase 2 Deliverables (complete)
+1. `open-route-template-matrix.md` — 舊系統 route 矩陣
+2. `open-schema-inventory.md` — schema 盤點
+3. `open-cleanup-candidates.md` — 清理候選
+4. `open-module-mapping.md` — 模組映射
+5. `open-phase2-gap-audit-02.md` — 缺口審計
+6. `open-phase2-implementation-backlog-01.md` — backlog 分類
+7. `open-low-risk-crud-round2.md` — 低風險 CRUD 實作
+8. `open-phase2-main-gap-reconcile-03.md` — 主幹核對
+9. `open-phase2-mainline-merge-plan-04.md` — 整併計畫
+10. `open-phase2-merge-closeout-05.md` — 正式結案
+11. `open-phase2-gap-recheck-06.md` — **最終缺口重檢**

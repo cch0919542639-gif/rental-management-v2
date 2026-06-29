@@ -1,15 +1,13 @@
 # codex
 
 Status: IN_PROGRESS
-Last Updated: 2026-06-29 22:18
+Last Updated: 2026-06-29 23:36
 
 ## Current Task
-- Phase 2 主幹收斂與 `repair scripts + integrations skeleton` 完工
-- 已補回外部回退的 `maintenance/report/electricity` service + repository 方法
-- 已建立正式 HTML `404/500/app_error` 頁面與 `scripts/migration/migration_index.py`
-- 已建立 `scripts/repair/` 四支 audit/repair 腳本與 `app/integrations/` boundary skeleton
-- `nested creation`、`maintenance Phase 2B`、`electricity property detail / new bill / quick reading / reading log`、`error pages / migration entry / repair scripts / integrations skeleton` 目前已整合進主幹並通過測試
-- 下一批主幹目標為 deeper algorithm、正式 migration write path、integration boundary 細部頁面或 API
+- Phase 3 已完成第三個主題：`migration write path`
+- 已建立 `water preview`
+- 已建立 `/api/payment-records` list / detail / create 邊界
+- 已補齊 repair script write convention 與 execute 驗證路徑
 
 ## Scope
 - 以 `rebuild/app/` 建立新版模組化主幹
@@ -36,6 +34,11 @@ Last Updated: 2026-06-29 22:18
 - 完成 `nested creation`：`/properties/landlord/<id>/create`、`/rooms/property/<id>/create`
 - 完成正式錯誤頁：`404` / `500` / `app_error`
 - 完成 migration 只讀入口：`scripts/migration/migration_index.py`
+- 完成 migration write path：
+- `scripts/repair/_common.py`
+- repair scripts 啟動前置 `sys.path` 修正
+- `contract_expiry_repair.py --execute --reference-date`
+- write-capable repair integration test
 - 完成 repair scripts：
 - `scripts/repair/year_month_audit.py`
 - `scripts/repair/room_status_audit.py`
@@ -70,7 +73,8 @@ Last Updated: 2026-06-29 22:18
 - electricity property detail / property-scoped new bill / quick reading / reading log / nested creation routes 流程正確
 - error pages / migration index 流程正確
 - repair scripts / integration placeholder route 流程正確
-- `pytest tests\integration -q` 通過（44 passed, 15 skipped）
+- migration write path dry-run / execute 流程正確
+- `pytest tests\integration -q` 通過（51 passed, 15 skipped）
 - `python .\scripts\seed_demo_data.py` 可成功建立 demo data
 - `powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke_tests.ps1` 通過
 
@@ -81,8 +85,10 @@ Last Updated: 2026-06-29 22:18
 - `box`: 適合承接 smoke tests、runbook、低風險支援腳本
 
 ## Next Step
-- 由 Codex 繼續推進 Phase 2 剩餘主幹：正式 migration write path、payment-records API boundary、water preview 或 deeper utility algorithm
-- 維持 agent 分工：Codex 先做主幹，其他 agent 只承接低風險驗證、盤點、文件與測試擴充
+- 已完成 `water preview`
+- 已完成 `payment-records API boundary`
+- 已完成 `migration write path`
+- 下一步可進入剩餘 Phase 3 主題：實作型 integrations 或 migration scaffold 擴充
 
 ## Risks / Blockers
 - 目前沒有結構性 blocker

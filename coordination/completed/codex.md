@@ -1,5 +1,27 @@
 # codex completed log
 
+## 2026-06-29 23:36
+
+Completed:
+- Phase 3 第三個主題：`migration write path`
+- 新增 `scripts/repair/_common.py`，統一 repair script app bootstrap 與 reference-date parsing
+- 修正四支 repair scripts 的直接執行啟動路徑，避免 `app` / `scripts.repair` import 失敗
+- 擴充 `contract_expiry_repair.py` 為正式 dry-run-first write path：支援 `--execute`、`--reference-date`
+- 補上 write convention 文件
+- 新增 execute-path integration test，驗證 dry-run 不寫入、execute 會把過期 active contract 改為 expired
+
+Verification:
+- `py -3 .\scripts\repair\year_month_audit.py`
+- `py -3 .\scripts\repair\contract_expiry_repair.py --reference-date 2026-06-29`
+- `pytest tests\integration\test_repair_scripts_and_integrations_boundary.py -q`
+- `pytest tests\integration -q`
+
+Result:
+- `51 passed, 15 skipped`
+
+Remaining:
+- Phase 3 其餘主題可往實作型 integrations 或 migration scaffold 擴充前進
+
 ## 2026-06-29 18:28
 
 Completed:
@@ -17,6 +39,47 @@ Result:
 
 Remaining:
 - Phase 2 剩餘缺口施工與 commit/push 整理
+
+## 2026-06-29 22:42
+
+Completed:
+- Phase 3 第一個主題：`water preview`
+- 新增 `GET,POST /water/<id>/preview`
+- 新增不寫入版 water allocation preview service
+- 新增 `water/preview.html`
+- 在 `water/list.html`、`water/post_form.html` 接上 preview 入口
+- 新增 `tests/integration/test_water_preview.py`
+
+Verification:
+- `pytest tests\integration\test_water_preview.py tests\integration\test_water_edit_and_independent_post.py tests\integration\test_electricity_water_edge_cases.py -q`
+- `pytest tests\integration -q`
+
+Result:
+- `46 passed, 15 skipped`
+
+Remaining:
+- Phase 3 後續主題施工
+
+## 2026-06-29 22:52
+
+Completed:
+- Phase 3 第二個主題：`payment-records API boundary`
+- 新增 `GET /api/payment-records/`
+- 新增 `GET /api/payment-records/<id>`
+- 新增 `POST /api/payment-records/`
+- 新增 payment JSON serializer 與 repository filter
+- 保持 API 與既有 `PaymentService` 共用同一正式流程
+- 新增 `tests/integration/test_payments_api_boundary.py`
+
+Verification:
+- `pytest tests\integration\test_payments_api_boundary.py tests\integration\test_auth_billing_payments_smoke.py tests\integration\test_payments_reject_and_status.py -q`
+- `pytest tests\integration -q`
+
+Result:
+- `50 passed, 15 skipped`
+
+Remaining:
+- Phase 3 後續主題施工
 
 ## 2026-06-29 18:40
 

@@ -1,4 +1,4 @@
-# box Completed Log — Round 07
+# box Completed Log — Round 01 (Water Preview)
 
 Completed Time: 2026-06-29  
 Branch: `codex-phase2-mainline-01`  
@@ -8,9 +8,9 @@ Author: box (tests / runbook / scripts agent)
 
 ## Summary
 
-Documented `scripts/repair/` (4 audit/repair scripts) and `app/integrations/` (3 skeleton modules) in runbook, dev-runbook, and scripts/README. No logic changes. Baseline unchanged.
+Added water preview edge-case tests and produced manual verification runbook. No logic changes.
 
-**pytest: 38 passed, 15 skipped, 0 failures** (unchanged)
+**pytest: 50 passed, 15 skipped, 0 failures** (was 46; +4 from water preview tests)
 
 ---
 
@@ -18,28 +18,24 @@ Documented `scripts/repair/` (4 audit/repair scripts) and `app/integrations/` (3
 
 | File | Action | Description |
 |------|--------|-------------|
-| `docs/reports/box-phase2-repair-runbook-07.md` | Created | Full inventory with safety classification, usage, and runbook integration guide |
-| `docs/operations/dev-runbook.md` | Updated | Added Available Repair Scripts + Integration Skeletons tables |
-| `scripts/README.md` | Updated | Added Repair Scripts + Migration Scripts sections |
-| `coordination/progress/box.md` | Updated | Status: DONE |
-| `coordination/completed/box.md` | Updated | Archival record |
+| `docs/reports/box-phase3-water-preview-runbook-01.md` | Created | Water preview runbook with shared/independent verification steps |
+| `tests/integration/test_water_preview.py` | Updated | +2 tests (GET form, POST missing field); improved robustness |
 
----
+## Test Changes Detail
 
-## Script Safety Summary
+| Change | Reason |
+|--------|--------|
+| `/water/1/preview` → dynamic `water_bill_id` | Hardcoded ID was fragile across test ordering |
+| `test_water_preview_get_renders_form` (new) | GET renders form, no preview result |
+| `test_water_preview_post_no_monthly_bill` (new) | Missing required field → form re-renders gracefully |
 
-| Script | Default | Destructive? | Safe to run anytime? |
-|--------|---------|-------------|---------------------|
-| `year_month_audit.py` | Read-only | ❌ No | ✅ Yes |
-| `room_status_audit.py` | Read-only | ❌ No | ✅ Yes |
-| `user_table_audit.py` | Read-only | ❌ No | ✅ Yes |
-| `contract_expiry_repair.py` | Dry-run | ⚠️ Only with `--execute` | ✅ Yes (default) |
+## Coverage Gap Acknowledged
 
----
+- Multi-contract shared preview: not tested (requires 2+ contracts — allocation logic, not test gap)
+- Preview vs. actual post consistency: not tested (cross-service comparison — Phase 3)
 
 ## Constraints Honored
 
-- ✅ No modification to any script logic
-- ✅ No model/service/repository changes
-- ✅ No new test files or test modifications
-- ✅ Documentation-only updates
+- ✅ No allocation rules changed
+- ✅ No model/service modifications
+- ✅ No schema changes

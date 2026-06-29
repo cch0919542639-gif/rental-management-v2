@@ -65,6 +65,23 @@
 - T1 (billing create/generate) 需 Codex 主控接手
 - T2 (post-to-monthly bridge) 待 T1 完成後方可驗證
 
+## 2026-06-29 (Session 8)
+
+### Completed: Phase 3 Kickoff Gap Check
+- Output: `docs/reports/open-phase3-kickoff-gap-check-01.md`
+- Baseline: `codex-phase2-mainline-01` HEAD
+- Scope: water preview / payment API / migration write path 前置盤點
+
+### Key Findings
+- Water preview ✅ complete（`/water/<id>/preview` route + service + template + test）
+- Payment API service/repo 已就緒，唯一缺口為薄 route 層（`/api/payment-records`）
+- Migration write path 尚未正式啟動，建議 Phase 3 先補 convention + scaffold
+- 46 passed / 15 skipped
+- 無 blocking gap，無需 incident
+
+### Verification
+- 未修改任何 `app/models`、資料契約、核心公式
+
 ## 2026-06-29 (Session 7)
 
 ### Completed: Integrations Gap Check (Round 7)

@@ -6,13 +6,13 @@ Baseline: `codex-phase2-mainline-01` (HEAD)
 
 ## Current Task
 
-### Integrations Gap Check (Round 7)
-- Output: `docs/reports/open-phase2-integrations-gap-check-07.md`
-- Scope: 僅盤點 `app/integrations/`、相關 route、docs、runbook
+### Phase 3 Kickoff Gap Check
+- Output: `docs/reports/open-phase3-kickoff-gap-check-01.md`
+- Scope: water preview、payment-records API boundary、migration write path 前置盤點
 
 ## Key Findings
 
-- Codex 已完成 integrations skeleton 落地：OCR/sheets interfaces、LINE webhook placeholder、error pages、migration entry point、repair scripts
-- 44 passed / 15 skipped — 含 integrations boundary test
-- 剩餘 6 項均符合 Phase 2 defer rule，不阻擋結案
+- Water preview ✅ complete (46 passed / 15 skipped)
+- Payment API service/repo 已就緒，只缺薄 route 層
+- Migration write path 尚未正式啟動，但已有 read-only 基礎
 - 無 blocking gap，無需 incident

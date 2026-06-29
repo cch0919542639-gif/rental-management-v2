@@ -8,6 +8,20 @@ class PaymentRepository:
         return PaymentRecord.query.order_by(PaymentRecord.created_at.desc()).all()
 
     @staticmethod
+    def list_filtered(*, record_status=None, contract_id=None, monthly_bill_id=None, limit: int | None = None):
+        query = PaymentRecord.query
+        if record_status:
+            query = query.filter(PaymentRecord.record_status == record_status)
+        if contract_id:
+            query = query.filter(PaymentRecord.contract_id == contract_id)
+        if monthly_bill_id:
+            query = query.filter(PaymentRecord.monthly_bill_id == monthly_bill_id)
+        query = query.order_by(PaymentRecord.created_at.desc())
+        if limit:
+            query = query.limit(limit)
+        return query.all()
+
+    @staticmethod
     def list_recent(limit: int = 20):
         return PaymentRecord.query.order_by(PaymentRecord.created_at.desc()).limit(limit).all()
 

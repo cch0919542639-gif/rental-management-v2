@@ -26,3 +26,11 @@ py -3 .\scripts\repair\user_table_audit.py
 - 預設必須是 read-only 或 dry-run
 - 真正寫入的修復腳本必須先列出候選摘要
 - 禁止在未審查情況下直接刪除資料
+
+## Write Convention
+
+- 預設模式必須是 dry-run 或 read-only
+- 寫入腳本必須支援 `--execute`
+- 若涉及日期判定，應支援 `--reference-date YYYY-MM-DD`
+- 寫入前必須先印出候選筆數與受影響資料摘要
+- 檔頭必須交代 rollback note

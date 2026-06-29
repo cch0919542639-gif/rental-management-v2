@@ -16,13 +16,13 @@ Usage:
 from pathlib import Path
 import sys
 
+from sqlalchemy import func
+
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from sqlalchemy import func
-
-from app import create_app
+from scripts.repair._common import build_script_app
 from app.core.db import db
 from app.models import ElectricityBill, MonthlyBill
 
@@ -51,7 +51,7 @@ def _print_anomalies(label, model):
 
 
 def main():
-    app = create_app("default")
+    app = build_script_app()
     with app.app_context():
         print("=" * 72)
         print("Year Month Audit (read-only)")

@@ -35,6 +35,24 @@ class WaterService:
     @staticmethod
     def post_shared_to_monthly_bill(*, monthly_bill_id: int, water_bill: WaterBill):
         monthly_bill = BillingRepository.get_or_404(monthly_bill_id)
+        preview = WaterService.preview_shared_to_monthly_bill(monthly_bill_id=monthly_bill_id, water_bill=water_bill)
+        monthly_bill.water_amount = preview["preview_water_amount"]
+        monthly_bill.water_usage = preview["preview_water_usage"]
+        BillingService.calculate_total(monthly_bill)
+        db.session.commit()
+        return monthly_bill
+
+    @staticmethod
+    def post_independent_to_monthly_bill(*, monthly_bill_id: int, amount):
+        monthly_bill = BillingRepository.get_or_404(monthly_bill_id)
+        monthly_bill.water_amount = WaterAllocationService.allocate_independent_meter(amount=amount)
+        BillingService.calculate_total(monthly_bill)
+        db.session.commit()
+        return monthly_bill
+
+    @staticmethod
+    def preview_shared_to_monthly_bill(*, monthly_bill_id: int, water_bill: WaterBill):
+        monthly_bill = BillingRepository.get_or_404(monthly_bill_id)
         contract = ContractRepository.get_or_404(monthly_bill.contract_id)
         active_contracts = [
             item
@@ -56,27 +74,52 @@ class WaterService:
             for item in active_contracts
         )
         total_usage = (water_bill.actual_usage_1 or 0) + (water_bill.actual_usage_2 or 0)
-        monthly_bill.water_amount = WaterAllocationService.allocate_shared_by_stay_days(
+        preview_water_amount = WaterAllocationService.allocate_shared_by_stay_days(
             total_amount=water_bill.total_amount,
             contract_days=contract_days,
             total_days=total_days,
         )
-        monthly_bill.water_usage = WaterAllocationService.allocate_shared_usage_by_stay_days(
+        preview_water_usage = WaterAllocationService.allocate_shared_usage_by_stay_days(
             total_usage=total_usage,
             contract_days=contract_days,
             total_days=total_days,
         )
-        BillingService.calculate_total(monthly_bill)
-        db.session.commit()
-        return monthly_bill
+        return {
+            "mode": "shared_by_stay_days",
+            "monthly_bill": monthly_bill,
+            "contract": contract,
+            "contract_days": contract_days,
+            "total_days": total_days,
+            "total_usage": total_usage,
+            "preview_water_amount": preview_water_amount,
+            "preview_water_usage": preview_water_usage,
+        }
 
     @staticmethod
-    def post_independent_to_monthly_bill(*, monthly_bill_id: int, amount):
+    def preview_independent_to_monthly_bill(*, monthly_bill_id: int, amount):
         monthly_bill = BillingRepository.get_or_404(monthly_bill_id)
-        monthly_bill.water_amount = WaterAllocationService.allocate_independent_meter(amount=amount)
-        BillingService.calculate_total(monthly_bill)
-        db.session.commit()
-        return monthly_bill
+        preview_water_amount = WaterAllocationService.allocate_independent_meter(amount=amount)
+        return {
+            "mode": "independent_meter",
+            "monthly_bill": monthly_bill,
+            "contract": ContractRepository.get_or_404(monthly_bill.contract_id),
+            "preview_water_amount": preview_water_amount,
+            "preview_water_usage": monthly_bill.water_usage or 0,
+        }
+
+    @staticmethod
+    def preview_post_to_monthly_bill(*, monthly_bill_id: int, water_bill: WaterBill, mode: str, amount=None):
+        if mode == "shared_by_stay_days":
+            return WaterService.preview_shared_to_monthly_bill(
+                monthly_bill_id=monthly_bill_id,
+                water_bill=water_bill,
+            )
+        if mode == "independent_meter":
+            return WaterService.preview_independent_to_monthly_bill(
+                monthly_bill_id=monthly_bill_id,
+                amount=amount,
+            )
+        raise DomainValidationError("未知的水費預覽模式")
 
     @staticmethod
     def delete_water_bill(water_bill: WaterBill):

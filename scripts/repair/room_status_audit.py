@@ -19,14 +19,14 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from app import create_app
+from scripts.repair._common import build_script_app
 from app.models import Room
 
 ALLOWED = {"vacant", "occupied"}
 
 
 def main():
-    app = create_app("default")
+    app = build_script_app()
     with app.app_context():
         values = sorted({item.status for item in Room.query.all() if item.status is not None})
         invalid_rooms = [item for item in Room.query.all() if item.status not in ALLOWED]

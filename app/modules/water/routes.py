@@ -95,6 +95,28 @@ def water_post(water_bill_id: int):
     return render_template("water/post_form.html", form=form, water_bill=water_bill, title="回寫月帳單")
 
 
+@water_bp.route("/<int:water_bill_id>/preview", methods=["GET", "POST"])
+@login_required
+def water_preview(water_bill_id: int):
+    water_bill = WaterBillRepository.get_or_404(water_bill_id)
+    form = WaterPostForm()
+    preview = None
+    if form.validate_on_submit():
+        preview = WaterService.preview_post_to_monthly_bill(
+            monthly_bill_id=form.monthly_bill_id.data,
+            water_bill=water_bill,
+            mode=form.mode.data,
+            amount=form.amount.data,
+        )
+    return render_template(
+        "water/preview.html",
+        form=form,
+        water_bill=water_bill,
+        preview=preview,
+        title="水費預覽",
+    )
+
+
 @water_bp.post("/<int:water_bill_id>/delete")
 @login_required
 def water_delete(water_bill_id: int):

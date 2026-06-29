@@ -15,7 +15,7 @@ Usage:
     py -3 .\\scripts\\repair\\contract_expiry_repair.py
 """
 
-from datetime import date
+import argparse
 from pathlib import Path
 import sys
 
@@ -23,15 +23,26 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from app import create_app
+from scripts.repair._common import build_script_app, parse_reference_date
 from app.models import Contract
 from app.services import ContractService
 
 
+def _build_parser():
+    parser = argparse.ArgumentParser(description="Dry-run-first contract expiry repair")
+    parser.add_argument("--execute", action="store_true", help="Apply the repair instead of dry-run")
+    parser.add_argument(
+        "--reference-date",
+        help="ISO date used to detect expired active contracts. Default: today.",
+    )
+    return parser
+
+
 def main(argv: list[str]):
-    execute = "--execute" in argv
-    reference_date = date.today()
-    app = create_app("default")
+    args = _build_parser().parse_args(argv)
+    execute = args.execute
+    reference_date = parse_reference_date(args.reference_date)
+    app = build_script_app()
 
     with app.app_context():
         candidates = (
@@ -44,6 +55,7 @@ def main(argv: list[str]):
         print("=" * 72)
         print(f"Reference date: {reference_date.isoformat()}")
         print(f"Candidate count: {len(candidates)}")
+        print("Rollback note: this repair only changes Contract.status from active -> expired.")
         for contract in candidates:
             print(
                 f"  contract_id={contract.id} room_id={contract.room_id} "

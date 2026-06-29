@@ -16,13 +16,13 @@ Usage:
 from pathlib import Path
 import sys
 
+from sqlalchemy import inspect, text
+
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from sqlalchemy import inspect, text
-
-from app import create_app
+from scripts.repair._common import build_script_app
 from app.core.db import db
 
 
@@ -31,7 +31,7 @@ def _count(table_name: str) -> int:
 
 
 def main():
-    app = create_app("default")
+    app = build_script_app()
     with app.app_context():
         inspector = inspect(db.engine)
         table_names = set(inspector.get_table_names())

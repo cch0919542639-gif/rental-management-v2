@@ -18,6 +18,12 @@ class ElectricityBillRepository:
         return ElectricityBill.query.order_by(ElectricityBill.period_start.desc(), ElectricityBill.created_at.desc()).all()
 
     @staticmethod
+    def list_by_property(property_id: int):
+        return ElectricityBill.query.filter_by(property_id=property_id).order_by(
+            ElectricityBill.period_start.desc(), ElectricityBill.created_at.desc()
+        ).all()
+
+    @staticmethod
     def get_or_404(bill_id: int):
         return session_get_or_404(ElectricityBill, bill_id)
 

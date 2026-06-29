@@ -1,7 +1,7 @@
 from app.core.db import db
 from app.core.errors import DomainValidationError
 from app.models import WaterBill
-from app.repositories import BillingRepository, ContractRepository
+from app.repositories import BillingRepository, ContractRepository, WaterBillRepository
 from app.services.billing_service import BillingService
 from app.services.water_allocation_service import WaterAllocationService
 
@@ -10,9 +10,9 @@ class WaterService:
     @staticmethod
     def create_water_bill(**payload):
         if payload["billing_end"] <= payload["billing_start"]:
-            raise DomainValidationError("水費帳期結束日必須晚於開始日")
+            raise DomainValidationError("水费帐期结束日必须晚于开始日")
         if (payload.get("total_amount") or 0) < 0:
-            raise DomainValidationError("水費總額不可小於 0")
+            raise DomainValidationError("水费总额不可小于 0")
 
         water_bill = WaterBill(**payload)
         db.session.add(water_bill)
@@ -20,11 +20,17 @@ class WaterService:
         return water_bill
 
     @staticmethod
+    def delete_water_bill(water_bill_id: int):
+        water_bill = WaterBillRepository.get_or_404(water_bill_id)
+        WaterBillRepository.delete(water_bill)
+        return water_bill
+
+    @staticmethod
     def update_water_bill(water_bill: WaterBill, **payload):
         if payload["billing_end"] <= payload["billing_start"]:
-            raise DomainValidationError("水費帳期結束日必須晚於開始日")
+            raise DomainValidationError("水费帐期结束日必须晚于开始日")
         if (payload.get("total_amount") or 0) < 0:
-            raise DomainValidationError("水費總額不可小於 0")
+            raise DomainValidationError("水费总额不可小于 0")
 
         for key, value in payload.items():
             setattr(water_bill, key, value)

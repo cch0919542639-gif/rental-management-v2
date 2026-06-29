@@ -50,4 +50,11 @@ def tenant_edit(tenant_id: int):
         )
         flash("房客已更新", "success")
         return redirect(url_for("tenants.tenant_list"))
-    return render_template("tenants/form.html", form=form, title="編輯房客")
+    return render_template("tenants/form.html", form=form, title="编辑房客")
+
+
+@tenants_bp.post("/<int:tenant_id>/delete")
+@login_required
+def tenant_delete(tenant_id: int):
+    TenantService.delete_tenant(tenant_id)
+    return redirect(url_for("tenants.tenant_list"))

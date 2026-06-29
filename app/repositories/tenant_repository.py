@@ -1,3 +1,4 @@
+from app.core.db import db
 from app.models import Tenant
 from app.repositories._helpers import session_get_or_404
 
@@ -10,3 +11,8 @@ class TenantRepository:
     @staticmethod
     def get_or_404(tenant_id: int):
         return session_get_or_404(Tenant, tenant_id)
+
+    @staticmethod
+    def delete(tenant: Tenant):
+        db.session.delete(tenant)
+        db.session.commit()

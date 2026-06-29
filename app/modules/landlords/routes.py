@@ -31,9 +31,9 @@ def landlord_create():
             water_rate=form.water_rate.data,
             notes=form.notes.data,
         )
-        flash("房東已建立", "success")
+        flash("房东已建立", "success")
         return redirect(url_for("landlords.landlord_list"))
-    return render_template("landlords/form.html", form=form, title="新增房東")
+    return render_template("landlords/form.html", form=form, title="新增房东")
 
 
 @landlords_bp.route("/<int:landlord_id>/edit", methods=["GET", "POST"])
@@ -54,6 +54,13 @@ def landlord_edit(landlord_id: int):
             water_rate=form.water_rate.data,
             notes=form.notes.data,
         )
-        flash("房東已更新", "success")
+        flash("房东已更新", "success")
         return redirect(url_for("landlords.landlord_list"))
-    return render_template("landlords/form.html", form=form, title="編輯房東")
+    return render_template("landlords/form.html", form=form, title="编辑房东")
+
+
+@landlords_bp.post("/<int:landlord_id>/delete")
+@login_required
+def landlord_delete(landlord_id: int):
+    LandlordService.delete_landlord(landlord_id)
+    return redirect(url_for("landlords.landlord_list"))

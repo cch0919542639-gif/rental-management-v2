@@ -73,6 +73,15 @@ def water_edit(water_bill_id: int):
     return render_template("water/form.html", form=form, title="編輯水費單")
 
 
+@water_bp.post("/<int:water_bill_id>/delete")
+@login_required
+def water_delete(water_bill_id: int):
+    WaterBillRepository.get_or_404(water_bill_id)
+    WaterService.delete_water_bill(water_bill_id)
+    flash("水费单已删除", "success")
+    return redirect(url_for("water.water_list"))
+
+
 @water_bp.route("/<int:water_bill_id>/post", methods=["GET", "POST"])
 @login_required
 def water_post(water_bill_id: int):

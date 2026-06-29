@@ -52,6 +52,20 @@ def electricity_dashboard():
     bills = ElectricityBillRepository.list_all()
     meters = ElectricityMeterRepository.list_all()
     return render_template("electricity/index.html", bills=bills, meters=meters)
+@electricity_bp.get("/property/<int:property_id>/bills")
+@login_required
+def property_bills(property_id: int):
+    property_obj = PropertyRepository.get_or_404(property_id)
+    bills = ElectricityBillRepository.list_by_property(property_id)
+    meters = ElectricityMeterRepository.list_all()
+    return render_template(
+        "electricity/property_bills.html",
+        bills=bills,
+        meters=meters,
+        property_obj=property_obj,
+    )
+
+
 
 
 @electricity_bp.route("/meters/create", methods=["GET", "POST"])

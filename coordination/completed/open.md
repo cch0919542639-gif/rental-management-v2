@@ -117,6 +117,32 @@
 - 未觸及 billing/payments/maintenance 主流程
 - 未修改資料契約
 
+## 2026-06-30
+
+### Completed: Phase 3 Payment API Boundary Audit (P3-2)
+- Output: `docs/reports/open-phase3-payment-api-audit-01.md`
+- Branch: `agent/open-phase3-payment-api-audit-01`
+- Baseline: `codex-phase2-mainline-01` commit `379f58a`
+- Scope: 盤點 `/api/payment-records` 現有 list/detail/create 能力，列出 filter / query param / error response / route / doc 缺口，產出 P0/P1/P2 backlog
+
+### Key Findings
+- API 三個端點正常運作（`GET /api/payment-records/`, `GET /.../<id>`, `POST /.../`）
+- 核心缺口：
+  1. 無 request body schema validation（錯欄直接寫 None）
+  2. 無 PATCH 端點（無法 API 更正）
+  3. List 缺 `payer_name`、`transaction_date` 區間、分頁 offset
+  4. verify/reject/link 只有 UI route，無 API 端點
+  5. 422 error response 無 field-level 細節
+  6. Integration test 僅 2 案例，缺 error cases
+  7. 無 API 專屬文件
+- P0 backlog: 3 items（~2.5 hr）
+- 51 passed / 15 skipped
+
+### Verification
+- 未修改 `app/models`、資料契約、核心公式
+- 未建立第二套 payment flow
+- 未擴大到 OCR/LINE 實作
+
 ### open Phase 2 Deliverables (complete)
 1. `open-route-template-matrix.md` — 舊系統 route 矩陣
 2. `open-schema-inventory.md` — schema 盤點

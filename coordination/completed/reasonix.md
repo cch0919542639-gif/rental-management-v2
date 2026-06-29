@@ -2,8 +2,8 @@
 
 ## 2026-06-29
 
-### 1. reasonix-maintenance-followup-04.md
-- Baseline: codex-phase2-mainline-01 (maintenance core already implemented)
-- Analysis: 5 areas (list/filter, cost/report, delete/archive, migration, reopen policy)
-- Classification: 11 directly implementable, 5 need ADR, 3 forbidden
+### 1. reasonix-maintenance-phase2b-review-05.md
+- Baseline: codex-phase2-mainline-01 with local Phase 2B changes
+- Files reviewed: 11 (routes/forms/service/repository/reports/script/templates)
+- Verdict: All compliant — 0 ADR violations, 0 forbidden encroachment, 0 billing contamination
 - No incident needed

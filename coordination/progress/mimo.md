@@ -1,30 +1,46 @@
 # mimo
 
 Status: DONE
-Last Updated: 2026-06-28 10:30
+Last Updated: 2026-06-29 12:00
 
 ## Current Task
 
-- 已完成契約對齊修正
+- Phase 2 UI Regression Round 3
 
 ## Scope
 
-- UI 欄位盤點、測試情境、回歸清單
+- 主幹 UI regression focused check
+- electricity / water / reports / payments / maintenance
 
 ## Completed So Far
 
-- 已閱讀所有 reasonix 與 open 報告
-- 已確認正式結論（year_month, PaymentRecord, Room.status 等）
-- 已產出 mimo-ui-field-matrix.md（11 個頁面）
-- 已產出 mimo-test-scenarios.md（43 個測試情境）
-- 已產出 mimo-regression-checklist.md（完整回歸檢查表 + Evidence 表格）
-- 已完成契約對齊修正（Room.room_number, Room.rent, Contract.rent, MonthlyBill.electricity_amount/water_amount/other_charges, WaterBill 正式欄位, Landlord 無 address）
-- 已更新 coordination/completed/mimo.md
+- Phase 1 regression: P1 修正 5 項，P2 gap 10 項記錄
+- Phase 2 gap-01: billing/reports/payments 欄位補齊
+- Phase 2 polish-02: water property.name, electricity Chinese headers
+
+## This Round
+
+- water/list.html: property_id → property.name
+- electricity/bill_detail.html: English headers → Chinese (用電量/計算金額/確認金額)
+- payments/list.html: +bank_name, +account_number, +transaction_id
+- reports/monthly.html: +public_electricity, +other_desc
+- report_repository.py: +public_electricity, +other_desc query
+- Created 3 incidents for Codex blockers
+
+## Delivered
+
+- docs/reports/mimo-phase2-ui-regression-03.md
+- coordination/incidents/2026-06-29_1200_mimo_report-service-fields.md
+- coordination/incidents/2026-06-29_1200_mimo_electricity-property-relationship.md
+- coordination/incidents/2026-06-29_1200_mimo_maintenance-routes-missing.md
+
+## Blockers for Codex
+
+1. report_service.py: Missing public_electricity/other_desc return
+2. ElectricityMeter/ElectricityBill: Missing property relationship
+3. Maintenance module: Missing CRUD routes/service
 
 ## Next Step
 
-- 等待 box agent 的 migration scripts 完成後，可進行實機驗證
-
-## Risks / Blockers
-
-- 無
+- 等待 Codex 修正 blockers
+- 可繼續處理其他 UI polish tasks

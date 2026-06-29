@@ -36,3 +36,27 @@
   - 新增 ElectricityBill.status（pending/calculated）
   - 新增 MonthlyBill.paid 狀態機（false → true）
 - 所有測試情境與回歸清單的欄位名稱、SQL、Evidence 表格同步修正
+
+## 2026-06-28: Phase 1 UI Regression Round 2
+
+- P1 修正 5 項（electricity/water property relationship + display）
+- P2 gap 10 項已記錄
+- 11 個頁面正常顯示、10 個 flash 訊息正確
+
+## 2026-06-29: Phase 2 UI Gap Round 1
+
+- billing/list.html：+public_electricity, +other_charges
+- reports/monthly.html：+public_electricity, +other_desc
+- payments/list.html：+bank_name, +account_number, +transaction_id
+- report_repository.py：+public_electricity, +other_desc query
+- report_service.py：+public_electricity, +other_desc return
+
+## 2026-06-29: Phase 2 UI Polish Round 2
+
+- water/list.html：property_id → property.name
+- electricity/bill_detail.html：英文表頭改中文（用電量/計算金額/確認金額）
+- payments/list.html：補齊銀行/帳戶/交易編號欄位（上一輪遺漏）
+- reports/monthly.html：補齊公設電費/其他說明欄位（上一輪遺漏）
+- report_repository.py：補齊 public_electricity/other_desc 查詢（上一輪遺漏）
+- 建立 incident：report_service.py 需 Codex 補 public_electricity/other_desc 回傳
+- 交付 docs/reports/mimo-ui-polish-02.md

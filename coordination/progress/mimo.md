@@ -1,30 +1,37 @@
 # mimo
 
-Status: DONE
-Last Updated: 2026-06-28 10:30
+Status: IN_PROGRESS
+Last Updated: 2026-06-29 11:00
 
 ## Current Task
 
-- 已完成契約對齊修正
+- Phase 2 UI Polish Round 2
 
 ## Scope
 
-- UI 欄位盤點、測試情境、回歸清單
+- 低風險 UI 問題 polish
+- electricity / water / reports / billing / payments 顯示一致性
+- 中文欄位、導覽、flash、一致性細節
 
 ## Completed So Far
 
-- 已閱讀所有 reasonix 與 open 報告
-- 已確認正式結論（year_month, PaymentRecord, Room.status 等）
-- 已產出 mimo-ui-field-matrix.md（11 個頁面）
-- 已產出 mimo-test-scenarios.md（43 個測試情境）
-- 已產出 mimo-regression-checklist.md（完整回歸檢查表 + Evidence 表格）
-- 已完成契約對齊修正（Room.room_number, Room.rent, Contract.rent, MonthlyBill.electricity_amount/water_amount/other_charges, WaterBill 正式欄位, Landlord 無 address）
-- 已更新 coordination/completed/mimo.md
+- Phase 1 regression: P1 修正 5 項，P2 gap 10 項記錄
+- Phase 2 gap-01: billing/reports/payments 欄位補齊
+
+## This Round
+
+- water/list.html: property_id → property.name（WaterBill 已有 property relationship）
+- electricity/bill_detail.html: 英文表頭改中文
+- electricity/index.html: property 顯示問題（需 Codex 補 model relationship，本輪無法修）
+- 補 evidence 報告
+
+## Remaining Blockers
+
+- electricity models (ElectricityMeter, ElectricityBill) 缺少 property relationship
+- 需 Codex 在 model 層補充後才能改 template 顯示 property.name
 
 ## Next Step
 
-- 等待 box agent 的 migration scripts 完成後，可進行實機驗證
-
-## Risks / Blockers
-
-- 無
+- 完成可修的 template 改動
+- 補 evidence 報告
+- 提交並移到 review

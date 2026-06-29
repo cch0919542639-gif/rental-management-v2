@@ -13,12 +13,15 @@
     {% for water_bill in water_bills %}
     <tr>
       <td>{{ water_bill.id }}</td>
-      <td>{{ water_bill.property_id }}</td>
+      <td>{{ water_bill.property.name }}</td>
       <td>{{ water_bill.billing_start }} ~ {{ water_bill.billing_end }}</td>
       <td>{{ water_bill.total_amount }}</td>
       <td>
         <a href="{{ url_for('water.water_edit', water_bill_id=water_bill.id) }}">編輯</a>
         <a href="{{ url_for('water.water_post', water_bill_id=water_bill.id) }}" style="margin-left:8px;">回寫月帳單</a>
+        <form method="post" action="{{ url_for('water.water_delete', water_bill_id=water_bill.id) }}" style="display:inline;margin-left:8px;">
+          <button type="submit" onclick="return confirm('確定刪除此水費單？')" style="background:none;border:none;color:red;cursor:pointer;text-decoration:underline;">刪除</button>
+        </form>
       </td>
     </tr>
     {% else %}

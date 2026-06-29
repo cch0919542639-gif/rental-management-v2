@@ -20,6 +20,8 @@ class ReportRepository:
                 MonthlyBill.water_amount.label("water_amount"),
                 MonthlyBill.water_usage.label("water_usage"),
                 MonthlyBill.other_charges.label("other_charges"),
+                MonthlyBill.other_desc.label("other_desc"),
+                MonthlyBill.public_electricity.label("public_electricity"),
                 MonthlyBill.total.label("total"),
                 MonthlyBill.paid.label("paid"),
             )

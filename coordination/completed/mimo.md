@@ -49,3 +49,15 @@
   - ElectricityMeter/ElectricityBill missing property relationship
   - Maintenance module missing CRUD routes
 - 交付 docs/reports/mimo-phase2-ui-regression-03.md
+
+## 2026-06-29: Phase 2 UI Regression Round 4
+
+- Base: `codex-phase2-mainline-01`
+- Verified all 10 pages on mainline branch
+- Confirmed all previous blockers resolved:
+  - report_service.py: public_electricity/other_desc ✅
+  - ElectricityMeter/ElectricityBill: property relationship ✅
+  - Maintenance module: Full CRUD + status transitions ✅
+- No template fixes needed
+- No incidents created
+- 交付 docs/reports/mimo-phase2-ui-regression-04.md

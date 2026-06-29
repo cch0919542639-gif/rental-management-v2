@@ -1,46 +1,31 @@
 # mimo
 
 Status: DONE
-Last Updated: 2026-06-29 12:00
+Last Updated: 2026-06-29 13:00
 
 ## Current Task
 
-- Phase 2 UI Regression Round 3
+- Phase 2 UI Regression Round 4
 
 ## Scope
 
-- 主幹 UI regression focused check
-- electricity / water / reports / payments / maintenance
+- Focused UI regression on `codex-phase2-mainline-01`
+- Verify all previous blockers are resolved
 
-## Completed So Far
+## Completed This Round
 
-- Phase 1 regression: P1 修正 5 項，P2 gap 10 項記錄
-- Phase 2 gap-01: billing/reports/payments 欄位補齊
-- Phase 2 polish-02: water property.name, electricity Chinese headers
-
-## This Round
-
-- water/list.html: property_id → property.name
-- electricity/bill_detail.html: English headers → Chinese (用電量/計算金額/確認金額)
-- payments/list.html: +bank_name, +account_number, +transaction_id
-- reports/monthly.html: +public_electricity, +other_desc
-- report_repository.py: +public_electricity, +other_desc query
-- Created 3 incidents for Codex blockers
+- Verified all 10 pages on mainline branch
+- Confirmed all previous blockers resolved:
+  - report_service.py: public_electricity/other_desc ✅
+  - ElectricityMeter/ElectricityBill: property relationship ✅
+  - Maintenance module: Full CRUD + status transitions ✅
+- No template fixes needed
+- No incidents created
 
 ## Delivered
 
-- docs/reports/mimo-phase2-ui-regression-03.md
-- coordination/incidents/2026-06-29_1200_mimo_report-service-fields.md
-- coordination/incidents/2026-06-29_1200_mimo_electricity-property-relationship.md
-- coordination/incidents/2026-06-29_1200_mimo_maintenance-routes-missing.md
+- docs/reports/mimo-phase2-ui-regression-04.md
 
-## Blockers for Codex
+## Status
 
-1. report_service.py: Missing public_electricity/other_desc return
-2. ElectricityMeter/ElectricityBill: Missing property relationship
-3. Maintenance module: Missing CRUD routes/service
-
-## Next Step
-
-- 等待 Codex 修正 blockers
-- 可繼續處理其他 UI polish tasks
+All UI regression items on mainline branch are verified normal. No further action needed.

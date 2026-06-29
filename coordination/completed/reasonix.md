@@ -2,9 +2,8 @@
 
 ## 2026-06-29
 
-### 1. Template fix — electricity property filter
-- File changed: app/templates/electricity/index.html
-- Fixes: selected_property filter hint + property.name display
-- Result: 32 passed, 15 skipped (was 31 passed, 15 skipped, 1 failed)
-- Branch: codex-phase2-mainline-01
-- Commit: c1aab26
+### 1. reasonix-maintenance-followup-04.md
+- Baseline: codex-phase2-mainline-01 (maintenance core already implemented)
+- Analysis: 5 areas (list/filter, cost/report, delete/archive, migration, reopen policy)
+- Classification: 11 directly implementable, 5 need ADR, 3 forbidden
+- No incident needed

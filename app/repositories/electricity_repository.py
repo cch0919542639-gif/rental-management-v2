@@ -8,6 +8,14 @@ class ElectricityMeterRepository:
         return ElectricityMeter.query.order_by(ElectricityMeter.property_id.asc(), ElectricityMeter.id.asc()).all()
 
     @staticmethod
+    def list_for_property(property_id: int):
+        return (
+            ElectricityMeter.query.filter_by(property_id=property_id)
+            .order_by(ElectricityMeter.is_main.desc(), ElectricityMeter.id.asc())
+            .all()
+        )
+
+    @staticmethod
     def get_or_404(meter_id: int):
         return session_get_or_404(ElectricityMeter, meter_id)
 
@@ -26,6 +34,15 @@ class ElectricityBillRepository:
         )
 
     @staticmethod
+    def latest_for_property(property_id: int, limit=5):
+        return (
+            ElectricityBill.query.filter_by(property_id=property_id)
+            .order_by(ElectricityBill.period_start.desc(), ElectricityBill.created_at.desc())
+            .limit(limit)
+            .all()
+        )
+
+    @staticmethod
     def get_or_404(bill_id: int):
         return session_get_or_404(ElectricityBill, bill_id)
 
@@ -34,6 +51,15 @@ class ElectricityReadingRepository:
     @staticmethod
     def list_for_bill(bill_id: int):
         return ElectricityReading.query.filter_by(bill_id=bill_id).order_by(ElectricityReading.id.asc()).all()
+
+    @staticmethod
+    def list_for_property(property_id: int):
+        return (
+            ElectricityReading.query.join(ElectricityBill, ElectricityBill.id == ElectricityReading.bill_id)
+            .filter(ElectricityBill.property_id == property_id)
+            .order_by(ElectricityBill.period_start.desc(), ElectricityReading.id.desc())
+            .all()
+        )
 
 
 class CalcMethodRepository:

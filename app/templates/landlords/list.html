@@ -24,7 +24,10 @@
       <td>{{ landlord.phone or '-' }}</td>
       <td>{{ landlord.electricity_rate_type }} / {{ landlord.electricity_rate or 0 }}</td>
       <td>{{ landlord.water_rate_type }} / {{ landlord.water_rate or 0 }}</td>
-      <td><a href="{{ url_for('landlords.landlord_edit', landlord_id=landlord.id) }}">編輯</a></td>
+      <td>
+        <a href="{{ url_for('landlords.landlord_edit', landlord_id=landlord.id) }}">編輯</a>
+        <a href="{{ url_for('properties.property_create_for_landlord', landlord_id=landlord.id) }}" style="margin-left:8px;">新增物件</a>
+      </td>
     </tr>
     {% else %}
     <tr><td colspan="6">尚無房東資料</td></tr>

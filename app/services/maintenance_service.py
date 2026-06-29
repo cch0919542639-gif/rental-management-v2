@@ -20,6 +20,32 @@ class MaintenanceService:
         return MaintenanceRepository.list_all()
 
     @staticmethod
+    def list_filtered_requests(**filters):
+        return MaintenanceRepository.list_filtered(**filters)
+
+    @staticmethod
+    def list_open_requests(**filters):
+        filters.pop("status", None)
+        return MaintenanceRepository.list_open(**filters)
+
+    @staticmethod
+    def summary(**filters):
+        summary = MaintenanceRepository.summary(**filters)
+        room_id = filters.get("room_id")
+        reported_from = filters.get("reported_from")
+        reported_to = filters.get("reported_to")
+        return {
+            "request_count": summary.request_count or 0,
+            "estimated_total": summary.estimated_total or 0,
+            "actual_total": summary.actual_total or 0,
+            "status_breakdown": MaintenanceRepository.status_breakdown(
+                room_id=room_id,
+                reported_from=reported_from,
+                reported_to=reported_to,
+            ),
+        }
+
+    @staticmethod
     def room_snapshot():
         return [
             {
@@ -31,6 +57,10 @@ class MaintenanceService:
             }
             for room in RoomRepository.list_all()
         ]
+
+    @staticmethod
+    def list_for_room(room_id: int):
+        return MaintenanceRepository.list_for_room(room_id)
 
     @staticmethod
     def create_request(**payload):

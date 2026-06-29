@@ -1,3 +1,4 @@
+from app.integrations.line_webhook import line_webhook_bp
 from app.modules.auth import auth_bp
 from app.modules.billing import billing_bp
 from app.modules.contracts import contracts_bp
@@ -27,3 +28,4 @@ def register_blueprints(app):
     app.register_blueprint(rooms_bp)
     app.register_blueprint(tenants_bp)
     app.register_blueprint(water_bp)
+    app.register_blueprint(line_webhook_bp)

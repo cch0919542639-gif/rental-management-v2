@@ -109,3 +109,22 @@ class ElectricityService:
             reading=reading,
             public_electricity=public_electricity,
         )
+
+    @staticmethod
+    def property_overview(*, property_obj, meters, bills):
+        total_public_amount = sum((Decimal(str(bill.public_amount or 0)) for bill in bills), Decimal("0.00"))
+        total_flow_amount = sum((Decimal(str(bill.flow_amount or 0)) for bill in bills), Decimal("0.00"))
+        total_bill_amount = sum((Decimal(str(bill.total_amount or 0)) for bill in bills), Decimal("0.00"))
+        return {
+            "property_id": property_obj.id,
+            "property_name": property_obj.name,
+            "meter_count": len(meters),
+            "main_meter_count": sum(1 for meter in meters if meter.is_main),
+            "bill_count": len(bills),
+            "pending_count": sum(1 for bill in bills if bill.status == "pending"),
+            "calculated_count": sum(1 for bill in bills if bill.status == "calculated"),
+            "posted_count": sum(1 for bill in bills if bill.status == "posted"),
+            "total_public_amount": total_public_amount,
+            "total_flow_amount": total_flow_amount,
+            "total_bill_amount": total_bill_amount,
+        }

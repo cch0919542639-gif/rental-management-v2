@@ -69,3 +69,29 @@ class ReportService:
                 "unpaid_amount": row.unpaid_amount or 0,
             }
         return list(result.values())
+
+    @staticmethod
+    def maintenance_summary(*, property_id=None, status=None, reported_from=None, reported_to=None):
+        property_rows = ReportRepository.maintenance_property_summary_rows(
+            property_id=property_id,
+            status=status,
+            reported_from=reported_from,
+            reported_to=reported_to,
+        )
+        status_rows = ReportRepository.maintenance_status_summary_rows(
+            property_id=property_id,
+            status=status,
+            reported_from=reported_from,
+            reported_to=reported_to,
+        )
+        totals = {
+            "request_count": sum((row.request_count or 0) for row in property_rows),
+            "open_count": sum((row.open_count or 0) for row in property_rows),
+            "estimated_total": sum((row.estimated_total or 0) for row in property_rows),
+            "actual_total": sum((row.actual_total or 0) for row in property_rows),
+        }
+        return {
+            "property_summary": property_rows,
+            "status_summary": status_rows,
+            "totals": totals,
+        }

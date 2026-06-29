@@ -46,3 +46,15 @@ class ElectricityPostForm(FlaskForm):
     reading_id = SelectField("抄表", coerce=int, validators=[DataRequired()])
     public_electricity = DecimalField("回寫公電", validators=[Optional()], places=2)
     submit = SubmitField("回寫月帳單")
+
+
+class PropertyQuickReadingForm(FlaskForm):
+    bill_id = SelectField("電費單", coerce=int, validators=[DataRequired()])
+    meter_id = SelectField("電表", coerce=int, validators=[DataRequired()])
+    room_id = SelectField("房間", coerce=int, validators=[Optional()])
+    prev_reading = DecimalField("前次度數", validators=[DataRequired()], places=1)
+    curr_reading = DecimalField("本次度數", validators=[DataRequired()], places=1)
+    calculated_amount = DecimalField("計算金額", validators=[Optional()], places=2)
+    confirmed_amount = DecimalField("確認金額", validators=[Optional()], places=2)
+    notes = TextAreaField("備註", validators=[Optional()])
+    submit = SubmitField("新增抄表")

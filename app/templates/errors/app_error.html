@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}App Error{% endblock %}
+{% block content %}
+<div class="card" style="max-width:760px;margin:0 auto;">
+  <h1>{{ title }}</h1>
+  <p><strong>錯誤代碼：</strong>{{ error_code }}</p>
+  <p>{{ message }}</p>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;">
+    <a href="{{ url_for('dashboard.dashboard_home') }}">回 Dashboard</a>
+    <a href="{{ url_for('billing.billing_list') }}">回月帳單</a>
+  </div>
+</div>
+{% endblock %}

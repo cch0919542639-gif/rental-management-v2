@@ -41,6 +41,17 @@
         {% else %}
         -
         {% endif %}
+        {% if payment.raw_ocr_text or payment.raw_llm_response or payment.image_path or payment.ocr_engine %}
+        <details style="margin-top:8px;">
+          <summary>OCR 資訊</summary>
+          <div style="margin-top:8px;font-size:14px;">
+            <div><strong>OCR Engine：</strong>{{ payment.ocr_engine or '-' }}</div>
+            <div><strong>Image Path：</strong>{{ payment.image_path or '-' }}</div>
+            <div><strong>OCR Raw：</strong>{{ payment.raw_ocr_text or '-' }}</div>
+            <div><strong>LLM Raw：</strong>{{ payment.raw_llm_response or '-' }}</div>
+          </div>
+        </details>
+        {% endif %}
       </td>
     </tr>
     {% else %}

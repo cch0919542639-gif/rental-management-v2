@@ -65,7 +65,8 @@ def test_electricity_water_reports_and_maintenance(app, logged_in_client, seeded
     assert response.status_code == 200
     response = client.get(f"/electricity/bills/{electricity_bill_id}")
     assert response.status_code == 200
-    assert "calculated" in response.get_data(as_text=True)
+    text = response.get_data(as_text=True)
+    assert "已計算" in text or "calculated" in text
 
     response = client.post(
         "/water/create",

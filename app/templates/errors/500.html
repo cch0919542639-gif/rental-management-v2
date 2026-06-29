@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}500 Server Error{% endblock %}
+{% block content %}
+<div class="card" style="max-width:760px;margin:0 auto;">
+  <h1>500｜伺服器錯誤</h1>
+  <p>{{ message }}</p>
+  <p>若問題持續發生，請建立 incident 並附上操作步驟。</p>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px;">
+    <a href="{{ url_for('dashboard.dashboard_home') }}">回 Dashboard</a>
+    <a href="{{ url_for('reports.report_index') }}">回 Reports</a>
+  </div>
+</div>
+{% endblock %}

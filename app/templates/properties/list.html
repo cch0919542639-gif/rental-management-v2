@@ -26,7 +26,10 @@
         <td>{{ property.name }}</td>
         <td>{{ property.address }}</td>
         <td>{{ property.total_rooms }}</td>
-        <td><a href="{{ url_for('properties.property_edit', property_id=property.id) }}">編輯</a></td>
+        <td>
+          <a href="{{ url_for('properties.property_edit', property_id=property.id) }}">編輯</a>
+          <a href="{{ url_for('rooms.room_create_for_property', property_id=property.id) }}" style="margin-left:8px;">新增房間</a>
+        </td>
       </tr>
       {% endfor %}
     </tbody>

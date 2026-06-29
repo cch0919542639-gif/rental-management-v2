@@ -3,10 +3,15 @@ from datetime import date
 from flask import Blueprint, render_template, request
 from flask_login import login_required
 
-from app.modules.reports.forms import ReportMonthForm, ReportYearForm
+from app.modules.reports.forms import MaintenanceReportForm, ReportMonthForm, ReportYearForm
+from app.repositories import PropertyRepository
 from app.services import ReportService
 
 reports_bp = Blueprint("reports", __name__, url_prefix="/reports")
+
+
+def _populate_maintenance_property_choices(form: MaintenanceReportForm):
+    form.property_id.choices = [(0, "全部")] + [(prop.id, prop.name) for prop in PropertyRepository.list_all()]
 
 
 @reports_bp.get("/")
@@ -58,3 +63,29 @@ def yearly_overview():
         form.year.data = year
     rows = ReportService.yearly_overview(year)
     return render_template("reports/yearly.html", form=form, rows=rows, year=year)
+
+
+@reports_bp.route("/maintenance", methods=["GET", "POST"])
+@login_required
+def maintenance_summary():
+    form = MaintenanceReportForm()
+    _populate_maintenance_property_choices(form)
+    if form.validate_on_submit():
+        property_id = form.property_id.data or None
+        status = (form.status.data or "").strip() or None
+        reported_from = form.reported_from.data.isoformat() if form.reported_from.data else None
+        reported_to = form.reported_to.data.isoformat() if form.reported_to.data else None
+    else:
+        property_id = request.args.get("property_id", type=int) or None
+        status = (request.args.get("status") or "").strip() or None
+        reported_from = request.args.get("reported_from", type=str) or None
+        reported_to = request.args.get("reported_to", type=str) or None
+        form.property_id.data = property_id or 0
+        form.status.data = status or ""
+    summary = ReportService.maintenance_summary(
+        property_id=property_id,
+        status=status,
+        reported_from=reported_from,
+        reported_to=reported_to,
+    )
+    return render_template("reports/maintenance.html", form=form, summary=summary)

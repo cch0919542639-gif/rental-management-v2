@@ -12,6 +12,13 @@ def _populate_landlord_choices(form: PropertyForm):
     form.landlord_id.choices = [(landlord.id, landlord.name) for landlord in LandlordRepository.list_all()]
 
 
+def _populate_single_landlord_choice(form: PropertyForm, landlord_id: int):
+    landlord = LandlordRepository.get_or_404(landlord_id)
+    form.landlord_id.choices = [(landlord.id, landlord.name)]
+    form.landlord_id.data = landlord.id
+    return landlord
+
+
 @properties_bp.get("/")
 @login_required
 def property_list():
@@ -37,6 +44,31 @@ def property_create():
         flash("物件已建立", "success")
         return redirect(url_for("properties.property_list"))
     return render_template("properties/form.html", form=form, title="新增物件")
+
+
+@properties_bp.route("/landlord/<int:landlord_id>/create", methods=["GET", "POST"])
+@login_required
+def property_create_for_landlord(landlord_id: int):
+    form = PropertyForm()
+    landlord = _populate_single_landlord_choice(form, landlord_id)
+    if form.validate_on_submit():
+        PropertyService.create_property(
+            landlord_id=landlord.id,
+            name=form.name.data.strip(),
+            address=form.address.data,
+            total_rooms=form.total_rooms.data,
+            electricity_meter_type=form.electricity_meter_type.data,
+            water_meter_type=form.water_meter_type.data,
+            billing_rule=form.billing_rule.data,
+        )
+        flash("物件已建立", "success")
+        return redirect(url_for("properties.property_list"))
+    return render_template(
+        "properties/form.html",
+        form=form,
+        title=f"為房東新增物件：{landlord.name}",
+        parent_context=f"房東：{landlord.name}",
+    )
 
 
 @properties_bp.route("/<int:property_id>/edit", methods=["GET", "POST"])

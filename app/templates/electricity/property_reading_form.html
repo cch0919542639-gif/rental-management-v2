@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+<p><strong>物件：</strong>{{ property.name }}</p>
+<form method="post" class="card" style="display:grid;gap:12px;max-width:760px;">
+  {{ form.hidden_tag() }}
+  {{ form.bill_id.label }} {{ form.bill_id() }}
+  {{ form.meter_id.label }} {{ form.meter_id() }}
+  {{ form.room_id.label }} {{ form.room_id() }}
+  {{ form.prev_reading.label }} {{ form.prev_reading() }}
+  {{ form.curr_reading.label }} {{ form.curr_reading() }}
+  {{ form.calculated_amount.label }} {{ form.calculated_amount() }}
+  {{ form.confirmed_amount.label }} {{ form.confirmed_amount() }}
+  {{ form.notes.label }} {{ form.notes(rows=4) }}
+  {{ form.submit() }}
+</form>
+{% endblock %}

@@ -2,7 +2,8 @@
 {% block title %}{{ title }}{% endblock %}
 {% block content %}
 <h1>{{ title }}</h1>
-<p>Water Bill #{{ water_bill.id }}</p>
+<p>水費單 #{{ water_bill.id }}</p>
+<p><a href="{{ url_for('water.water_preview', water_bill_id=water_bill.id) }}">先看預覽結果</a></p>
 <form method="post" class="card" style="display:grid;gap:12px;max-width:720px;">
   {{ form.hidden_tag() }}
   {{ form.monthly_bill_id.label }} {{ form.monthly_bill_id() }}

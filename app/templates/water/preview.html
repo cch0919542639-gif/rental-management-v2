@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+<p>水費單 #{{ water_bill.id }} / {{ water_bill.property.name }}</p>
+<form method="post" class="card" style="display:grid;gap:12px;max-width:720px;margin-bottom:16px;">
+  {{ form.hidden_tag() }}
+  {{ form.monthly_bill_id.label }} {{ form.monthly_bill_id() }}
+  {{ form.mode.label }} {{ form.mode() }}
+  {{ form.amount.label }} {{ form.amount() }}
+  {{ form.submit(value='預覽分攤') }}
+</form>
+
+{% if preview %}
+<div class="card" style="margin-bottom:16px;">
+  <h2>預覽結果</h2>
+  <p><strong>模式：</strong>{{ preview.mode }}</p>
+  <p><strong>月帳單：</strong>#{{ preview.monthly_bill.id }} / {{ preview.monthly_bill.year_month|year_month_ui }}</p>
+  <p><strong>合約：</strong>#{{ preview.contract.id }} / 房間 {{ preview.contract.room.room_number }}</p>
+  <p><strong>預覽水費金額：</strong>{{ preview.preview_water_amount }}</p>
+  <p><strong>預覽用水量：</strong>{{ preview.preview_water_usage }}</p>
+  {% if preview.mode == 'shared_by_stay_days' %}
+  <p><strong>合約居住天數：</strong>{{ preview.contract_days }}</p>
+  <p><strong>物件總居住天數：</strong>{{ preview.total_days }}</p>
+  <p><strong>總用量：</strong>{{ preview.total_usage }}</p>
+  {% endif %}
+  <p><a href="{{ url_for('water.water_post', water_bill_id=water_bill.id) }}">確認後前往回寫月帳單</a></p>
+</div>
+{% endif %}
+{% endblock %}

@@ -97,3 +97,14 @@
 - No template fixes needed (test compatibility)
 - Tests: 44 passed, 15 skipped (maintains baseline)
 - 交付 docs/reports/mimo-phase2-ui-regression-06.md
+
+## 2026-06-29: Water Preview UI Regression
+
+- Base: `codex-phase2-mainline-01`
+- Verified water preview flow: list → preview → post
+- Fixed copy to Chinese:
+  - preview.html: "Water Bill" → "水費單"
+  - post_form.html: "Water Bill" → "水費單"
+  - forms.py: mode choices (shared_by_stay_days → 按居住天數分攤, independent_meter → 獨立水表)
+- Tests: 46 passed, 15 skipped (maintains baseline)
+- 交付 docs/reports/mimo-phase3-water-preview-ui-01.md

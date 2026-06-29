@@ -1,8 +1,8 @@
 {% extends "base.html" %}
-{% block title %}Billing{% endblock %}
+{% block title %}帳單管理{% endblock %}
 {% block content %}
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-  <h1 style="margin:0;">Billing</h1>
+  <h1 style="margin:0;">帳單管理</h1>
   <div style="display:flex; gap:12px; align-items:center;">
     <a href="{{ url_for('billing.billing_create') }}">新增月帳單</a>
     <a href="{{ url_for('billing.billing_batch_generate') }}">批次產生</a>
@@ -41,7 +41,7 @@
       <tr>
         <td>{{ bill.id }}</td>
         <td>{{ bill.year_month | year_month_ui }}</td>
-        <td><a href="{{ url_for('billing.billing_contract_list', contract_id=bill.contract_id) }}">Contract {{ bill.contract_id }}</a></td>
+        <td><a href="{{ url_for('billing.billing_contract_list', contract_id=bill.contract_id) }}">合約 {{ bill.contract_id }}</a></td>
         <td>{{ bill.rent }}</td>
         <td>{{ bill.electricity_amount }}</td>
         <td>{{ bill.public_electricity }}</td>

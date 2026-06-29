@@ -73,3 +73,15 @@
   - reports/forms.py: report filter status choices
 - Tests: 35 passed, 15 skipped (maintains baseline)
 - 交付 docs/reports/mimo-maintenance-ui-regression-05.md
+
+## 2026-06-29: Phase 2 UI Regression Round 5
+
+- Base: `codex-phase2-mainline-01`
+- Verified new workflow pages: electricity property detail, reading-log
+- Fixed status labels to Chinese:
+  - property_detail.html: summary cards (待處理/已計算/已回寫)
+  - reading_log.html: table headers (抄表編號/帳單編號)
+  - billing/list.html: title (帳單管理) and contract link (合約)
+  - payments/list.html: status labels (待審核/已驗證/已連結/已駁回)
+- Tests: 41 passed, 15 skipped (maintains baseline)
+- 交付 docs/reports/mimo-phase2-ui-regression-05.md

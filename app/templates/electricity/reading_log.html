@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Electricity Reading Log{% endblock %}
+{% block content %}
+<div class="card" style="margin-bottom:16px;">
+  <h1>抄表歷史：{{ property.name }}</h1>
+  <a href="{{ url_for('electricity.electricity_property_detail', property_id=property.id) }}">回到電力總覽</a>
+</div>
+<table>
+  <thead>
+    <tr><th>抄表編號</th><th>帳單編號</th><th>月份</th><th>電表</th><th>房間</th><th>用電量</th><th>計算金額</th><th>確認金額</th><th>備註</th></tr>
+  </thead>
+  <tbody>
+    {% for reading in readings %}
+    <tr>
+      <td>{{ reading.id }}</td>
+      <td><a href="{{ url_for('electricity.bill_detail', bill_id=reading.bill.id) }}">#{{ reading.bill.id }}</a></td>
+      <td>{{ reading.bill.year_month|year_month_ui if reading.bill.year_month else '-' }}</td>
+      <td>{{ reading.meter.meter_number if reading.meter and reading.meter.meter_number else reading.meter_id }}</td>
+      <td>{{ reading.room.room_number if reading.room else '-' }}</td>
+      <td>{{ reading.usage }}</td>
+      <td>{{ reading.calculated_amount }}</td>
+      <td>{{ reading.confirmed_amount or '-' }}</td>
+      <td>{{ reading.notes or '-' }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="9">尚無抄表資料</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

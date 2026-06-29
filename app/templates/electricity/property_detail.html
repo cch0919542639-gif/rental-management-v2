@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Electricity Property Detail{% endblock %}
+{% block content %}
+<div class="card" style="margin-bottom:16px;">
+  <h1>電力總覽：{{ property.name }}</h1>
+  <p><strong>地址：</strong>{{ property.address or '-' }}</p>
+  <p><strong>房東：</strong>{{ property.landlord.name if property.landlord else '-' }}</p>
+  <a href="{{ url_for('electricity.electricity_property_bills', property_id=property.id) }}">只看此物件電費單</a>
+  <a href="{{ url_for('electricity.electricity_property_new_bill', property_id=property.id) }}" style="margin-left:8px;">新增此物件電費單</a>
+  <a href="{{ url_for('electricity.electricity_property_quick_reading', property_id=property.id) }}" style="margin-left:8px;">快速抄表</a>
+  <a href="{{ url_for('electricity.electricity_property_reading_log', property_id=property.id) }}" style="margin-left:8px;">抄表歷史</a>
+</div>
+<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
+  <div class="card" style="padding:8px 12px;"><strong>電表數：</strong>{{ overview.meter_count }}</div>
+  <div class="card" style="padding:8px 12px;"><strong>主表數：</strong>{{ overview.main_meter_count }}</div>
+  <div class="card" style="padding:8px 12px;"><strong>電費單數：</strong>{{ overview.bill_count }}</div>
+  <div class="card" style="padding:8px 12px;"><strong>待處理：</strong>{{ overview.pending_count }}</div>
+  <div class="card" style="padding:8px 12px;"><strong>已計算：</strong>{{ overview.calculated_count }}</div>
+  <div class="card" style="padding:8px 12px;"><strong>已回寫：</strong>{{ overview.posted_count }}</div>
+  <div class="card" style="padding:8px 12px;"><strong>流動電費：</strong>{{ overview.total_flow_amount }}</div>
+  <div class="card" style="padding:8px 12px;"><strong>公設電費：</strong>{{ overview.total_public_amount }}</div>
+  <div class="card" style="padding:8px 12px;"><strong>總額：</strong>{{ overview.total_bill_amount }}</div>
+</div>
+<div class="card" style="margin-bottom:16px;">
+  <h2>電表</h2>
+  <table>
+    <thead>
+      <tr><th>ID</th><th>電表號</th><th>房間</th><th>主表</th><th>備註</th></tr>
+    </thead>
+    <tbody>
+      {% for meter in meters %}
+      <tr>
+        <td>{{ meter.id }}</td>
+        <td>{{ meter.meter_number or '-' }}</td>
+        <td>{{ meter.room.room_number if meter.room else (meter.room_number or '-') }}</td>
+        <td>{{ 'Y' if meter.is_main else 'N' }}</td>
+        <td>{{ meter.notes or '-' }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5">尚無電表</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="card">
+  <h2>最近電費單</h2>
+  <table>
+    <thead>
+      <tr><th>ID</th><th>月份</th><th>帳期</th><th>狀態</th><th>總用量</th><th>總額</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for bill in bills %}
+      <tr>
+        <td>{{ bill.id }}</td>
+        <td>{{ bill.year_month|year_month_ui if bill.year_month else '-' }}</td>
+        <td>{{ bill.period_start }} ~ {{ bill.period_end }}</td>
+        <td>{{ {'pending':'待處理','calculated':'已計算','posted':'已回寫'}.get(bill.status, bill.status) }}</td>
+        <td>{{ bill.total_usage or 0 }}</td>
+        <td>{{ bill.total_amount or 0 }}</td>
+        <td><a href="{{ url_for('electricity.bill_detail', bill_id=bill.id) }}">查看</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7">尚無電費單</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -30,7 +30,7 @@
       <td>{{ payment.bank_name or '-' }}</td>
       <td>{{ payment.account_number or '-' }}</td>
       <td>{{ payment.transaction_id or '-' }}</td>
-      <td>{{ payment.record_status }}</td>
+      <td>{{ {'pending':'待審核','verified':'已驗證','linked':'已連結','rejected':'已駁回'}.get(payment.record_status, payment.record_status) }}</td>
       <td>{{ payment.monthly_bill_id or '-' }}</td>
       <td>
         {% if payment.record_status == 'pending' %}

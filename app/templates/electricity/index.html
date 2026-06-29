@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% block title %}Electricity{% endblock %}
 {% block content %}
+{% if selected_property %}
+<div class="card" style="margin-bottom:16px;padding:12px;">
+  <strong>目前篩選物件：{{ selected_property.name }}</strong>
+  <a href="{{ url_for("electricity.electricity_dashboard") }}" style="margin-left:12px;">清除篩選</a>
+</div>
+{% endif %}
 <div style="display:flex;gap:24px;align-items:flex-start;">
   <div class="card" style="flex:1;">
     <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -15,7 +21,7 @@
         {% for meter in meters %}
         <tr>
           <td>{{ meter.id }}</td>
-          <td>{{ meter.property_id }}</td>
+          <td>{{ meter.property.name if meter.property else meter.property_id }}</td>
           <td>{{ meter.room_id or '-' }}</td>
           <td>{{ 'Y' if meter.is_main else 'N' }}</td>
           <td><a href="{{ url_for('electricity.meter_edit', meter_id=meter.id) }}">編輯</a></td>
@@ -40,7 +46,7 @@
         <tr>
           <td>{{ bill.id }}</td>
           <td>{{ bill.year_month|year_month_ui if bill.year_month else '-' }}</td>
-          <td>{{ bill.property_id }}</td>
+          <td>{{ bill.property.name if bill.property else bill.property_id }}</td>
           <td>{{ bill.status }}</td>
           <td><a href="{{ url_for('electricity.bill_detail', bill_id=bill.id) }}">查看</a></td>
         </tr>

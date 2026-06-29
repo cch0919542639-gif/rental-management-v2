@@ -1,30 +1,29 @@
 # mimo
 
 Status: DONE
-Last Updated: 2026-06-29 15:00
+Last Updated: 2026-06-29 16:00
 
 ## Current Task
 
-- Phase 2 UI Regression Round 5
+- Phase 2 UI Regression Round 6
 
 ## Scope
 
-- New workflows regression: electricity property detail / reading-log
-- Status labels Chinese localization
+- Migration / integration placeholder pages and copy
+- Error pages (404, 500, app_error)
 
 ## Completed This Round
 
-- Verified all new workflow pages
-- Fixed status labels to Chinese:
-  - property_detail.html: summary cards
-  - reading_log.html: table headers
-  - billing/list.html: title and contract link
-  - payments/list.html: status labels
-- Tests: 41 passed, 15 skipped (maintains baseline)
+- Verified all error pages (404, 500, app_error)
+- Verified migration scripts (migration_index, maintenance_legacy_scan)
+- Verified integration placeholders (OCR, Sheets, LINE)
+- All pages verified normal
+- No template fixes needed (test compatibility)
+- Tests: 44 passed, 15 skipped (maintains baseline)
 
 ## Delivered
 
-- docs/reports/mimo-phase2-ui-regression-05.md
+- docs/reports/mimo-phase2-ui-regression-06.md
 
 ## Status
 

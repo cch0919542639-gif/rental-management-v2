@@ -85,3 +85,15 @@
   - payments/list.html: status labels (待審核/已驗證/已連結/已駁回)
 - Tests: 41 passed, 15 skipped (maintains baseline)
 - 交付 docs/reports/mimo-phase2-ui-regression-05.md
+
+## 2026-06-29: Phase 2 UI Regression Round 6
+
+- Base: `codex-phase2-mainline-01`
+- Verified migration / integration placeholder pages:
+  - Error pages (404, 500, app_error)
+  - Migration scripts (migration_index, maintenance_legacy_scan)
+  - Integration placeholders (OCR, Sheets, LINE)
+- All pages verified normal
+- No template fixes needed (test compatibility)
+- Tests: 44 passed, 15 skipped (maintains baseline)
+- 交付 docs/reports/mimo-phase2-ui-regression-06.md

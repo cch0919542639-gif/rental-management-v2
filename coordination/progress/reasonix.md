@@ -1,26 +1,27 @@
 # reasonix
 
 Status: DONE
-Last Updated: 2026-06-27
+Last Updated: 2026-06-29
 
 ## Current Task
-- ✅ 三份報告全部完成
+- ✅ Phase 2 Round 2 — Maintenance contract & flow design review
 
 ## Scope
-- 架構決策與資料契約凍結（Phase 0 收尾）
+- 審查 maintenance-contract.md + maintenance-schema-flow-design-2026-06-29.md 是否符合既有凍結決策
 
 ## Completed So Far
-- 已閱讀全部 data_contracts/（11 份）
-- 已閱讀 roadmap、target-structure、agent-work-rules、reasonix 任務書
-- 已釐清五大決策點
-- ✅ docs/reports/reasonix-architecture-decision.md（Parallel Rebuild，PaymentRecord 唯一付款實體，year_month YYYYMM，user 單表，Room.status 取代虛擬 tenant 名稱）
-- ✅ docs/reports/reasonix-data-contract-audit.md（5 實體審計：User 雙表、MonthlyBill.year_month 9 處散落、PaymentRecord 空表死碼、Room.status 脫鉤、Contract.status 過期風險）
-- ✅ docs/reports/reasonix-dependency-map.md（模組圖、實體圖、4 項循環依賴風險、13 項邊界違規、7 條切割線）
+- ✅ git checkout main + git pull origin main
+- ✅ 已閱讀 phase2-round2-agent-dispatch.md、任務卡、maintenance-contract.md、flow design、phase2-contract-notes-01.md
+- ✅ 交叉比對 status-machines.md、Room/Contract/Tenant 現有 schema
+- ✅ docs/reports/reasonix-maintenance-review-02.md 產出（277 行，9 個 sections）
+- ✅ 結論：0 項違約，可直接施工（8 items），無 blocking items
+- ✅ 任務卡：ready → in_progress → review
+- ✅ Branch: agent/reasonix-maintenance-review-02
 
 ## Next Step
-- 交接 open agent 啟動 Phase 1 骨架（core/、models/、year_month helper）
-- 交接 mimo agent 處理 PaymentRecord
-- 交接 box agent 處理 migration scripts
+- 任務卡移至 review 區等待 Codex 驗收
+- Codex 可開始 Phase 2A maintenance 實作
 
 ## Risks / Blockers
-- 無（所有關鍵決策均可從既有契約文件中唯一推導）
+- 無 blocking items
+- Legacy 待修資料 migration 需等到 Phase 2B/3（已記錄在報告 R03）

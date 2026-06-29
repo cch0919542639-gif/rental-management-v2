@@ -1,6 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import login_required
 
+from app.core.errors import ConflictError
 from app.modules.landlords.forms import LandlordForm
 from app.repositories import LandlordRepository
 from app.services import LandlordService
@@ -57,3 +58,15 @@ def landlord_edit(landlord_id: int):
         flash("房東已更新", "success")
         return redirect(url_for("landlords.landlord_list"))
     return render_template("landlords/form.html", form=form, title="編輯房東")
+
+
+@landlords_bp.post("/<int:landlord_id>/delete")
+@login_required
+def landlord_delete(landlord_id: int):
+    landlord = LandlordRepository.get_or_404(landlord_id)
+    try:
+        LandlordService.delete_landlord(landlord)
+        flash("房東已刪除", "success")
+    except ConflictError as exc:
+        flash(exc.message, "error")
+    return redirect(url_for("landlords.landlord_list"))

@@ -10,3 +10,7 @@ class TenantRepository:
     @staticmethod
     def get_or_404(tenant_id: int):
         return session_get_or_404(Tenant, tenant_id)
+
+    @staticmethod
+    def delete(tenant: Tenant):
+        tenant.delete()

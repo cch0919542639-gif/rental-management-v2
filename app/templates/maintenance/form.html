@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+<form method="post" class="card" style="display:grid;gap:12px;max-width:760px;">
+  {{ form.hidden_tag() }}
+  {{ form.room_id.label }} {{ form.room_id() }}
+  {{ form.issue_category.label }} {{ form.issue_category() }}
+  {{ form.priority.label }} {{ form.priority() }}
+  {{ form.title.label }} {{ form.title() }}
+  {{ form.description.label }} {{ form.description(rows=4) }}
+  {{ form.reported_by_name.label }} {{ form.reported_by_name() }}
+  {{ form.assigned_to_name.label }} {{ form.assigned_to_name() }}
+  {{ form.estimated_cost.label }} {{ form.estimated_cost() }}
+  {{ form.actual_cost.label }} {{ form.actual_cost() }}
+  {{ form.notes.label }} {{ form.notes(rows=4) }}
+  {{ form.submit() }}
+</form>
+{% endblock %}

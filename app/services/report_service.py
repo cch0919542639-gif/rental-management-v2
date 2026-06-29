@@ -18,10 +18,12 @@ class ReportService:
                 "tenant_name": row.tenant_name,
                 "rent": row.rent,
                 "electricity_amount": row.electricity_amount,
+                "public_electricity": row.public_electricity,
                 "electricity_usage": row.electricity_usage,
                 "water_amount": row.water_amount,
                 "water_usage": row.water_usage,
                 "other_charges": row.other_charges,
+                "other_desc": row.other_desc,
                 "total": row.total,
                 "paid": row.paid,
             }

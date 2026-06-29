@@ -10,3 +10,7 @@ class WaterBillRepository:
     @staticmethod
     def get_or_404(water_bill_id: int):
         return session_get_or_404(WaterBill, water_bill_id)
+
+    @staticmethod
+    def delete(water_bill: WaterBill):
+        water_bill.delete()

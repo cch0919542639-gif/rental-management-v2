@@ -13,7 +13,7 @@
     {% for water_bill in water_bills %}
     <tr>
       <td>{{ water_bill.id }}</td>
-      <td>{{ water_bill.property_id }}</td>
+      <td>{{ water_bill.property.name }}</td>
       <td>{{ water_bill.billing_start }} ~ {{ water_bill.billing_end }}</td>
       <td>{{ water_bill.total_amount }}</td>
       <td>

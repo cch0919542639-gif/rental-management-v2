@@ -1,9 +1,10 @@
 from app.core.db import db
-from app.core.errors import DomainValidationError
+from app.core.errors import ConflictError, DomainValidationError
 from app.models import WaterBill
 from app.repositories import BillingRepository, ContractRepository
 from app.services.billing_service import BillingService
 from app.services.water_allocation_service import WaterAllocationService
+from sqlalchemy.exc import IntegrityError
 
 
 class WaterService:
@@ -76,3 +77,12 @@ class WaterService:
         BillingService.calculate_total(monthly_bill)
         db.session.commit()
         return monthly_bill
+
+    @staticmethod
+    def delete_water_bill(water_bill: WaterBill):
+        try:
+            db.session.delete(water_bill)
+            db.session.commit()
+        except IntegrityError as exc:
+            db.session.rollback()
+            raise ConflictError("此水費單仍有關聯資料，無法刪除") from exc

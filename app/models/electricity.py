@@ -22,6 +22,9 @@ class ElectricityMeter(BaseModel):
     room_number = db.Column(db.String(20))
     notes = db.Column(db.Text, default="")
 
+    property = db.relationship("Property", backref="electricity_meters", lazy=True)
+    room = db.relationship("Room", backref="electricity_meters", lazy=True)
+
 
 class ElectricityBill(BaseModel):
     __tablename__ = "electricity_bills"
@@ -43,6 +46,10 @@ class ElectricityBill(BaseModel):
     notes = db.Column(db.Text, default="")
     created_by = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
 
+    property = db.relationship("Property", backref="electricity_bills", lazy=True)
+    meter = db.relationship("ElectricityMeter", backref="bills", lazy=True)
+    creator = db.relationship("User", foreign_keys=[created_by], lazy=True)
+
 
 class ElectricityReading(BaseModel):
     __tablename__ = "electricity_readings"
@@ -56,3 +63,7 @@ class ElectricityReading(BaseModel):
     calculated_amount = db.Column(db.Numeric(10, 2), default=0)
     confirmed_amount = db.Column(db.Numeric(10, 2), nullable=True)
     notes = db.Column(db.Text, default="")
+
+    bill = db.relationship("ElectricityBill", backref="readings", lazy=True)
+    meter = db.relationship("ElectricityMeter", backref="readings", lazy=True)
+    room = db.relationship("Room", backref="electricity_readings", lazy=True)

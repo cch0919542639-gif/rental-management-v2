@@ -1,6 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import login_required
 
+from app.core.errors import ConflictError
 from app.modules.water.forms import WaterBillForm, WaterPostForm
 from app.repositories import PropertyRepository, WaterBillRepository
 from app.services import WaterService
@@ -92,3 +93,15 @@ def water_post(water_bill_id: int):
         flash("水費已回寫月帳單", "success")
         return redirect(url_for("water.water_list"))
     return render_template("water/post_form.html", form=form, water_bill=water_bill, title="回寫月帳單")
+
+
+@water_bp.post("/<int:water_bill_id>/delete")
+@login_required
+def water_delete(water_bill_id: int):
+    water_bill = WaterBillRepository.get_or_404(water_bill_id)
+    try:
+        WaterService.delete_water_bill(water_bill)
+        flash("水費單已刪除", "success")
+    except ConflictError as exc:
+        flash(exc.message, "error")
+    return redirect(url_for("water.water_list"))

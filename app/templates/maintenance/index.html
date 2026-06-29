@@ -3,8 +3,54 @@
 {% block content %}
 <div class="card" style="margin-bottom:16px;">
   <h1>Maintenance</h1>
-  <p>此模組已建立主幹邊界，但正式維修資料 schema 尚未凍結。</p>
-  <p>目前頁面只提供房間快照，避免再把「待修」塞回 `Room.status` 或虛擬 tenant 名稱。</p>
+  <p>維修請求獨立於房間狀態管理，避免把待修污染回 `Room.status`。</p>
+  <p>目前 maintenance schema 已獨立建模，後續流程在此主幹上擴充。</p>
+  <a href="{{ url_for('maintenance.maintenance_create') }}">新增維修單</a>
+</div>
+<div class="card" style="margin-bottom:16px;">
+  <h2>維修單</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th><th>物件</th><th>房號</th><th>標題</th><th>分類</th><th>優先級</th><th>狀態</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for request in requests %}
+      <tr>
+        <td>{{ request.id }}</td>
+        <td>{{ request.room.property.name }}</td>
+        <td>{{ request.room.room_number }}</td>
+        <td>{{ request.title }}</td>
+        <td>{{ request.issue_category }}</td>
+        <td>{{ request.priority }}</td>
+        <td>{{ request.status }}</td>
+        <td>
+          <a href="{{ url_for('maintenance.maintenance_edit', request_id=request.id) }}">編輯</a>
+          {% if request.status == 'reported' %}
+          <form method="post" action="{{ url_for('maintenance.maintenance_transition', request_id=request.id, next_status='assigned') }}" class="inline">
+            <button type="submit">assigned</button>
+          </form>
+          {% elif request.status == 'assigned' %}
+          <form method="post" action="{{ url_for('maintenance.maintenance_transition', request_id=request.id, next_status='in_progress') }}" class="inline">
+            <button type="submit">in_progress</button>
+          </form>
+          {% elif request.status == 'in_progress' %}
+          <form method="post" action="{{ url_for('maintenance.maintenance_transition', request_id=request.id, next_status='resolved') }}" class="inline">
+            <button type="submit">resolved</button>
+          </form>
+          {% elif request.status == 'resolved' %}
+          <form method="post" action="{{ url_for('maintenance.maintenance_transition', request_id=request.id, next_status='closed') }}" class="inline">
+            <button type="submit">closed</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="8">尚無維修單</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 <table>
   <thead>

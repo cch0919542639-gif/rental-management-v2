@@ -51,7 +51,21 @@ def _populate_reading_form(form: ElectricityReadingForm):
 def electricity_dashboard():
     bills = ElectricityBillRepository.list_all()
     meters = ElectricityMeterRepository.list_all()
-    return render_template("electricity/index.html", bills=bills, meters=meters)
+    return render_template("electricity/index.html", bills=bills, meters=meters, selected_property=None)
+
+
+@electricity_bp.get("/property/<int:property_id>/bills")
+@login_required
+def electricity_property_bills(property_id: int):
+    bills = ElectricityBillRepository.list_for_property(property_id)
+    meters = ElectricityMeterRepository.list_all()
+    selected_property = PropertyRepository.get_or_404(property_id)
+    return render_template(
+        "electricity/index.html",
+        bills=bills,
+        meters=meters,
+        selected_property=selected_property,
+    )
 
 
 @electricity_bp.route("/meters/create", methods=["GET", "POST"])

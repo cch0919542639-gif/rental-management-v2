@@ -61,3 +61,15 @@
 - No template fixes needed
 - No incidents created
 - 交付 docs/reports/mimo-phase2-ui-regression-04.md
+
+## 2026-06-29: Maintenance Phase 2B UI Regression Round 5
+
+- Base: `codex-phase2-mainline-01`
+- Verified all 6 maintenance pages
+- Fixed status labels to Chinese throughout:
+  - maintenance/index.html: status column, breakdown cards, transition buttons
+  - reports/maintenance.html: status column
+  - maintenance/forms.py: filter status choices
+  - reports/forms.py: report filter status choices
+- Tests: 35 passed, 15 skipped (maintains baseline)
+- 交付 docs/reports/mimo-maintenance-ui-regression-05.md

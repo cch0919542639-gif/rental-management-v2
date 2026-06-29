@@ -6,13 +6,42 @@
   <p>維修請求獨立於房間狀態管理，避免把待修污染回 `Room.status`。</p>
   <p>目前 maintenance schema 已獨立建模，後續流程在此主幹上擴充。</p>
   <a href="{{ url_for('maintenance.maintenance_create') }}">新增維修單</a>
+  <a href="{{ url_for('maintenance.maintenance_index') }}" style="margin-left:8px;">全部維修單</a>
+  <a href="{{ url_for('maintenance.maintenance_open') }}" style="margin-left:8px;">Open 維修單</a>
 </div>
 <div class="card" style="margin-bottom:16px;">
-  <h2>維修單</h2>
+  <h2>{{ scope_label }}</h2>
+  <form method="get" class="inline" style="display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:8px;margin:12px 0;">
+    {{ filter_form.status.label }} {{ filter_form.status() }}
+    {{ filter_form.priority.label }} {{ filter_form.priority() }}
+    {{ filter_form.room_id.label }} {{ filter_form.room_id() }}
+    {{ filter_form.reported_from.label }} {{ filter_form.reported_from() }}
+    {{ filter_form.reported_to.label }} {{ filter_form.reported_to() }}
+    <div style="grid-column:1 / -1;">
+      {{ filter_form.submit() }}
+      <a href="{{ url_for('maintenance.maintenance_index') }}" style="margin-left:8px;">清除篩選</a>
+    </div>
+  </form>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;margin:12px 0;">
+    <div class="card" style="padding:8px 12px;">
+      <strong>筆數：</strong>{{ summary.request_count }}
+    </div>
+    <div class="card" style="padding:8px 12px;">
+      <strong>預估成本：</strong>{{ summary.estimated_total }}
+    </div>
+    <div class="card" style="padding:8px 12px;">
+      <strong>實際成本：</strong>{{ summary.actual_total }}
+    </div>
+    {% for item in summary.status_breakdown %}
+    <div class="card" style="padding:8px 12px;">
+      <strong>{{ {'reported':'已通報','assigned':'已指派','in_progress':'處理中','resolved':'已解決','closed':'已關閉','cancelled':'已取消'}.get(item.status, item.status) }}：</strong>{{ item.request_count }}
+    </div>
+    {% endfor %}
+  </div>
   <table>
     <thead>
       <tr>
-        <th>ID</th><th>物件</th><th>房號</th><th>標題</th><th>分類</th><th>優先級</th><th>狀態</th><th></th>
+        <th>ID</th><th>物件</th><th>房號</th><th>標題</th><th>分類</th><th>優先級</th><th>狀態</th><th>通報時間</th><th></th>
       </tr>
     </thead>
     <tbody>
@@ -24,30 +53,31 @@
         <td>{{ request.title }}</td>
         <td>{{ request.issue_category }}</td>
         <td>{{ request.priority }}</td>
-        <td>{{ request.status }}</td>
+        <td>{{ {'reported':'已通報','assigned':'已指派','in_progress':'處理中','resolved':'已解決','closed':'已關閉','cancelled':'已取消'}.get(request.status, request.status) }}</td>
+        <td>{{ request.reported_at }}</td>
         <td>
           <a href="{{ url_for('maintenance.maintenance_edit', request_id=request.id) }}">編輯</a>
           {% if request.status == 'reported' %}
           <form method="post" action="{{ url_for('maintenance.maintenance_transition', request_id=request.id, next_status='assigned') }}" class="inline">
-            <button type="submit">assigned</button>
+            <button type="submit">指派</button>
           </form>
           {% elif request.status == 'assigned' %}
           <form method="post" action="{{ url_for('maintenance.maintenance_transition', request_id=request.id, next_status='in_progress') }}" class="inline">
-            <button type="submit">in_progress</button>
+            <button type="submit">開始處理</button>
           </form>
           {% elif request.status == 'in_progress' %}
           <form method="post" action="{{ url_for('maintenance.maintenance_transition', request_id=request.id, next_status='resolved') }}" class="inline">
-            <button type="submit">resolved</button>
+            <button type="submit">標記已解決</button>
           </form>
           {% elif request.status == 'resolved' %}
           <form method="post" action="{{ url_for('maintenance.maintenance_transition', request_id=request.id, next_status='closed') }}" class="inline">
-            <button type="submit">closed</button>
+            <button type="submit">關單</button>
           </form>
           {% endif %}
         </td>
       </tr>
       {% else %}
-      <tr><td colspan="8">尚無維修單</td></tr>
+      <tr><td colspan="9">尚無維修單</td></tr>
       {% endfor %}
     </tbody>
   </table>
@@ -55,7 +85,7 @@
 <table>
   <thead>
     <tr>
-      <th>Room ID</th><th>物件</th><th>房號</th><th>狀態</th><th>備註</th>
+      <th>Room ID</th><th>物件</th><th>房號</th><th>狀態</th><th>備註</th><th></th>
     </tr>
   </thead>
   <tbody>
@@ -66,9 +96,10 @@
       <td>{{ room.room_number }}</td>
       <td>{{ room.status }}</td>
       <td>{{ room.notes or '-' }}</td>
+      <td><a href="{{ url_for('maintenance.maintenance_room_requests', room_id=room.room_id) }}">查看維修單</a></td>
     </tr>
     {% else %}
-    <tr><td colspan="5">尚無房間資料</td></tr>
+    <tr><td colspan="6">尚無房間資料</td></tr>
     {% endfor %}
   </tbody>
 </table>

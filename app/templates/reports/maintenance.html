@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Maintenance Summary{% endblock %}
+{% block content %}
+<h1>維修彙總</h1>
+<form method="post" class="card" style="display:grid;grid-template-columns:repeat(4,minmax(140px,1fr));gap:12px;margin-bottom:16px;">
+  {{ form.hidden_tag() }}
+  {{ form.property_id.label }} {{ form.property_id() }}
+  {{ form.status.label }} {{ form.status() }}
+  {{ form.reported_from.label }} {{ form.reported_from() }}
+  {{ form.reported_to.label }} {{ form.reported_to() }}
+  <div style="grid-column:1 / -1;">{{ form.submit() }}</div>
+</form>
+<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
+  <div class="card" style="padding:8px 12px;"><strong>維修單數：</strong>{{ summary.totals.request_count }}</div>
+  <div class="card" style="padding:8px 12px;"><strong>Open：</strong>{{ summary.totals.open_count }}</div>
+  <div class="card" style="padding:8px 12px;"><strong>預估成本：</strong>{{ summary.totals.estimated_total }}</div>
+  <div class="card" style="padding:8px 12px;"><strong>實際成本：</strong>{{ summary.totals.actual_total }}</div>
+</div>
+<div class="card" style="margin-bottom:16px;">
+  <h2>依物件彙總</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>房東</th><th>物件</th><th>維修單數</th><th>Open</th><th>預估成本</th><th>實際成本</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in summary.property_summary %}
+      <tr>
+        <td>{{ row.landlord_name }}</td>
+        <td>{{ row.property_name }}</td>
+        <td>{{ row.request_count }}</td>
+        <td>{{ row.open_count }}</td>
+        <td>{{ row.estimated_total }}</td>
+        <td>{{ row.actual_total }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6">目前無維修資料</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="card">
+  <h2>依狀態彙總</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>狀態</th><th>維修單數</th><th>預估成本</th><th>實際成本</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in summary.status_summary %}
+      <tr>
+        <td>{{ {'reported':'已通報','assigned':'已指派','in_progress':'處理中','resolved':'已解決','closed':'已關閉','cancelled':'已取消'}.get(row.status, row.status) }}</td>
+        <td>{{ row.request_count }}</td>
+        <td>{{ row.estimated_total }}</td>
+        <td>{{ row.actual_total }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4">目前無維修資料</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

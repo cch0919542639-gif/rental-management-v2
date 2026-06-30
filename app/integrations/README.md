@@ -24,7 +24,7 @@ LINE、OCR、Sheets 或其他外部整合。
 | `__init__.py` | Package entry |
 | `ocr_client.py` | OCR protocol + minimal provider factory |
 | `sheets_client.py` | Sheets export interface only |
-| `line_webhook.py` | Phase 3 placeholder route |
+| `line_webhook.py` | LINE webhook signature verification + payload parsing boundary |
 
 ## OCR Rules
 
@@ -32,3 +32,10 @@ LINE、OCR、Sheets 或其他外部整合。
 - OCR analysis must not auto-change `PaymentRecord.record_status`
 - OCR analysis must not auto-trust extracted values into core payment fields
 - Missing config must degrade gracefully instead of crashing
+
+## LINE Webhook Rules
+
+- LINE webhook may verify signature and parse event payloads
+- Missing config must return a graceful `501 not_configured`
+- Webhook must not write directly into payment / maintenance tables
+- Downstream business actions remain manual review or later-phase service work

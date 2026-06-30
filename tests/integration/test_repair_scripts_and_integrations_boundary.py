@@ -1,4 +1,7 @@
 from datetime import date
+import base64
+import hashlib
+import hmac
 import os
 from pathlib import Path
 import subprocess
@@ -116,11 +119,50 @@ def test_contract_expiry_repair_execute_updates_expired_contracts(tmp_path):
         assert contract.status == "expired"
 
 
-def test_line_webhook_placeholder_returns_501(client, logged_in_client):
+def _line_signature(secret: str, body: bytes) -> str:
+    digest = hmac.new(secret.encode("utf-8"), body, hashlib.sha256).digest()
+    return base64.b64encode(digest).decode("utf-8")
+
+
+def test_line_webhook_returns_501_without_secret(client, logged_in_client):
     response = client.post("/integrations/line/callback")
     assert response.status_code == 501
     payload = response.get_json()
-    assert payload["error"] == "not_implemented"
+    assert payload["error"] == "not_configured"
+
+
+def test_line_webhook_rejects_invalid_signature(app, client, logged_in_client):
+    app.config["LINE_CHANNEL_SECRET"] = "test-line-secret"
+    response = client.post(
+        "/integrations/line/callback",
+        data='{"events":[]}',
+        headers={"Content-Type": "application/json", "X-Line-Signature": "bad-signature"},
+    )
+    assert response.status_code == 401
+    payload = response.get_json()
+    assert payload["error"] == "invalid_signature"
+
+
+def test_line_webhook_accepts_valid_signed_payload(app, client, logged_in_client):
+    app.config["LINE_CHANNEL_SECRET"] = "test-line-secret"
+    app.config["LINE_CHANNEL_ACCESS_TOKEN"] = "token-123"
+    body = (
+        '{"events":[{"type":"message","replyToken":"r1","source":{"type":"user","userId":"U123"},'
+        '"message":{"id":"m1","type":"image"}}]}'
+    ).encode("utf-8")
+    signature = _line_signature(app.config["LINE_CHANNEL_SECRET"], body)
+    response = client.post(
+        "/integrations/line/callback",
+        data=body,
+        headers={"Content-Type": "application/json", "X-Line-Signature": signature},
+    )
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["status"] == "accepted"
+    assert payload["event_count"] == 1
+    assert payload["reply_capable"] is True
+    assert payload["events"][0]["message_type"] == "image"
+    assert payload["events"][0]["user_id"] == "U123"
 
 
 def test_payment_list_shows_ocr_section_when_present(app, logged_in_client, seeded_data):

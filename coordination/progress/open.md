@@ -1,18 +1,19 @@
 # open
 
 Status: DONE
-Last Updated: 2026-06-29
-Baseline: `codex-phase2-mainline-01` (HEAD)
+Last Updated: 2026-06-30
 
 ## Current Task
+- Phase 4 gap audit（open 視角）
 
-### Phase 3 Kickoff Gap Check
-- Output: `docs/reports/open-phase3-kickoff-gap-check-01.md`
-- Scope: water preview、payment-records API boundary、migration write path 前置盤點
+## Deliverables
+- `docs/reports/open-phase4-gap-audit-01.md`
 
-## Key Findings
+## Summary
+- 盤點 P0: 6（含引用 reasonix B1–B4，open 獨自發現 5 項：user_loader、models import、production WSGI server、pagination、delete/detail 缺口）
+- 盤點 P1: 9（route/flow 6 項、測試維運 3 項）
+- 盤點 P2: 7（polish 項目）
+- 總計 22 項，含 open 獨自發現 5 項不在 reasonix 報告中
 
-- Water preview ✅ complete (46 passed / 15 skipped)
-- Payment API service/repo 已就緒，只缺薄 route 層
-- Migration write path 尚未正式啟動，但已有 read-only 基礎
-- 無 blocking gap，無需 incident
+## Next Step
+- Codex 可根據報告中的 Phase 4A→4B→4C→4D 順序安排施工

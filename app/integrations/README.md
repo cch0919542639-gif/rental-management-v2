@@ -23,7 +23,7 @@ LINE、OCR、Sheets 或其他外部整合。
 |------|---------|
 | `__init__.py` | Package entry |
 | `ocr_client.py` | OCR protocol + minimal provider factory |
-| `sheets_client.py` | Sheets export interface only |
+| `sheets_client.py` | Spreadsheet-friendly CSV/XLSX export adapter |
 | `line_webhook.py` | LINE webhook signature verification + payload parsing boundary |
 
 ## OCR Rules
@@ -39,3 +39,10 @@ LINE、OCR、Sheets 或其他外部整合。
 - Missing config must return a graceful `501 not_configured`
 - Webhook must not write directly into payment / maintenance tables
 - Downstream business actions remain manual review or later-phase service work
+
+## Sheets Rules
+
+- Sheets adapter is export-only in Phase 3
+- Allowed outputs: `csv`, `xlsx`
+- No OAuth, no Google Sheets import, no write-back into domain data
+- Export must pass through report service output, not query the DB ad hoc from the route

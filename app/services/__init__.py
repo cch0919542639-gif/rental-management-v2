@@ -11,6 +11,7 @@ from app.services.payment_service import PaymentService
 from app.services.property_service import PropertyService
 from app.services.rate_policy_service import RatePolicyService
 from app.services.report_service import ReportService
+from app.services.report_export_service import ReportExportService
 from app.services.room_service import RoomService
 from app.services.tenant_service import TenantService
 from app.services.water_service import WaterService
@@ -30,6 +31,7 @@ __all__ = [
     "PropertyService",
     "RatePolicyService",
     "ReportService",
+    "ReportExportService",
     "RoomService",
     "TenantService",
     "WaterAllocationService",

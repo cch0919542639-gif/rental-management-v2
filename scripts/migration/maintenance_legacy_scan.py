@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from app import create_app
+from scripts.migration._common import build_script_app
 from app.models import Contract, Room, Tenant
 
 FORBIDDEN_TENANT_NAMES = {"空房", "待修", "待補", "倉庫", "鐵皮"}
@@ -30,7 +30,7 @@ ALLOWED_ROOM_STATUSES = {"vacant", "occupied"}
 
 
 def main():
-    app = create_app("default")
+    app = build_script_app()
 
     with app.app_context():
         virtual_tenants = Tenant.query.filter(Tenant.name.in_(FORBIDDEN_TENANT_NAMES)).order_by(Tenant.id.asc()).all()

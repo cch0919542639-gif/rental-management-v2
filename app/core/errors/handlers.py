@@ -11,7 +11,10 @@ def register_error_handlers(app):
     @app.errorhandler(AppError)
     def handle_app_error(error: AppError):
         if _wants_json():
-            return jsonify({"error": error.code, "message": error.message}), error.status_code
+            payload = {"error": error.code, "message": error.message}
+            if getattr(error, "details", None):
+                payload["details"] = error.details
+            return jsonify(payload), error.status_code
         return (
             render_template(
                 "errors/app_error.html",

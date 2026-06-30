@@ -6,6 +6,7 @@ from app.services.electricity_service import ElectricityService
 from app.services.landlord_service import LandlordService
 from app.services.maintenance_service import MaintenanceService
 from app.services.payment_reconciliation_service import PaymentReconciliationService
+from app.services.payment_ocr_service import PaymentOCRService
 from app.services.payment_service import PaymentService
 from app.services.property_service import PropertyService
 from app.services.rate_policy_service import RatePolicyService
@@ -24,6 +25,7 @@ __all__ = [
     "LandlordService",
     "MaintenanceService",
     "PaymentReconciliationService",
+    "PaymentOCRService",
     "PaymentService",
     "PropertyService",
     "RatePolicyService",

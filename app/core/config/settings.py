@@ -14,6 +14,7 @@ class BaseConfig:
     LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN")
     LINE_CHANNEL_SECRET = os.getenv("LINE_CHANNEL_SECRET")
     OCR_API_KEY = os.getenv("OCR_API_KEY")
+    OCR_PROVIDER = os.getenv("OCR_PROVIDER")
 
 
 class DevelopmentConfig(BaseConfig):

@@ -28,7 +28,7 @@ def register_error_handlers(app):
     @app.errorhandler(404)
     def handle_not_found(_error):
         if _wants_json():
-            return jsonify({"error": "not_found", "message": "Resource not found"}), 404
+            return jsonify({"error": "not_found", "message": "找不到指定資源"}), 404
         return (
             render_template(
                 "errors/404.html",
@@ -41,7 +41,7 @@ def register_error_handlers(app):
     @app.errorhandler(500)
     def handle_server_error(_error):
         if _wants_json():
-            return jsonify({"error": "server_error", "message": "Internal server error"}), 500
+            return jsonify({"error": "server_error", "message": "伺服器內部錯誤"}), 500
         return (
             render_template(
                 "errors/500.html",

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Payments{% endblock %}
+{% block title %}付款記錄{% endblock %}
 {% block content %}
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
   <h1>付款記錄</h1>
@@ -26,7 +26,7 @@
       <td>{{ payment.id }}</td>
       <td>{{ payment.transaction_date or '-' }}</td>
       <td>{{ payment.payer_name or '-' }}</td>
-      <td>{{ payment.amount or 0 }}</td>
+      <td>{{ '%.2f'|format(payment.amount|float) }}</td>
       <td>{{ payment.bank_name or '-' }}</td>
       <td>{{ payment.account_number or '-' }}</td>
       <td>{{ payment.transaction_id or '-' }}</td>
@@ -44,7 +44,7 @@
         {% if payment.raw_ocr_text or payment.raw_llm_response or payment.image_path or payment.ocr_engine %}
         <details style="margin-top:8px;">
           <summary>OCR 資訊</summary>
-          <div style="margin-top:8px;font-size:14px;">
+          <div style="margin-top:8px;font-size:14px;max-width:400px;word-wrap:break-word;overflow-wrap:break-word;">
             <div><strong>OCR Engine：</strong>{{ payment.ocr_engine or '-' }}</div>
             <div><strong>Image Path：</strong>{{ payment.image_path or '-' }}</div>
             <div><strong>OCR Raw：</strong>{{ payment.raw_ocr_text or '-' }}</div>

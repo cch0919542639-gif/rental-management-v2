@@ -1,29 +1,36 @@
 # mimo
 
 Status: DONE
-Last Updated: 2026-06-29 17:00
+Last Updated: 2026-06-30
 
 ## Current Task
 
-- Water Preview UI Regression
+- Phase 3 UI/API Regression收尾 (mimo-phase3-ui-api-regression-01)
 
 ## Scope
 
-- Water preview page and flow: list → preview → post
+- payments UI (/payments/, create, verify, reject, link)
+- payment-records API (CRUD + lifecycle endpoints)
+- LINE webhook (config/invalid/valid scenarios)
+- error/feedback consistency (422/404 JSON, Chinese labels)
 
 ## Completed This Round
 
-- Verified water preview flow end-to-end
-- Fixed status labels to Chinese:
-  - preview.html: "Water Bill" → "水費單"
-  - post_form.html: "Water Bill" → "水費單"
-  - forms.py: mode choices (shared_by_stay_days → 按居住天數分攤, independent_meter → 獨立水表)
-- Tests: 46 passed, 15 skipped (maintains baseline)
+- Verified all 8 payment pages (list, create, verify, reject, link, 404, 500, app_error)
+- Verified all 8 payment-records API endpoints
+- Verified LINE webhook (3 scenarios)
+- Fixed UI consistency issues:
+  - review_form.html: English labels → Chinese, status mapping, amount format
+  - link_form.html: English labels → Chinese, status mapping, amount format
+  - list.html: amount format to 2dp, OCR block word-wrap
+  - error pages: English titles → Chinese (404, 500, app_error)
+  - error handlers: 404/500 JSON messages English → Chinese
+- Tests: 62 passed, 15 skipped (baseline maintained)
 
 ## Delivered
 
-- docs/reports/mimo-phase3-water-preview-ui-01.md
+- docs/reports/mimo-phase3-ui-api-regression-01.md
 
 ## Status
 
-All water preview UI items verified. No blockers.
+All regression items verified. No blockers. No contract changes.

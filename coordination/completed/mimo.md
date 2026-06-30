@@ -1,5 +1,18 @@
 # mimo Completed Log
 
+## 2026-06-30: Phase 3 UI/API Regression收尾
+
+- Branch: `agent/mimo-phase3-ui-api-regression-01`
+- Base: `codex-phase2-mainline-01`
+- Checked 8 payment pages, 8 API endpoints, 3 LINE webhook scenarios
+- Fixed 8 files (7 template + 1 handler) — all polish/consistency, no contract changes
+- Fixed: English labels → Chinese in review_form/link_form, amount formatting, error page titles, OCR block overflow, API error messages language consistency
+- Tests: 62 passed, 15 skipped (baseline maintained)
+- No blockers, no incidents
+- 交付 docs/reports/mimo-phase3-ui-api-regression-01.md
+
+## 2026-06-28: Initial Report Delivery
+
 ## 2026-06-28: Initial Report Delivery
 
 - 輸出檔案：`docs/reports/mimo-ui-field-matrix.md`, `docs/reports/mimo-test-scenarios.md`, `evidence/mimo-regression-checklist.md`

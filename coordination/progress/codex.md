@@ -1,15 +1,16 @@
 # codex
 
 Status: IN_PROGRESS
-Last Updated: 2026-06-30 01:02
+Last Updated: 2026-06-30 01:32
 
 ## Current Task
-- Phase 3 已完成第六個主題：`LINE webhook`
+- Phase 3 已完成第八個主題：`Sheets export-only`
 - 已建立 `water preview`
 - 已建立 `/api/payment-records` list / detail / create 邊界
 - 已補齊 repair script write convention 與 execute 驗證路徑
 - 已建立 payment OCR analyze flow，且不自動改 payment status 或核心欄位
 - 已建立 LINE webhook 驗簽與 payload parsing 邊界，不直接寫 DB
+- 已建立 reports CSV/XLSX export 邊界，不做 OAuth / import / write-back
 
 ## Scope
 - 以 `rebuild/app/` 建立新版模組化主幹
@@ -67,6 +68,14 @@ Last Updated: 2026-06-30 01:02
 - event summary response
 - graceful `501 not_configured`
 - no direct payment / maintenance write
+- 完成 Sheets export-only 第一版：
+- `app/integrations/sheets_client.py`
+- `app/services/report_export_service.py`
+- `/reports/monthly/export`
+- `/reports/landlord-summary/export`
+- `/reports/yearly/export`
+- 支援 `csv` / `xlsx`
+- no OAuth / no import / no write-back
 - 完成 `tests/conftest.py` 與多支 integration smoke / coverage tests
 - 完成 `scripts/seed_demo_data.py`
 - 完成 `docs/operations/dev-runbook.md`
@@ -95,7 +104,8 @@ Last Updated: 2026-06-30 01:02
 - migration scaffold / template / index 流程正確
 - OCR analyze API / graceful fallback / validation detail 流程正確
 - LINE webhook config-missing / invalid-signature / valid-signed-payload 流程正確
-- `pytest tests\integration -q` 通過（58 passed, 15 skipped）
+- reports export csv / xlsx / invalid-format 流程正確
+- `pytest tests\integration -q` 通過（61 passed, 15 skipped）
 - `python .\scripts\seed_demo_data.py` 可成功建立 demo data
 - `powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke_tests.ps1` 通過
 
@@ -112,7 +122,8 @@ Last Updated: 2026-06-30 01:02
 - 已完成 `migration scaffold`
 - 已完成 `OCR adapter`
 - 已完成 `LINE webhook`
-- 下一步可進入剩餘 Phase 3 主題：Sheets export-only、payment API P0/P1 backlog 補完、或 OCR/LINE review UI
+- 已完成 `Sheets export-only`
+- 下一步可進入整體收尾：總結 / 最終驗收 / commit-push 整理
 
 ## Risks / Blockers
 - 目前沒有結構性 blocker

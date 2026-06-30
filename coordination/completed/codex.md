@@ -1,5 +1,27 @@
 # codex completed log
 
+## 2026-06-30 01:32
+
+Completed:
+- Phase 3 第八個主題：`Sheets export-only`
+- 補齊 `app/integrations/sheets_client.py`，支援 `csv` / `xlsx`
+- 新增 `app/services/report_export_service.py`
+- 新增 `/reports/monthly/export`
+- 新增 `/reports/landlord-summary/export`
+- 新增 `/reports/yearly/export`
+- 明確限制 export-only：不做 OAuth、不做 import、不做 write-back
+- 新增 `tests/integration/test_reports_export_adapter.py`
+
+Verification:
+- `pytest tests\integration\test_reports_export_adapter.py tests\integration\test_reports_monthly_and_landlord_summary.py -q`
+- `pytest tests\integration -q`
+
+Result:
+- `61 passed, 15 skipped`
+
+Remaining:
+- 進入整體收尾：最終驗收、總結與 commit-push 整理
+
 ## 2026-06-30 01:02
 
 Completed:

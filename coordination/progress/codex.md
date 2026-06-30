@@ -1,14 +1,15 @@
 # codex
 
 Status: IN_PROGRESS
-Last Updated: 2026-06-30 00:45
+Last Updated: 2026-06-30 01:02
 
 ## Current Task
-- Phase 3 已完成第五個主題：`OCR adapter`
+- Phase 3 已完成第六個主題：`LINE webhook`
 - 已建立 `water preview`
 - 已建立 `/api/payment-records` list / detail / create 邊界
 - 已補齊 repair script write convention 與 execute 驗證路徑
 - 已建立 payment OCR analyze flow，且不自動改 payment status 或核心欄位
+- 已建立 LINE webhook 驗簽與 payload parsing 邊界，不直接寫 DB
 
 ## Scope
 - 以 `rebuild/app/` 建立新版模組化主幹
@@ -60,6 +61,12 @@ Last Updated: 2026-06-30 00:45
 - OCR provider factory + graceful fallback
 - OCR metadata-only persistence (`raw_ocr_text`, `raw_llm_response`, `ocr_engine`)
 - field-level 422 details for payment API create
+- 完成 LINE webhook 第一版：
+- signature verification
+- JSON payload parsing
+- event summary response
+- graceful `501 not_configured`
+- no direct payment / maintenance write
 - 完成 `tests/conftest.py` 與多支 integration smoke / coverage tests
 - 完成 `scripts/seed_demo_data.py`
 - 完成 `docs/operations/dev-runbook.md`
@@ -87,7 +94,8 @@ Last Updated: 2026-06-30 00:45
 - migration write path dry-run / execute 流程正確
 - migration scaffold / template / index 流程正確
 - OCR analyze API / graceful fallback / validation detail 流程正確
-- `pytest tests\integration -q` 通過（56 passed, 15 skipped）
+- LINE webhook config-missing / invalid-signature / valid-signed-payload 流程正確
+- `pytest tests\integration -q` 通過（58 passed, 15 skipped）
 - `python .\scripts\seed_demo_data.py` 可成功建立 demo data
 - `powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke_tests.ps1` 通過
 
@@ -103,7 +111,8 @@ Last Updated: 2026-06-30 00:45
 - 已完成 `migration write path`
 - 已完成 `migration scaffold`
 - 已完成 `OCR adapter`
-- 下一步可進入剩餘 Phase 3 主題：LINE webhook、Sheets export-only、或 payment API P0/P1 backlog 補完
+- 已完成 `LINE webhook`
+- 下一步可進入剩餘 Phase 3 主題：Sheets export-only、payment API P0/P1 backlog 補完、或 OCR/LINE review UI
 
 ## Risks / Blockers
 - 目前沒有結構性 blocker

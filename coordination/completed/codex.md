@@ -1,5 +1,26 @@
 # codex completed log
 
+## 2026-06-30 01:02
+
+Completed:
+- Phase 3 第六個主題：`LINE webhook`
+- 擴充 `app/integrations/line_webhook.py` 為最小可運行版
+- 補上 LINE signature verification
+- 補上 JSON payload parsing 與 event summary response
+- 缺少 `LINE_CHANNEL_SECRET` 時回傳 graceful `501 not_configured`
+- webhook 不直接寫入 payment / maintenance / 其他 domain tables
+- 更新 integrations README 與 LINE webhook integration tests
+
+Verification:
+- `pytest tests\integration\test_repair_scripts_and_integrations_boundary.py tests\integration\test_payments_api_boundary.py -q`
+- `pytest tests\integration -q`
+
+Result:
+- `58 passed, 15 skipped`
+
+Remaining:
+- Phase 3 其餘主題可往 Sheets export-only、payment API backlog 或 OCR/LINE review UI 前進
+
 ## 2026-06-30 00:45
 
 Completed:

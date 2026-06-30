@@ -1,5 +1,28 @@
 # codex completed log
 
+## 2026-06-30 00:45
+
+Completed:
+- Phase 3 第五個主題：`OCR adapter`
+- 補齊 `app/integrations/ocr_client.py` provider factory 與 graceful fallback
+- 新增 `app/services/payment_ocr_service.py`
+- 擴充 `/api/payment-records`：保留 list / detail / create，新增 `POST /api/payment-records/<id>/analyze`
+- OCR analyze 僅寫入 `raw_ocr_text` / `raw_llm_response` / `ocr_engine`
+- OCR analyze 不自動修改 `PaymentRecord.record_status`，也不自動覆蓋核心付款欄位
+- payment API create 補上 field-level 422 details
+- 同步收斂 migration scaffold index/README 與測試基線
+
+Verification:
+- `pytest tests\integration\test_payments_api_boundary.py tests\integration\test_auth_billing_payments_smoke.py tests\integration\test_payments_reject_and_status.py -q`
+- `pytest tests\integration -q`
+- `py -3 .\scripts\migration\migration_index.py`
+
+Result:
+- `56 passed, 15 skipped`
+
+Remaining:
+- Phase 3 其餘主題可往 LINE webhook、Sheets export-only 或 payment API backlog 補完前進
+
 ## 2026-06-29 23:36
 
 Completed:

@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import base64
+from datetime import datetime, UTC
 import hashlib
 import hmac
 import json
+from pathlib import Path
 
 from flask import Blueprint, current_app, jsonify, request
 
@@ -33,6 +35,19 @@ def _summarize_event(event: dict) -> dict:
         "message_id": message.get("id"),
         "reply_token_present": bool(event.get("replyToken")),
     }
+
+
+def _write_audit_log(events: list[dict]):
+    log_path = Path(current_app.config["LINE_WEBHOOK_AUDIT_LOG"])
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    entry = {
+        "received_at": datetime.now(UTC).isoformat(),
+        "event_count": len(events),
+        "reply_capable": bool(current_app.config.get("LINE_CHANNEL_ACCESS_TOKEN")),
+        "events": [_summarize_event(event) for event in events],
+    }
+    with log_path.open("a", encoding="utf-8") as fh:
+        fh.write(json.dumps(entry, ensure_ascii=False) + "\n")
 
 
 @line_webhook_bp.post("/callback")
@@ -86,6 +101,8 @@ def line_callback():
             ),
             400,
         )
+
+    _write_audit_log(events)
 
     return (
         jsonify(

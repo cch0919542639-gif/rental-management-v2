@@ -6,10 +6,10 @@ Phase 2 Round 2 — Billing edit flow and contract-specific billing list page.
 Covers:
   1. Edit an existing monthly bill (change other_charges, verify total recalculated)
   2. GET /billing/contracts/<id>/ renders 200
-  3. Placeholder: billing edit with conflict (skip)
+  3. Billing edit conflict detection
+  4. Toggle-paid idempotency
 """
 
-import pytest
 from app.core.db import db
 from app.models import MonthlyBill
 
@@ -60,11 +60,70 @@ def test_billing_contract_list_renders(app, logged_in_client, seeded_data):
     assert response.status_code == 200
 
 
-@pytest.mark.skip(reason="Placeholder: billing edit with conflict detection (TBD).")
-def test_billing_edit_conflict():
-    ...
+def test_billing_edit_conflict(app, logged_in_client, seeded_data):
+    """Editing a bill into an occupied contract/month slot should return 409."""
+    client = logged_in_client
+    original_bill_id = seeded_data["monthly_bill_id"]
+
+    response = client.post(
+        "/billing/create",
+        data={
+            "contract_id": seeded_data["contract_id"],
+            "year_month": "2026-07",
+            "rent": "12000",
+            "electricity_prev": "0",
+            "electricity_curr": "0",
+            "electricity_usage": "0",
+            "electricity_amount": "0",
+            "public_electricity": "0",
+            "water_prev": "0",
+            "water_curr": "0",
+            "water_usage": "0",
+            "water_amount": "0",
+            "other_charges": "0",
+            "notes": "conflict target",
+        },
+    )
+    assert response.status_code in (302, 303)
+
+    response = client.post(
+        f"/billing/{original_bill_id}/edit",
+        data={
+            "contract_id": seeded_data["contract_id"],
+            "year_month": "2026-07",
+            "rent": "12000",
+            "electricity_prev": "0",
+            "electricity_curr": "0",
+            "electricity_usage": "0",
+            "electricity_amount": "0",
+            "public_electricity": "0",
+            "water_prev": "0",
+            "water_curr": "0",
+            "water_usage": "0",
+            "water_amount": "0",
+            "other_charges": "0",
+            "other_desc": "",
+            "notes": "conflict attempt",
+        },
+    )
+    assert response.status_code == 409
+    assert "已有另一筆帳單" in response.get_data(as_text=True)
 
 
-@pytest.mark.skip(reason="Placeholder: toggle-paid idempotency (TBD).")
-def test_billing_toggle_paid_idempotency():
-    ...
+def test_billing_toggle_paid_idempotency(app, logged_in_client, seeded_data):
+    """Two toggles should flip paid True then False without breaking state."""
+    client = logged_in_client
+    bill_id = seeded_data["monthly_bill_id"]
+
+    response = client.post(f"/billing/{bill_id}/toggle-paid", follow_redirects=True)
+    assert response.status_code == 200
+    with app.app_context():
+        bill = db.session.get(MonthlyBill, bill_id)
+        assert bill.paid is True
+
+    response = client.post(f"/billing/{bill_id}/toggle-paid", follow_redirects=True)
+    assert response.status_code == 200
+    with app.app_context():
+        bill = db.session.get(MonthlyBill, bill_id)
+        assert bill.paid is False
+        assert bill.paid_date is None

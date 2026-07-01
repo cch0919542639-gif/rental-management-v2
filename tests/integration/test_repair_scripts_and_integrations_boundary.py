@@ -2,6 +2,7 @@ from datetime import date
 import base64
 import hashlib
 import hmac
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -143,9 +144,10 @@ def test_line_webhook_rejects_invalid_signature(app, client, logged_in_client):
     assert payload["error"] == "invalid_signature"
 
 
-def test_line_webhook_accepts_valid_signed_payload(app, client, logged_in_client):
+def test_line_webhook_accepts_valid_signed_payload(app, client, logged_in_client, tmp_path):
     app.config["LINE_CHANNEL_SECRET"] = "test-line-secret"
     app.config["LINE_CHANNEL_ACCESS_TOKEN"] = "token-123"
+    app.config["LINE_WEBHOOK_AUDIT_LOG"] = str(tmp_path / "line-events.jsonl")
     body = (
         '{"events":[{"type":"message","replyToken":"r1","source":{"type":"user","userId":"U123"},'
         '"message":{"id":"m1","type":"image"}}]}'
@@ -163,6 +165,13 @@ def test_line_webhook_accepts_valid_signed_payload(app, client, logged_in_client
     assert payload["reply_capable"] is True
     assert payload["events"][0]["message_type"] == "image"
     assert payload["events"][0]["user_id"] == "U123"
+    log_path = Path(app.config["LINE_WEBHOOK_AUDIT_LOG"])
+    assert log_path.exists()
+    lines = log_path.read_text(encoding="utf-8").strip().splitlines()
+    assert len(lines) == 1
+    audit_entry = json.loads(lines[0])
+    assert audit_entry["event_count"] == 1
+    assert audit_entry["events"][0]["message_type"] == "image"
 
 
 def test_payment_list_shows_ocr_section_when_present(app, logged_in_client, seeded_data):

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Electricity Property Detail{% endblock %}
+{% block title %}物件電力總覽{% endblock %}
 {% block content %}
 <div class="card" style="margin-bottom:16px;">
   <h1>電力總覽：{{ property.name }}</h1>
@@ -14,9 +14,9 @@
   <div class="card" style="padding:8px 12px;"><strong>電表數：</strong>{{ overview.meter_count }}</div>
   <div class="card" style="padding:8px 12px;"><strong>主表數：</strong>{{ overview.main_meter_count }}</div>
   <div class="card" style="padding:8px 12px;"><strong>電費單數：</strong>{{ overview.bill_count }}</div>
+  <div class="card" style="padding:8px 12px;"><strong>抄表筆數：</strong>{{ overview.reading_count }}</div>
   <div class="card" style="padding:8px 12px;"><strong>待處理：</strong>{{ overview.pending_count }}</div>
   <div class="card" style="padding:8px 12px;"><strong>已計算：</strong>{{ overview.calculated_count }}</div>
-  <div class="card" style="padding:8px 12px;"><strong>已回寫：</strong>{{ overview.posted_count }}</div>
   <div class="card" style="padding:8px 12px;"><strong>流動電費：</strong>{{ overview.total_flow_amount }}</div>
   <div class="card" style="padding:8px 12px;"><strong>公設電費：</strong>{{ overview.total_public_amount }}</div>
   <div class="card" style="padding:8px 12px;"><strong>總額：</strong>{{ overview.total_bill_amount }}</div>
@@ -54,7 +54,7 @@
         <td>{{ bill.id }}</td>
         <td>{{ bill.year_month|year_month_ui if bill.year_month else '-' }}</td>
         <td>{{ bill.period_start }} ~ {{ bill.period_end }}</td>
-        <td>{{ {'pending':'待處理','calculated':'已計算','posted':'已回寫'}.get(bill.status, bill.status) }}</td>
+        <td>{{ {'pending':'待處理','calculated':'已計算'}.get(bill.status, bill.status) }}</td>
         <td>{{ bill.total_usage or 0 }}</td>
         <td>{{ bill.total_amount or 0 }}</td>
         <td><a href="{{ url_for('electricity.bill_detail', bill_id=bill.id) }}">查看</a></td>

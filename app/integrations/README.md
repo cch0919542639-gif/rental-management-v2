@@ -36,6 +36,7 @@ LINE、OCR、Sheets 或其他外部整合。
 ## LINE Webhook Rules
 
 - LINE webhook may verify signature and parse event payloads
+- Accepted events are written to an audit JSONL log for manual follow-up
 - Missing config must return a graceful `501 not_configured`
 - Webhook must not write directly into payment / maintenance tables
 - Downstream business actions remain manual review or later-phase service work

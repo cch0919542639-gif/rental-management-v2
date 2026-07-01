@@ -3,6 +3,7 @@ from datetime import date
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
+from app.core.errors import DomainValidationError
 from app.core.security import admin_required
 from app.modules.billing.forms import BillingGenerateForm, MonthlyBillForm
 from app.repositories import BillingRepository, ContractRepository
@@ -22,8 +23,11 @@ def _populate_contract_choices(form: MonthlyBillForm):
 @login_required
 def billing_list():
     year_month = request.args.get("month") or request.args.get("year_month") or date.today().strftime("%Y-%m")
-    bills = BillingRepository.list_for_month(year_month)
-    summary = DashboardService.get_summary(year_month)
+    try:
+        bills = BillingRepository.list_for_month(year_month)
+        summary = DashboardService.get_summary(year_month)
+    except ValueError as exc:
+        raise DomainValidationError("月份格式錯誤", details={"year_month": [str(exc)]}) from exc
     return render_template(
         "billing/list.html",
         bills=bills,
@@ -69,7 +73,8 @@ def billing_create():
 def billing_edit(monthly_bill_id: int):
     bill = BillingRepository.get_or_404(monthly_bill_id)
     form = MonthlyBillForm(obj=bill)
-    form.year_month.data = bill.year_month[:4] + "-" + bill.year_month[4:]
+    if request.method == "GET":
+        form.year_month.data = bill.year_month[:4] + "-" + bill.year_month[4:]
     _populate_contract_choices(form)
     if form.validate_on_submit():
         BillingGenerationService.update_monthly_bill(

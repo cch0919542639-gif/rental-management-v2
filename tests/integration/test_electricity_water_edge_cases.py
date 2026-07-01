@@ -112,9 +112,69 @@ def test_electricity_multiple_bills_same_meter(app, logged_in_client, seeded_dat
         assert len(bills) == 2
 
 
-@pytest.mark.skip(reason="Placeholder: electricity reading amount fallback logic (TBD).")
-def test_electricity_reading_no_amount():
-    ...
+def test_electricity_reading_no_amount(app, logged_in_client, seeded_data):
+    """Missing calculated_amount should fall back to the existing service-calculated amount."""
+    client = logged_in_client
+    response = client.post(
+        "/electricity/meters/create",
+        data={
+            "property_id": seeded_data["property_id"],
+            "room_id": seeded_data["room_id"],
+            "meter_number": "M-FALLBACK-001",
+            "room_number": "A01",
+            "notes": "fallback meter",
+        },
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+
+    with app.app_context():
+        meter = ElectricityMeter.query.filter_by(meter_number="M-FALLBACK-001").first()
+        meter_id = meter.id
+
+    response = client.post(
+        "/electricity/bills/create",
+        data={
+            "property_id": seeded_data["property_id"],
+            "meter_id": meter_id,
+            "calc_method_id": seeded_data["calc_method_id"],
+            "year_month": "2026-11",
+            "period_start": "2026-11-01",
+            "period_end": "2026-11-30",
+            "prev_reading": "20",
+            "curr_reading": "30",
+            "total_amount": "50",
+            "public_amount": "0",
+            "flow_amount": "0",
+            "notes": "fallback bill",
+        },
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+
+    with app.app_context():
+        bill = ElectricityBill.query.filter_by(notes="fallback bill").first()
+        bill_id = bill.id
+
+    response = client.post(
+        f"/electricity/bills/{bill_id}/readings/create",
+        data={
+            "meter_id": meter_id,
+            "room_id": seeded_data["room_id"],
+            "prev_reading": "20",
+            "curr_reading": "30",
+            "notes": "fallback reading",
+        },
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+
+    with app.app_context():
+        bill = db.session.get(ElectricityBill, bill_id)
+        reading = bill.readings[0]
+        assert float(reading.usage) == 10.0
+        assert float(reading.calculated_amount) == 50.0
+        assert reading.confirmed_amount is None
 
 
 @pytest.mark.skip(reason="Placeholder: single-contract shared water allocation (TBD).")

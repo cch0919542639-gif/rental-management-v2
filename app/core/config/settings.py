@@ -10,6 +10,7 @@ class BaseConfig:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     WTF_CSRF_ENABLED = True
     JSON_AS_ASCII = False
+    LINE_WEBHOOK_AUDIT_LOG = os.getenv("LINE_WEBHOOK_AUDIT_LOG", str(BASE_DIR / "logs" / "line_webhook_events.jsonl"))
 
     LINE_CHANNEL_ACCESS_TOKEN = os.getenv("LINE_CHANNEL_ACCESS_TOKEN")
     LINE_CHANNEL_SECRET = os.getenv("LINE_CHANNEL_SECRET")

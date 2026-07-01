@@ -16,6 +16,7 @@ Constraints:
 
 import pytest
 from app.core.db import db
+from app.core.year_month import to_db_year_month
 from app.models import ElectricityBill, ElectricityMeter, MonthlyBill
 from app.repositories import ElectricityReadingRepository
 
@@ -166,17 +167,134 @@ def test_electricity_bill_post_to_monthly_bill(app, logged_in_client, seeded_dat
         )
 
 
-@pytest.mark.skip(reason="Placeholder: verify electricity bill status transitions "
-                         "from pending -> calculated -> posted to ensure no invalid "
-                         "state regression.")
-def test_electricity_bill_status_transitions():
-    """Placeholder — electricity bill status transitions (TBD)."""
-    ...
+def test_electricity_bill_status_transitions(app, logged_in_client, seeded_data):
+    """Bill should stay within the frozen pending -> calculated status machine."""
+    client = logged_in_client
+
+    response = client.post(
+        "/electricity/meters/create",
+        data={
+            "property_id": seeded_data["property_id"],
+            "room_id": seeded_data["room_id"],
+            "meter_number": "M-STATUS-001",
+            "room_number": "A01",
+            "notes": "status test meter",
+        },
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+
+    with app.app_context():
+        meter = ElectricityMeter.query.filter_by(meter_number="M-STATUS-001").first()
+        meter_id = meter.id
+
+    response = client.post(
+        "/electricity/bills/create",
+        data={
+            "property_id": seeded_data["property_id"],
+            "meter_id": meter_id,
+            "calc_method_id": seeded_data["calc_method_id"],
+            "year_month": "2026-09",
+            "period_start": "2026-09-01",
+            "period_end": "2026-09-30",
+            "prev_reading": "10",
+            "curr_reading": "30",
+            "total_amount": "100",
+            "public_amount": "0",
+            "flow_amount": "0",
+            "notes": "status test bill",
+        },
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+
+    with app.app_context():
+        bill = ElectricityBill.query.filter_by(notes="status test bill").first()
+        assert bill.status == "pending"
+        bill_id = bill.id
+
+    response = client.post(
+        f"/electricity/bills/{bill_id}/readings/create",
+        data={
+            "meter_id": meter_id,
+            "room_id": seeded_data["room_id"],
+            "prev_reading": "10",
+            "curr_reading": "30",
+            "calculated_amount": "100",
+            "confirmed_amount": "100",
+            "notes": "status test reading",
+        },
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+
+    response = client.post(f"/electricity/bills/{bill_id}/calculate", follow_redirects=True)
+    assert response.status_code == 200
+
+    with app.app_context():
+        bill = db.session.get(ElectricityBill, bill_id)
+        assert bill.status == "calculated"
+
+    readings = ElectricityReadingRepository.list_for_bill(bill_id)
+    response = client.post(
+        f"/electricity/bills/{bill_id}/post",
+        data={
+            "reading_id": readings[0].id,
+            "monthly_bill_id": seeded_data["monthly_bill_id"],
+            "public_electricity": "0",
+        },
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+
+    with app.app_context():
+        bill = db.session.get(ElectricityBill, bill_id)
+        monthly_bill = db.session.get(MonthlyBill, seeded_data["monthly_bill_id"])
+        assert bill.status == "calculated"
+        assert monthly_bill.electricity_amount == readings[0].confirmed_amount
 
 
-@pytest.mark.skip(reason="Placeholder: electricity bill year_month format consistency. "
-                         "Will verify that bills created with '2026-06' (UI format) "
-                         "are stored as '202606' (DB format) correctly.")
-def test_electricity_year_month_format():
-    """Placeholder — year_month format consistency check (TBD)."""
-    ...
+def test_electricity_year_month_format(app, logged_in_client, seeded_data):
+    """Electricity bill should store UI year_month as DB format via helper-backed service."""
+    client = logged_in_client
+
+    response = client.post(
+        "/electricity/meters/create",
+        data={
+            "property_id": seeded_data["property_id"],
+            "room_id": seeded_data["room_id"],
+            "meter_number": "M-YM-001",
+            "room_number": "A01",
+            "notes": "ym test meter",
+        },
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+
+    with app.app_context():
+        meter = ElectricityMeter.query.filter_by(meter_number="M-YM-001").first()
+        meter_id = meter.id
+
+    response = client.post(
+        "/electricity/bills/create",
+        data={
+            "property_id": seeded_data["property_id"],
+            "meter_id": meter_id,
+            "calc_method_id": seeded_data["calc_method_id"],
+            "year_month": "2026-10",
+            "period_start": "2026-10-01",
+            "period_end": "2026-10-31",
+            "prev_reading": "0",
+            "curr_reading": "10",
+            "total_amount": "50",
+            "public_amount": "0",
+            "flow_amount": "0",
+            "notes": "ym test bill",
+        },
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+
+    with app.app_context():
+        bill = ElectricityBill.query.filter_by(notes="ym test bill").first()
+        assert bill.year_month == to_db_year_month("2026-10")

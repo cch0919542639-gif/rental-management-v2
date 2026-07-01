@@ -6,7 +6,7 @@ Phase 2 — Payments: reject flow + edge cases + placeholder for deeper tests.
 Covers:
   1. Create a payment -> reject it -> verify record_status == "rejected"
   2. Payment list renders with a record in it
-  3. Placeholder: duplicate transaction_id handling (skip)
+  3. Duplicate transaction_id handling
   4. Placeholder: payment reconciliation scenarios (skip)
 
 Constraints:
@@ -74,13 +74,35 @@ def test_payment_list_with_records(app, logged_in_client, seeded_data):
     assert "TXN" in html or "付款" in html or "payment" in html.lower()
 
 
-@pytest.mark.skip(reason="Placeholder: test for duplicate transaction_id rejection. "
-                         "Will verify that creating two payments with the same "
-                         "transaction_id raises an error or is handled gracefully. "
-                         "Requires clarifying whether transaction_id has a DB unique constraint.")
-def test_payment_duplicate_transaction_id():
-    """Placeholder — duplicate transaction_id handling (TBD)."""
-    ...
+def test_payment_duplicate_transaction_id(app, logged_in_client, seeded_data):
+    """Creating the same transaction_id twice should reject the second request."""
+    client = logged_in_client
+
+    payload = {
+        "contract_id": seeded_data["contract_id"],
+        "monthly_bill_id": seeded_data["monthly_bill_id"],
+        "amount": "5000",
+        "transaction_date": "2026-06-21",
+        "payer_name": "Tenant One",
+        "transaction_id": "TXN-DUP-001",
+        "bank_name": "Test Bank",
+        "account_number": "67890",
+        "account_holder": "Owner A",
+        "status_text": "received",
+        "ocr_engine": "manual",
+        "notes": "duplicate test payment",
+    }
+
+    response = client.post("/payments/create", data=payload, follow_redirects=True)
+    assert response.status_code == 200
+
+    duplicate = client.post("/payments/create", data=payload)
+    assert duplicate.status_code == 409
+    assert "transaction_id 已存在" in duplicate.get_data(as_text=True)
+
+    with app.app_context():
+        records = PaymentRecord.query.filter_by(transaction_id="TXN-DUP-001").all()
+        assert len(records) == 1
 
 
 @pytest.mark.skip(reason="Placeholder: payment reconciliation edge cases. "

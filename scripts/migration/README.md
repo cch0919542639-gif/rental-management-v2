@@ -7,6 +7,9 @@
 | Script | Purpose | Safety |
 |--------|---------|--------|
 | `migration_index.py` | 列出目前可用 migration 腳本與用途 | Read-only |
+| `run_migrations.py` | 列出 / dry-run / execute `apply_*` migration，並記錄已套用 ID | Review-required |
+| `apply_20260701_000001_phase4_baseline_marker.py` | 建立第一個 tracked migration baseline，不改 domain tables | Safe write |
+| `apply_20260701_000002_alembic_bridge.py` | 在 cutover 前將 Alembic revision table 與 custom runner 對齊 | Review-required |
 | `maintenance_legacy_scan.py` | 掃描 maintenance 遷移候選（虛擬 tenant / room.status） | Read-only |
 | `_template_write_migration.py` | write-capable migration 範本，不可直接用於正式遷移 | Review-required |
 
@@ -14,13 +17,18 @@
 
 ```powershell
 py -3 .\scripts\migration\migration_index.py
+py -3 .\scripts\migration\run_migrations.py --list
 py -3 .\scripts\migration\maintenance_legacy_scan.py
+py -3 .\scripts\migration\run_migrations.py --execute --id 20260701_000002_alembic_bridge --allow-bridge
 ```
 
 ## Rule
 
 - 目前 `scripts/migration/` 僅允許放入 read-only scan 或經 Codex 明確批准的 migration 腳本。
 - 若腳本會修改資料，必須在檔頭寫清楚 rollback 與 verification 步驟。
+- 正式 `apply_*` migration 應透過 `run_migrations.py` 執行，不要直接 `python apply_*.py`
+- `apply_20260701_000002_alembic_bridge.py` 只能在 Phase 5B gate 開啟後執行，Phase 5A 僅允許 dry-run 與審查
+- Alembic bridge execute 必須額外帶 `--allow-bridge`，且所有前序 migration 都必須已套用
 
 ## Naming Convention
 

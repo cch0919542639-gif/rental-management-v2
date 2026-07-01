@@ -19,3 +19,8 @@ def dashboard_home():
 @dashboard_bp.get("/healthz")
 def healthz():
     return {"ok": True}
+
+
+@dashboard_bp.get("/readyz")
+def readyz():
+    return jsonify({"ok": True, "checks": {"database": "skipped"}})

@@ -15,6 +15,7 @@
 | `reset_demo_data.bat` | Wrapper: drop + re-seed in one step | ✅ Yes |
 | `seed_reset_check.ps1` | Seed, then run tests (seed/check/all modes) | ✅ Yes (seed) |
 | `github_preflight_check.ps1` | Check for risky files before git push | ❌ No |
+| `check_postgres_tooling.py` | Read-only PostgreSQL bridge tooling preflight | ❌ No |
 
 ## Repair Scripts
 
@@ -28,6 +29,29 @@
 ## Migration Scripts
 
 See `scripts/migration/README.md`.
+
+## Backup / Restore
+
+| Script | SQLite | PostgreSQL | Safety |
+|--------|--------|------------|--------|
+| `backup_runtime_db.py` | Copies the `.db` file | Prints / runs `pg_dump` command | Dry-run available |
+| `restore_runtime_db.py` | Copies backup file into runtime DB | Prints / runs `psql --file` command | Dry-run default |
+
+Examples:
+
+```powershell
+py -3 .\scripts\backup_runtime_db.py --dry-run
+py -3 .\scripts\restore_runtime_db.py --source .\backups\runtime_20260701_120000.db
+py -3 .\scripts\check_postgres_tooling.py --skip-binaries
+```
+
+For PostgreSQL bridge environments:
+
+```powershell
+$env:DATABASE_URL = "postgresql://postgres:replace-password@127.0.0.1:5432/rental_rebuild"
+py -3 .\scripts\backup_runtime_db.py --dry-run
+py -3 .\scripts\restore_runtime_db.py --source .\backups\runtime_20260701_120000.sql
+```
 
 ### Seed / Reset Demo Data
 

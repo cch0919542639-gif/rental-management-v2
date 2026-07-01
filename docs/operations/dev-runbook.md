@@ -1,6 +1,6 @@
 # Dev Runbook
 
-Last Updated: 2026-06-29
+Last Updated: 2026-06-30
 
 ## Purpose
 
@@ -30,6 +30,12 @@ Last Updated: 2026-06-29
 
 ```powershell
 py -3 -m pip install -r .\requirements-dev.txt
+```
+
+production runtime 最小安裝：
+
+```powershell
+py -3 -m pip install -r .\requirements.txt
 ```
 
 ## First-Time Setup
@@ -80,6 +86,42 @@ py -3 -m flask --app app.wsgi run --debug
 
 - `http://127.0.0.1:5000`
 
+## Start Production-Like Server
+
+最低要求：
+
+- `APP_ENV=production`
+- `SECRET_KEY` 必填
+- Phase 5 起 production `DATABASE_URL` 目標為 PostgreSQL；SQLite 僅限本地驗收 / 遷移前橋接
+
+啟動：
+
+```powershell
+$env:SECRET_KEY = "replace-with-real-secret"
+$env:DATABASE_URL = "postgresql://postgres:replace-password@127.0.0.1:5432/rental_rebuild"
+powershell -ExecutionPolicy Bypass -File .\scripts\run_prod.ps1
+```
+
+可選自訂 host / port：
+
+```powershell
+$env:SECRET_KEY = "replace-with-real-secret"
+$env:DATABASE_URL = "postgresql://postgres:replace-password@127.0.0.1:5432/rental_rebuild"
+powershell -ExecutionPolicy Bypass -File .\scripts\run_prod.ps1 -Host 127.0.0.1 -Port 8000
+```
+
+預設 URL：
+
+- `http://127.0.0.1:8000`
+
+readiness check：
+
+```powershell
+curl http://127.0.0.1:8000/readyz
+```
+
+若故意使用 SQLite 做本地驗收，`scripts/health_check.py --config production` 會在 Phase 5 直接失敗，這是預期行為。
+
 ## Demo Login
 
 - Username: `admin`
@@ -108,8 +150,15 @@ py -3 -m flask --app app.wsgi run --debug
 | `.\scripts\reset_demo_data.bat` | Same, via batch wrapper |
 | `py -3 .\scripts\check_db_demo_state.py` | Verify demo data consistency |
 | `powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke_tests.ps1` | Run smoke tests via PS |
+| `powershell -ExecutionPolicy Bypass -File .\scripts\run_prod.ps1` | Start production-like Waitress server |
 | `powershell -ExecutionPolicy Bypass -File .\scripts\github_preflight_check.ps1` | Pre-push check |
+| `py -3 .\scripts\health_check.py --config production` | Run preflight health check |
+| `py -3 .\scripts\check_postgres_tooling.py --skip-binaries` | Validate PostgreSQL bridge env and scaffold |
+| `py -3 .\scripts\backup_runtime_db.py --dry-run` | Preview SQLite copy or PostgreSQL `pg_dump` command |
+| `py -3 .\scripts\restore_runtime_db.py --source <file>` | Preview SQLite restore or PostgreSQL `psql` command |
 | `py -3 .\scripts\migration\migration_index.py` | List available migration entry scripts (read-only) |
+| `py -3 .\scripts\migration\run_migrations.py --list` | List tracked apply migrations and status |
+| `py -3 .\scripts\migration\run_migrations.py --execute --id 20260701_000002_alembic_bridge --allow-bridge` | Execute the Alembic bridge after explicit approval |
 | `py -3 .\scripts\migration\maintenance_legacy_scan.py` | Scan legacy maintenance migration candidates (read-only) |
 
 ## Available Scripts
@@ -119,6 +168,12 @@ py -3 -m flask --app app.wsgi run --debug
 | `scripts/seed_demo_data.py` | Drop all tables, recreate, seed demo data |
 | `scripts/check_db_demo_state.py` | Verify demo data consistency (no destructive ops) |
 | `scripts/run_dev.ps1` | Start Flask dev server |
+| `scripts/run_prod.ps1` | Start production-like Waitress server |
+| `scripts/run_production.py` | Python entrypoint for Waitress server |
+| `scripts/health_check.py` | Read-only production preflight health check |
+| `scripts/check_postgres_tooling.py` | Read-only PostgreSQL bridge env + binary preflight |
+| `scripts/backup_runtime_db.py` | SQLite copy backup or PostgreSQL `pg_dump` wrapper |
+| `scripts/restore_runtime_db.py` | SQLite restore or PostgreSQL `psql` wrapper |
 | `scripts/run_smoke_tests.ps1` | Run `pytest tests\integration -q` |
 | `scripts/run_tests.bat` | Same as above, batch wrapper |
 | `scripts/run_single_test.bat` | Run one integration test file by name |
@@ -195,6 +250,17 @@ py -3 .\scripts\migration\migration_index.py
 ```powershell
 py -3 .\scripts\migration\maintenance_legacy_scan.py
 ```
+
+若要執行正式 tracked migration 流程，先跑：
+
+```powershell
+py -3 .\scripts\migration\run_migrations.py --list
+```
+
+若要執行 Alembic bridge，還必須額外滿足兩個條件：
+
+- 前序 migration 全部已套用
+- 指令明確帶 `--allow-bridge`
 
 ## Current Limitations
 

@@ -17,6 +17,15 @@
 | `github_preflight_check.ps1` | Check for risky files before git push | ❌ No |
 | `check_postgres_tooling.py` | Read-only PostgreSQL bridge tooling preflight | ❌ No |
 
+## Phase 5 Operator Files
+
+| File | Purpose |
+|------|---------|
+| `docs/operations/phase5.env.example` | Phase 5 PostgreSQL operator env template |
+| `docs/operations/phase5-operator-runbook.md` | Ordered command guide for rehearsal / cutover operators |
+| `docs/operations/phase5-cutover-checklist.md` | Final gate checklist before bridge |
+| `docs/operations/phase5-rollback-checklist.md` | Rollback trigger + evidence checklist |
+
 ## Repair Scripts
 
 | Script | Mode | Destructive? | Usage |

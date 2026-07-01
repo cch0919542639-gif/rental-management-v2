@@ -19,6 +19,7 @@ Last Updated: 2026-07-01
 ## Required Files
 
 - `.env.example`
+- `docs/operations/phase5.env.example`
 - `requirements.txt`
 - `scripts/run_prod.ps1`
 - `scripts/health_check.py`
@@ -36,6 +37,8 @@ $env:DATABASE_URL = "postgresql://postgres:replace-password@127.0.0.1:5432/renta
 ```
 
 若只是本地橋接或回歸驗收，仍可暫用 SQLite，但不得視為 production-ready。
+
+建議操作人直接從 `docs/operations/phase5.env.example` 複製一份本地環境設定，不要手動拼湊 production 參數。
 
 ## Install
 
@@ -123,3 +126,11 @@ py -3 .\scripts\restore_runtime_db.py --source .\backups\runtime_YYYYMMDD_HHMMSS
 - 若要切換到 Alembic，bridge 已經過審查並明確用 `--allow-bridge`
 - backup 已成功建立
 - `/readyz` 回傳 `200`
+
+## Operator Docs
+
+Phase 5 正式操作時，請一併閱讀：
+
+- `docs/operations/phase5-operator-runbook.md`
+- `docs/operations/phase5-cutover-checklist.md`
+- `docs/operations/phase5-rollback-checklist.md`

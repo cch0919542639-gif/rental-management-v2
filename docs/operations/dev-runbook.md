@@ -38,6 +38,12 @@ production runtime 最小安裝：
 py -3 -m pip install -r .\requirements.txt
 ```
 
+Phase 5 operator 環境模板：
+
+```powershell
+copy .\docs\operations\phase5.env.example .\.env.local
+```
+
 ## First-Time Setup
 
 1. 進入 repo 根目錄：
@@ -272,6 +278,7 @@ py -3 .\scripts\migration\run_migrations.py --list
 
 - `docs/operations/phase1-master-status.md`
 - `docs/operations/current-dispatch-and-handoff-plan.md`
+- `docs/operations/phase5-operator-runbook.md`
 - `coordination/progress/codex.md`
 
 ## Before Handing Off

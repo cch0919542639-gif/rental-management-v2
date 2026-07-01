@@ -1,5 +1,54 @@
 # codex completed log
 
+## 2026-07-01 12:50
+
+Completed:
+- Phase 4A / 4B 主幹第一批：`deployment + migration baseline`
+- 新增 tracked migration runner：`scripts/migration/run_migrations.py`
+- 新增 migration registry：`scripts/migration/_registry.py`
+- 新增 baseline marker：`apply_20260701_000001_phase4_baseline_marker.py`
+- 更新 migration index / README / template，讓 `apply_*` migration 可被正式追蹤
+- 新增 `scripts/health_check.py` production preflight
+- 新增 `docs/operations/phase4-launch-baseline.md`
+- 補齊 Phase 4 integration tests：migration runner + health check
+
+Verification:
+- `pytest tests\integration\test_admin_route_protection.py tests\integration\test_production_readiness.py tests\integration\test_phase4_migration_and_health.py -q`
+- `pytest tests\integration -q`
+
+Result:
+- `68 passed, 15 skipped`
+
+Remaining:
+- 整理 Phase 4A / 4B commit / push 範圍
+- 進入 DB / backup / deployment 後續基線
+
+## 2026-06-30 23:47
+
+Completed:
+- Phase 4A-1 第一批：`auth hardening + production readiness`
+- 將主要寫入 HTML routes 補上 `@admin_required`
+- 將 payment write API 補上 `@admin_required`
+- 新增 `app/core/config/validation.py`
+- 將 runtime config validation 接入 app factory
+- 補上 production secure cookie / https scheme defaults
+- 新增 `/readyz` readiness endpoint
+- 新增 `requirements.txt` runtime 依賴清單
+- 新增 Waitress production-like 啟動面：`app/wsgi.py`、`scripts/run_production.py`、`scripts/run_prod.ps1`
+- 新增 `tests/integration/test_admin_route_protection.py`
+- 新增 `tests/integration/test_production_readiness.py`
+
+Verification:
+- `pytest tests\integration\test_admin_route_protection.py tests\integration\test_production_readiness.py -q`
+- `pytest tests\integration -q`
+
+Result:
+- `66 passed, 15 skipped`
+
+Remaining:
+- 整理 Phase 4A commit / push 範圍
+- 進入 WSGI / migration / production DB readiness
+
 ## 2026-06-30 01:32
 
 Completed:

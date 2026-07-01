@@ -1,16 +1,14 @@
 # codex
 
 Status: IN_PROGRESS
-Last Updated: 2026-06-30 01:32
+Last Updated: 2026-07-01 12:50
 
 ## Current Task
-- Phase 3 已完成第八個主題：`Sheets export-only`
-- 已建立 `water preview`
-- 已建立 `/api/payment-records` list / detail / create 邊界
-- 已補齊 repair script write convention 與 execute 驗證路徑
-- 已建立 payment OCR analyze flow，且不自動改 payment status 或核心欄位
-- 已建立 LINE webhook 驗簽與 payload parsing 邊界，不直接寫 DB
-- 已建立 reports CSV/XLSX export 邊界，不做 OAuth / import / write-back
+- Phase 4A / 4B 進行中：`auth hardening + deployment + migration baseline`
+- 已將主要寫入 routes / payment write APIs 補上 `@admin_required`
+- 已建立 runtime config validation 與 `/readyz`
+- 已補上 `requirements.txt`、Waitress bootstrap、`run_prod.ps1`
+- 已補上 migration runner / baseline marker / health check / launch baseline doc
 
 ## Scope
 - 以 `rebuild/app/` 建立新版模組化主幹
@@ -82,6 +80,19 @@ Last Updated: 2026-06-30 01:32
 - 完成 `docs/operations/current-dispatch-and-handoff-plan.md`
 - 完成 `requirements-dev.txt`
 - 完成 `scripts/run_dev.ps1`、`scripts/run_smoke_tests.ps1`
+- 完成 Phase 4A-1 第一批安全硬化：
+- runtime config validation
+- production secure cookie / https scheme defaults
+- `/readyz` readiness endpoint
+- admin-only write route protection
+- viewer-role denial integration tests
+- requirements split (`requirements.txt` / `requirements-dev.txt`)
+- production-like Waitress entry (`app/wsgi.py`, `scripts/run_production.py`, `scripts/run_prod.ps1`)
+- migration runner (`scripts/migration/run_migrations.py`)
+- schema migration log registry (`scripts/migration/_registry.py`)
+- phase4 baseline marker migration
+- production preflight script (`scripts/health_check.py`)
+- launch baseline doc (`docs/operations/phase4-launch-baseline.md`)
 - 已驗證：
 - 未登入 `/` 會轉向 `/auth/login`
 - 登入成功後可進入 dashboard
@@ -105,7 +116,11 @@ Last Updated: 2026-06-30 01:32
 - OCR analyze API / graceful fallback / validation detail 流程正確
 - LINE webhook config-missing / invalid-signature / valid-signed-payload 流程正確
 - reports export csv / xlsx / invalid-format 流程正確
-- `pytest tests\integration -q` 通過（61 passed, 15 skipped）
+- Phase 4A auth hardening / readiness 流程正確
+- production WSGI bootstrap 可正常匯入
+- migration runner list / execute flow 正常
+- production health check script 正常
+- `pytest tests\integration -q` 通過（68 passed, 15 skipped）
 - `python .\scripts\seed_demo_data.py` 可成功建立 demo data
 - `powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke_tests.ps1` 通過
 
@@ -116,17 +131,18 @@ Last Updated: 2026-06-30 01:32
 - `box`: 適合承接 smoke tests、runbook、低風險支援腳本
 
 ## Next Step
-- 已完成 `water preview`
-- 已完成 `payment-records API boundary`
-- 已完成 `migration write path`
-- 已完成 `migration scaffold`
-- 已完成 `OCR adapter`
-- 已完成 `LINE webhook`
-- 已完成 `Sheets export-only`
-- 下一步可進入整體收尾：總結 / 最終驗收 / commit-push 整理
+- 收尾 Phase 4A：整理 commit / push 範圍
+- 接著進入 Phase 4A-2 / 4B：
+- admin 權限覆蓋複核
+- migration / database ADR 與部署基線
+- launch checklist / backup strategy / deployment baseline
+- 再下一步可進入：
+- SQLite → 正式 RDBMS 決策
+- backup / restore drill
+- Phase 4 deployment docs / CI
 
 ## Risks / Blockers
-- 目前沒有結構性 blocker
+- reasonix B3 / B4 仍未解：尚無正式 migration framework、production DB 仍是 SQLite
 - 本機有尚未整理 commit 的主幹變更
 - 曾發生外部程序回退檔案；若再次出現，先比對 `maintenance/report/electricity` service/repository、`nested routes`、`error handlers` 是否被覆寫
 - 中斷恢復時，請先讀 `coordination/progress/codex.md` 與 `docs/operations/current-dispatch-and-handoff-plan.md`

@@ -37,6 +37,13 @@ py -3 .\scripts\migration\bridge_drill_checklist.py
 
 4. 對 target copy 做 row parity 驗證
 
+先做 import dry-run，再對乾淨 target import：
+
+```powershell
+py -3 .\scripts\migration\import_csv_to_target.py --manifest .\migration_exports\manifest.json --target-url postgresql://...
+py -3 .\scripts\migration\import_csv_to_target.py --manifest .\migration_exports\manifest.json --target-url postgresql://... --execute
+```
+
 ```powershell
 py -3 .\scripts\migration\verify_row_parity.py --source-url sqlite:///source.db --target-url postgresql://...
 ```
@@ -52,6 +59,7 @@ py -3 .\scripts\migration\run_migrations.py --list
 出現以下任一狀況時，停止 drill，不得直接 bridge：
 
 - `bridge_drill_checklist.py` 回傳 FAIL
+- `import_csv_to_target.py --execute` 遇到非空 target 或欄位轉換錯誤
 - `verify_row_parity.py` 有任一 table mismatch
 - `run_migrations.py --list` 看不到 baseline marker
 - `run_migrations.py --list` 顯示 bridge 已套用，但本次不是正式 cutover
@@ -59,5 +67,4 @@ py -3 .\scripts\migration\run_migrations.py --list
 ## Explicit Non-Goals
 
 - 本文件不授權直接執行 `apply_20260701_000002_alembic_bridge.py`
-- 本文件不包含 PostgreSQL import 實作
 - 本文件不處理 production cutover rollback

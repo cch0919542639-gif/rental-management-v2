@@ -75,6 +75,15 @@ SCRIPT_NOTES = {
         "rollback": "No rollback needed; script is read-only.",
         "description": "Validate the minimum preconditions for a Phase 5 PostgreSQL bridge rehearsal.",
     },
+    "import_csv_to_target.py": {
+        "mode": "import",
+        "type": "drill scaffold",
+        "safety": "review-required",
+        "requires_review": "yes",
+        "verification": "Dry-run first, then verify_row_parity.py after any execute import.",
+        "rollback": "Restore or recreate the rehearsal target database before re-running.",
+        "description": "Load CSV export artifacts into a clean target database in FK-safe order.",
+    },
     "migration_index.py": {
         "mode": "index",
         "type": "index",

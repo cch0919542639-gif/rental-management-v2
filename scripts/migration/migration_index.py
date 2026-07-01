@@ -66,6 +66,15 @@ SCRIPT_NOTES = {
         "rollback": "No rollback needed; script is read-only.",
         "description": "Compare per-table row counts between source and target databases.",
     },
+    "bridge_drill_checklist.py": {
+        "mode": "checklist",
+        "type": "bridge preflight",
+        "safety": "safe",
+        "requires_review": "no",
+        "verification": "Run after baseline marker and before bridge execution; confirm bridge is pending and scaffold is present.",
+        "rollback": "No rollback needed; script is read-only.",
+        "description": "Validate the minimum preconditions for a Phase 5 PostgreSQL bridge rehearsal.",
+    },
     "migration_index.py": {
         "mode": "index",
         "type": "index",

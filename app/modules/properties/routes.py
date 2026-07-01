@@ -1,6 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import login_required
 
+from app.core.security import admin_required
 from app.modules.properties.forms import PropertyForm
 from app.repositories import LandlordRepository, PropertyRepository
 from app.services import PropertyService
@@ -28,6 +29,7 @@ def property_list():
 
 @properties_bp.route("/create", methods=["GET", "POST"])
 @login_required
+@admin_required
 def property_create():
     form = PropertyForm()
     _populate_landlord_choices(form)
@@ -48,6 +50,7 @@ def property_create():
 
 @properties_bp.route("/landlord/<int:landlord_id>/create", methods=["GET", "POST"])
 @login_required
+@admin_required
 def property_create_for_landlord(landlord_id: int):
     form = PropertyForm()
     landlord = _populate_single_landlord_choice(form, landlord_id)
@@ -73,6 +76,7 @@ def property_create_for_landlord(landlord_id: int):
 
 @properties_bp.route("/<int:property_id>/edit", methods=["GET", "POST"])
 @login_required
+@admin_required
 def property_edit(property_id: int):
     prop = PropertyRepository.get_or_404(property_id)
     form = PropertyForm(obj=prop)

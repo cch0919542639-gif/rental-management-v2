@@ -7,6 +7,7 @@ from flask import Blueprint, jsonify, request, url_for
 from flask_login import login_required
 
 from app.core.errors import DomainValidationError
+from app.core.security import admin_required
 from app.repositories import PaymentRepository
 from app.services import PaymentOCRService, PaymentService
 
@@ -139,6 +140,7 @@ def payment_detail(payment_id: int):
 
 @payments_api_bp.post("/")
 @login_required
+@admin_required
 def payment_create_api():
     payload = _normalize_create_payload(request.get_json(silent=True) or {})
     record = PaymentService.create_payment_record(**payload)
@@ -147,6 +149,7 @@ def payment_create_api():
 
 @payments_api_bp.post("/<int:payment_id>/analyze")
 @login_required
+@admin_required
 def payment_analyze_api(payment_id: int):
     record = PaymentRepository.get_or_404(payment_id)
     result = PaymentOCRService.analyze_record(record)

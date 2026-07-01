@@ -1,6 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import login_required
 
+from app.core.security import admin_required
 from app.modules.electricity.forms import (
     ElectricityBillForm,
     ElectricityMeterForm,
@@ -118,6 +119,7 @@ def electricity_property_detail(property_id: int):
 
 @electricity_bp.route("/property/<int:property_id>/new-bill", methods=["GET", "POST"])
 @login_required
+@admin_required
 def electricity_property_new_bill(property_id: int):
     form = ElectricityBillForm()
     property_obj = _populate_property_bill_form(form, property_id)
@@ -150,6 +152,7 @@ def electricity_property_new_bill(property_id: int):
 
 @electricity_bp.route("/property/<int:property_id>/quick-reading", methods=["GET", "POST"])
 @login_required
+@admin_required
 def electricity_property_quick_reading(property_id: int):
     form = PropertyQuickReadingForm()
     property_obj, bills, meters = _populate_property_quick_reading_form(form, property_id)
@@ -194,6 +197,7 @@ def electricity_property_reading_log(property_id: int):
 
 @electricity_bp.route("/meters/create", methods=["GET", "POST"])
 @login_required
+@admin_required
 def meter_create():
     form = ElectricityMeterForm()
     _populate_meter_form(form)
@@ -214,6 +218,7 @@ def meter_create():
 
 @electricity_bp.route("/meters/<int:meter_id>/edit", methods=["GET", "POST"])
 @login_required
+@admin_required
 def meter_edit(meter_id: int):
     meter = ElectricityMeterRepository.get_or_404(meter_id)
     form = ElectricityMeterForm(obj=meter)
@@ -235,6 +240,7 @@ def meter_edit(meter_id: int):
 
 @electricity_bp.route("/bills/create", methods=["GET", "POST"])
 @login_required
+@admin_required
 def bill_create():
     form = ElectricityBillForm()
     _populate_bill_form(form)
@@ -261,6 +267,7 @@ def bill_create():
 
 @electricity_bp.route("/bills/<int:bill_id>/readings/create", methods=["GET", "POST"])
 @login_required
+@admin_required
 def reading_create(bill_id: int):
     bill = ElectricityBillRepository.get_or_404(bill_id)
     form = ElectricityReadingForm()
@@ -291,6 +298,7 @@ def bill_detail(bill_id: int):
 
 @electricity_bp.post("/bills/<int:bill_id>/calculate")
 @login_required
+@admin_required
 def bill_calculate(bill_id: int):
     bill = ElectricityBillRepository.get_or_404(bill_id)
     ElectricityService.calculate_bill(bill)
@@ -300,6 +308,7 @@ def bill_calculate(bill_id: int):
 
 @electricity_bp.route("/bills/<int:bill_id>/post", methods=["GET", "POST"])
 @login_required
+@admin_required
 def bill_post(bill_id: int):
     bill = ElectricityBillRepository.get_or_404(bill_id)
     readings = ElectricityReadingRepository.list_for_bill(bill_id)

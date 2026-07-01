@@ -1,6 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
+from app.core.security import admin_required
 from app.modules.maintenance.forms import MaintenanceFilterForm, MaintenanceRequestForm
 from app.repositories import MaintenanceRepository, RoomRepository
 from app.services import MaintenanceService
@@ -96,6 +97,7 @@ def maintenance_room_requests(room_id: int):
 
 @maintenance_bp.route("/create", methods=["GET", "POST"])
 @login_required
+@admin_required
 def maintenance_create():
     form = MaintenanceRequestForm()
     _populate_room_choices(form)
@@ -119,6 +121,7 @@ def maintenance_create():
 
 @maintenance_bp.route("/<int:request_id>/edit", methods=["GET", "POST"])
 @login_required
+@admin_required
 def maintenance_edit(request_id: int):
     request_obj = MaintenanceRepository.get_or_404(request_id)
     form = MaintenanceRequestForm(obj=request_obj)
@@ -144,6 +147,7 @@ def maintenance_edit(request_id: int):
 
 @maintenance_bp.post("/<int:request_id>/transition/<string:next_status>")
 @login_required
+@admin_required
 def maintenance_transition(request_id: int, next_status: str):
     request_obj = MaintenanceRepository.get_or_404(request_id)
     try:

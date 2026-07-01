@@ -1,6 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import login_required
 
+from app.core.security import admin_required
 from app.repositories import ContractRepository, RoomRepository, TenantRepository
 from app.modules.contracts.forms import ContractForm
 from app.services import ContractService
@@ -24,6 +25,7 @@ def contract_list():
 
 @contracts_bp.route("/create", methods=["GET", "POST"])
 @login_required
+@admin_required
 def contract_create():
     form = ContractForm()
     _populate_choices(form)
@@ -48,6 +50,7 @@ def contract_create():
 
 @contracts_bp.route("/<int:contract_id>/edit", methods=["GET", "POST"])
 @login_required
+@admin_required
 def contract_edit(contract_id: int):
     contract = ContractRepository.get_or_404(contract_id)
     form = ContractForm(obj=contract)
@@ -74,6 +77,7 @@ def contract_edit(contract_id: int):
 
 @contracts_bp.post("/<int:contract_id>/terminate")
 @login_required
+@admin_required
 def contract_terminate(contract_id: int):
     contract = ContractRepository.get_or_404(contract_id)
     ContractService.terminate_contract(contract)

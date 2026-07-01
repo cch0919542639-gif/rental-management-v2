@@ -2,6 +2,7 @@ from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import login_required
 
 from app.core.errors import ConflictError
+from app.core.security import admin_required
 from app.modules.landlords.forms import LandlordForm
 from app.repositories import LandlordRepository
 from app.services import LandlordService
@@ -18,6 +19,7 @@ def landlord_list():
 
 @landlords_bp.route("/create", methods=["GET", "POST"])
 @login_required
+@admin_required
 def landlord_create():
     form = LandlordForm()
     if form.validate_on_submit():
@@ -39,6 +41,7 @@ def landlord_create():
 
 @landlords_bp.route("/<int:landlord_id>/edit", methods=["GET", "POST"])
 @login_required
+@admin_required
 def landlord_edit(landlord_id: int):
     landlord = LandlordRepository.get_or_404(landlord_id)
     form = LandlordForm(obj=landlord)
@@ -62,6 +65,7 @@ def landlord_edit(landlord_id: int):
 
 @landlords_bp.post("/<int:landlord_id>/delete")
 @login_required
+@admin_required
 def landlord_delete(landlord_id: int):
     landlord = LandlordRepository.get_or_404(landlord_id)
     try:

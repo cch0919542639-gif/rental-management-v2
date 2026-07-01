@@ -2,6 +2,7 @@ from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import login_required
 
 from app.core.errors import ConflictError
+from app.core.security import admin_required
 from app.modules.water.forms import WaterBillForm, WaterPostForm
 from app.repositories import PropertyRepository, WaterBillRepository
 from app.services import WaterService
@@ -22,6 +23,7 @@ def water_list():
 
 @water_bp.route("/create", methods=["GET", "POST"])
 @login_required
+@admin_required
 def water_create():
     form = WaterBillForm()
     _populate_property_choices(form)
@@ -48,6 +50,7 @@ def water_create():
 
 @water_bp.route("/<int:water_bill_id>/edit", methods=["GET", "POST"])
 @login_required
+@admin_required
 def water_edit(water_bill_id: int):
     water_bill = WaterBillRepository.get_or_404(water_bill_id)
     form = WaterBillForm(obj=water_bill)
@@ -76,6 +79,7 @@ def water_edit(water_bill_id: int):
 
 @water_bp.route("/<int:water_bill_id>/post", methods=["GET", "POST"])
 @login_required
+@admin_required
 def water_post(water_bill_id: int):
     water_bill = WaterBillRepository.get_or_404(water_bill_id)
     form = WaterPostForm()
@@ -119,6 +123,7 @@ def water_preview(water_bill_id: int):
 
 @water_bp.post("/<int:water_bill_id>/delete")
 @login_required
+@admin_required
 def water_delete(water_bill_id: int):
     water_bill = WaterBillRepository.get_or_404(water_bill_id)
     try:

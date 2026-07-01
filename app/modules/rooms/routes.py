@@ -1,6 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import login_required
 
+from app.core.security import admin_required
 from app.repositories import PropertyRepository, RoomRepository
 from app.modules.rooms.forms import RoomForm
 from app.services import RoomService
@@ -28,6 +29,7 @@ def room_list():
 
 @rooms_bp.route("/create", methods=["GET", "POST"])
 @login_required
+@admin_required
 def room_create():
     form = RoomForm()
     _populate_property_choices(form)
@@ -48,6 +50,7 @@ def room_create():
 
 @rooms_bp.route("/property/<int:property_id>/create", methods=["GET", "POST"])
 @login_required
+@admin_required
 def room_create_for_property(property_id: int):
     form = RoomForm()
     property_obj = _populate_single_property_choice(form, property_id)
@@ -73,6 +76,7 @@ def room_create_for_property(property_id: int):
 
 @rooms_bp.route("/<int:room_id>/edit", methods=["GET", "POST"])
 @login_required
+@admin_required
 def room_edit(room_id: int):
     room = RoomRepository.get_or_404(room_id)
     form = RoomForm(obj=room)

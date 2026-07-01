@@ -21,6 +21,9 @@ if str(ROOT) not in sys.path:
 
 from scripts.migration._common import build_script_app, is_execute_mode, parse_reference_date
 
+MIGRATION_ID = "YYYYMMDD_HHMMSS_short_name"
+DESCRIPTION = "Replace with a precise one-line migration description."
+
 
 def _build_parser():
     parser = argparse.ArgumentParser(description="Template scaffold for write-capable migrations")
@@ -39,6 +42,8 @@ def main(argv: list[str]):
         print("=" * 72)
         print(f"Template Write Migration ({'EXECUTE' if execute else 'DRY-RUN'})")
         print("=" * 72)
+        print(f"Migration ID   : {MIGRATION_ID}")
+        print(f"Description    : {DESCRIPTION}")
         print("Purpose        : Replace this file with a real migration implementation.")
         print(f"Reference date : {reference_date.isoformat()}")
         print("Verification   : Document pre-check, post-check, and affected row summary.")
@@ -49,6 +54,12 @@ def main(argv: list[str]):
         else:
             print("Dry-run scaffold only. No database changes.")
         print("=" * 72)
+
+
+def run_migration(context):
+    return {
+        "summary": "Template only. Replace this scaffold with real migration logic before use.",
+    }
 
 
 if __name__ == "__main__":

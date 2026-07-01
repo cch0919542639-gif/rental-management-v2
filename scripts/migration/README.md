@@ -7,6 +7,8 @@
 | Script | Purpose | Safety |
 |--------|---------|--------|
 | `migration_index.py` | 列出目前可用 migration 腳本與用途 | Read-only |
+| `run_migrations.py` | 列出 / dry-run / execute `apply_*` migration，並記錄已套用 ID | Review-required |
+| `apply_20260701_000001_phase4_baseline_marker.py` | 建立第一個 tracked migration baseline，不改 domain tables | Safe write |
 | `maintenance_legacy_scan.py` | 掃描 maintenance 遷移候選（虛擬 tenant / room.status） | Read-only |
 | `_template_write_migration.py` | write-capable migration 範本，不可直接用於正式遷移 | Review-required |
 
@@ -14,6 +16,7 @@
 
 ```powershell
 py -3 .\scripts\migration\migration_index.py
+py -3 .\scripts\migration\run_migrations.py --list
 py -3 .\scripts\migration\maintenance_legacy_scan.py
 ```
 
@@ -21,6 +24,7 @@ py -3 .\scripts\migration\maintenance_legacy_scan.py
 
 - 目前 `scripts/migration/` 僅允許放入 read-only scan 或經 Codex 明確批准的 migration 腳本。
 - 若腳本會修改資料，必須在檔頭寫清楚 rollback 與 verification 步驟。
+- 正式 `apply_*` migration 應透過 `run_migrations.py` 執行，不要直接 `python apply_*.py`
 
 ## Naming Convention
 

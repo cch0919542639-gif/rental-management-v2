@@ -1,7 +1,7 @@
 # codex
 
 Status: IN_PROGRESS
-Last Updated: 2026-07-01 12:50
+Last Updated: 2026-07-01 14:41
 
 ## Current Task
 - Phase 4A / 4B 進行中：`auth hardening + deployment + migration baseline`
@@ -9,6 +9,12 @@ Last Updated: 2026-07-01 12:50
 - 已建立 runtime config validation 與 `/readyz`
 - 已補上 `requirements.txt`、Waitress bootstrap、`run_prod.ps1`
 - 已補上 migration runner / baseline marker / health check / launch baseline doc
+- 已補上 `.env.example`、SQLite backup / restore scripts、deployment guide
+- 已補上 LINE event audit logging
+- 已補上 CI baseline (`.github/workflows/test.yml`, `pyproject.toml`)
+- 已補第一輪 Phase 4 UI 中文化收尾（導航列 / 頁面標題 / mixed labels）
+- 已補 Direct 4 skipped tests
+- 已修正 billing edit POST 覆蓋 year_month 的 route bug
 
 ## Scope
 - 以 `rebuild/app/` 建立新版模組化主幹
@@ -93,6 +99,12 @@ Last Updated: 2026-07-01 12:50
 - phase4 baseline marker migration
 - production preflight script (`scripts/health_check.py`)
 - launch baseline doc (`docs/operations/phase4-launch-baseline.md`)
+- sqlite backup / restore baseline
+- deployment guide (`docs/operations/deployment.md`)
+- line webhook audit JSONL logging
+- CI workflow baseline
+- phase4 UI polish round 1
+- direct skipped tests round 1
 - 已驗證：
 - 未登入 `/` 會轉向 `/auth/login`
 - 登入成功後可進入 dashboard
@@ -120,7 +132,10 @@ Last Updated: 2026-07-01 12:50
 - production WSGI bootstrap 可正常匯入
 - migration runner list / execute flow 正常
 - production health check script 正常
-- `pytest tests\integration -q` 通過（68 passed, 15 skipped）
+- backup / restore scripts 正常
+- LINE webhook accepted events 可寫入 audit log
+- CI baseline 檔案已建立
+- `pytest tests\integration -q` 通過（74 passed, 10 skipped）
 - `python .\scripts\seed_demo_data.py` 可成功建立 demo data
 - `powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke_tests.ps1` 通過
 
@@ -140,6 +155,11 @@ Last Updated: 2026-07-01 12:50
 - SQLite → 正式 RDBMS 決策
 - backup / restore drill
 - Phase 4 deployment docs / CI
+- LINE event audit logging
+- skipped tests / unit tests / CI baseline
+- 剩餘 skipped tests 補強
+- electricity caution tests / status behavior re-check
+- 403/401/405 error handler 與 API response polish
 
 ## Risks / Blockers
 - reasonix B3 / B4 仍未解：尚無正式 migration framework、production DB 仍是 SQLite

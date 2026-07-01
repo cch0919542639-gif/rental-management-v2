@@ -23,6 +23,72 @@ Remaining:
 - 整理 Phase 4A / 4B commit / push 範圍
 - 進入 DB / backup / deployment 後續基線
 
+## 2026-07-01 13:03
+
+Completed:
+- Phase 4 deployment baseline 第二批：`.env.example` + backup / restore + deployment guide
+- 新增 `scripts/backup_runtime_db.py`
+- 新增 `scripts/restore_runtime_db.py`
+- 新增 `docs/operations/deployment.md`
+- 補上 `tests/integration/test_phase4_backup_scripts.py`
+- 更新 `docs/operations/phase4-launch-baseline.md`
+
+Verification:
+- `pytest tests\integration\test_phase4_backup_scripts.py tests\integration\test_phase4_migration_and_health.py -q`
+- `pytest tests\integration -q`
+
+Result:
+- `70 passed, 15 skipped`
+
+Remaining:
+- RDBMS / migration ADR
+- LINE event audit logging
+- unit tests / skipped tests / CI baseline
+
+## 2026-07-01 13:25
+
+Completed:
+- Phase 4 收尾第一批：CI baseline + UI polish + LINE webhook audit log
+- 新增 `.github/workflows/test.yml`
+- 新增 `pyproject.toml`
+- 將 accepted LINE webhook events 寫入 JSONL audit log
+- 補齊導航列、頁面標題、OCR 顯示等中文化缺口
+- 同步更新對應 integration tests
+
+Verification:
+- `pytest tests\integration\test_auth_billing_payments_smoke.py tests\integration\test_error_pages_and_migration_index.py tests\integration\test_reports_monthly_and_landlord_summary.py tests\integration\test_maintenance_filters_and_summary.py -q`
+- `pytest tests\integration --tb=short`
+
+Result:
+- `70 passed, 15 skipped`
+
+Remaining:
+- skipped tests 補強
+- 403/401/405 error handler polish
+- Phase 4 commit / push 整理
+
+## 2026-07-01 14:41
+
+Completed:
+- Phase 4 skipped tests 第一批：補完 Direct 4
+- 新增 billing edit conflict test
+- 新增 billing toggle-paid idempotency test
+- 新增 billing year_month boundary test
+- 新增 payment duplicate transaction_id test
+- 修正 `billing_edit` 在 POST 時覆寫 `year_month` 的 route bug
+
+Verification:
+- `pytest tests\integration\test_billing_edit_and_contract_list.py tests\integration\test_billing_year_month_edges.py tests\integration\test_payments_reject_and_status.py -q`
+- `pytest tests\integration --tb=short`
+
+Result:
+- `74 passed, 10 skipped`
+
+Remaining:
+- caution skipped tests
+- electricity status behavior re-check
+- Phase 4 commit / push 整理
+
 ## 2026-06-30 23:47
 
 Completed:

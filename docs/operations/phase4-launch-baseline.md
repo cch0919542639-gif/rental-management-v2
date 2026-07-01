@@ -13,6 +13,7 @@ Last Updated: 2026-07-01
 - 已有 production-like 啟動面：`requirements.txt`、`app/wsgi.py`、`scripts/run_production.py`、`scripts/run_prod.ps1`
 - 已有 migration runner：`scripts/migration/run_migrations.py`
 - 已有 production preflight：`scripts/health_check.py`
+- 已有 SQLite backup / restore baseline
 
 ## Required Environment Variables
 
@@ -62,6 +63,20 @@ py -3 .\scripts\health_check.py --config production
 ```powershell
 $env:SECRET_KEY = "replace-with-real-secret"
 powershell -ExecutionPolicy Bypass -File .\scripts\run_prod.ps1
+```
+
+## Backup / Restore Baseline
+
+先建立備份：
+
+```powershell
+py -3 .\scripts\backup_runtime_db.py
+```
+
+若要還原，必須先停服務，再執行：
+
+```powershell
+py -3 .\scripts\restore_runtime_db.py --source .\backups\runtime_YYYYMMDD_HHMMSS.db --execute
 ```
 
 ## Known Remaining Risks

@@ -37,6 +37,13 @@ py -3 .\scripts\migration\bridge_drill_checklist.py
 
 4. 對 target copy 做 row parity 驗證
 
+先準備乾淨 target schema：
+
+```powershell
+py -3 .\scripts\migration\prepare_target_db.py --target-url postgresql://...
+py -3 .\scripts\migration\prepare_target_db.py --target-url postgresql://... --execute
+```
+
 先做 import dry-run，再對乾淨 target import：
 
 ```powershell
@@ -48,7 +55,14 @@ py -3 .\scripts\migration\import_csv_to_target.py --manifest .\migration_exports
 py -3 .\scripts\migration\verify_row_parity.py --source-url sqlite:///source.db --target-url postgresql://...
 ```
 
-5. 確認 Alembic bridge 仍 pending
+5. 產出 rehearsal evidence bundle
+
+```powershell
+py -3 .\scripts\migration\write_rehearsal_evidence.py --label rehearsal-01 --manifest .\migration_exports\manifest.json
+py -3 .\scripts\migration\write_rehearsal_evidence.py --label rehearsal-01 --manifest .\migration_exports\manifest.json --parity-log .\parity.log --checklist-log .\checklist.log --execute
+```
+
+6. 確認 Alembic bridge 仍 pending
 
 ```powershell
 py -3 .\scripts\migration\run_migrations.py --list
@@ -59,6 +73,7 @@ py -3 .\scripts\migration\run_migrations.py --list
 出現以下任一狀況時，停止 drill，不得直接 bridge：
 
 - `bridge_drill_checklist.py` 回傳 FAIL
+- `prepare_target_db.py --execute` 遇到非空 target 且未明確允許
 - `import_csv_to_target.py --execute` 遇到非空 target 或欄位轉換錯誤
 - `verify_row_parity.py` 有任一 table mismatch
 - `run_migrations.py --list` 看不到 baseline marker

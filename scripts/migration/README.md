@@ -12,9 +12,11 @@
 | `apply_20260701_000002_alembic_bridge.py` | 在 cutover 前將 Alembic revision table 與 custom runner 對齊 | Review-required |
 | `maintenance_legacy_scan.py` | 掃描 maintenance 遷移候選（虛擬 tenant / room.status） | Read-only |
 | `export_sqlite_to_pg.py` | 盤點 / 匯出 SQLite 資料為 CSV + manifest，供 PostgreSQL drill 使用 | Read-only-first |
+| `prepare_target_db.py` | 盤點 / 建立 rehearsal target schema | Dry-run-first |
 | `import_csv_to_target.py` | 將 CSV + manifest 載入乾淨 target DB，供 rehearsal 使用 | Dry-run-first |
 | `verify_row_parity.py` | 比對 source / target 每張表的筆數是否一致 | Read-only |
 | `bridge_drill_checklist.py` | 檢查 bridge rehearsal 前置條件、manifest、migration 狀態 | Read-only |
+| `write_rehearsal_evidence.py` | 將 manifest / parity / checklist 統整成 evidence JSON | Dry-run-first |
 | `_template_write_migration.py` | write-capable migration 範本，不可直接用於正式遷移 | Review-required |
 
 ## Usage
@@ -24,9 +26,11 @@ py -3 .\scripts\migration\migration_index.py
 py -3 .\scripts\migration\run_migrations.py --list
 py -3 .\scripts\migration\maintenance_legacy_scan.py
 py -3 .\scripts\migration\export_sqlite_to_pg.py
+py -3 .\scripts\migration\prepare_target_db.py --target-url postgresql://...
 py -3 .\scripts\migration\import_csv_to_target.py --manifest .\migration_exports\manifest.json --target-url postgresql://...
 py -3 .\scripts\migration\verify_row_parity.py --source-url sqlite:///source.db --target-url sqlite:///target.db
 py -3 .\scripts\migration\bridge_drill_checklist.py
+py -3 .\scripts\migration\write_rehearsal_evidence.py --label rehearsal-01 --manifest .\migration_exports\manifest.json
 py -3 .\scripts\migration\run_migrations.py --execute --id 20260701_000002_alembic_bridge --allow-bridge
 ```
 
@@ -42,9 +46,11 @@ py -3 .\scripts\migration\run_migrations.py --execute --id 20260701_000002_alemb
 
 - `scan_*`: 只讀盤點，不可寫入
 - `export_*`: 預設 dry-run，僅在 `--execute` 下輸出檔案，不可修改來源 DB
+- `prepare_*`: 預設 dry-run，僅允許建立 rehearsal target schema，不可碰 source DB
 - `import_*`: 預設 dry-run，僅能寫入明確指定的 target DB，來源匯出檔不得修改
 - `verify_*`: 只讀驗證，不可寫入
 - `*_checklist.py`: 只讀前置檢查，不可寫入
+- `write_*_evidence.py`: 預設 dry-run，僅允許輸出證據檔
 - `plan_*`: 產出候選、預計影響範圍、人工審查資料，不可寫入
 - `apply_*`: 真正可寫入的 migration，預設必須是 dry-run，且僅在 `--execute` 下寫入
 

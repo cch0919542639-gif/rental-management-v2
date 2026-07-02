@@ -12,7 +12,7 @@
 </form>
 <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
   <div class="card" style="padding:8px 12px;"><strong>維修單數：</strong>{{ summary.totals.request_count }}</div>
-  <div class="card" style="padding:8px 12px;"><strong>Open：</strong>{{ summary.totals.open_count }}</div>
+  <div class="card" style="padding:8px 12px;"><strong>待處理：</strong>{{ summary.totals.open_count }}</div>
   <div class="card" style="padding:8px 12px;"><strong>預估成本：</strong>{{ summary.totals.estimated_total }}</div>
   <div class="card" style="padding:8px 12px;"><strong>實際成本：</strong>{{ summary.totals.actual_total }}</div>
 </div>
@@ -21,7 +21,7 @@
   <table>
     <thead>
       <tr>
-        <th>房東</th><th>物件</th><th>維修單數</th><th>Open</th><th>預估成本</th><th>實際成本</th>
+        <th>房東</th><th>物件</th><th>維修單數</th><th>待處理</th><th>預估成本</th><th>實際成本</th>
       </tr>
     </thead>
     <tbody>

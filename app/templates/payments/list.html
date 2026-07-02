@@ -45,10 +45,10 @@
         <details style="margin-top:8px;">
           <summary>OCR 資訊</summary>
           <div style="margin-top:8px;font-size:14px;max-width:400px;word-wrap:break-word;overflow-wrap:break-word;">
-            <div><strong>OCR Engine：</strong>{{ payment.ocr_engine or '-' }}</div>
-            <div><strong>Image Path：</strong>{{ payment.image_path or '-' }}</div>
-            <div><strong>OCR Raw：</strong>{{ payment.raw_ocr_text or '-' }}</div>
-            <div><strong>LLM Raw：</strong>{{ payment.raw_llm_response or '-' }}</div>
+            <div><strong>OCR 引擎：</strong>{{ payment.ocr_engine or '-' }}</div>
+            <div><strong>影像路徑：</strong>{{ payment.image_path or '-' }}</div>
+            <div><strong>OCR 原文：</strong>{{ payment.raw_ocr_text or '-' }}</div>
+            <div><strong>LLM 原始回應：</strong>{{ payment.raw_llm_response or '-' }}</div>
           </div>
         </details>
         {% endif %}

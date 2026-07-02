@@ -1,16 +1,13 @@
 # codex
 
 Status: IN_PROGRESS
-Last Updated: 2026-06-30 01:32
+Last Updated: 2026-07-02 14:30
 
 ## Current Task
-- Phase 3 已完成第八個主題：`Sheets export-only`
-- 已建立 `water preview`
-- 已建立 `/api/payment-records` list / detail / create 邊界
-- 已補齊 repair script write convention 與 execute 驗證路徑
-- 已建立 payment OCR analyze flow，且不自動改 payment status 或核心欄位
-- 已建立 LINE webhook 驗簽與 payload parsing 邊界，不直接寫 DB
-- 已建立 reports CSV/XLSX export 邊界，不做 OAuth / import / write-back
+- 真實資料導入前控制文件收斂
+- 建立人工確認欄位總表
+- 建立正式匯入 gate checklist
+- 將 Open / Mimo / Box / Reasonix 的導入前結論收斂為可執行順序
 
 ## Scope
 - 以 `rebuild/app/` 建立新版模組化主幹
@@ -116,14 +113,9 @@ Last Updated: 2026-06-30 01:32
 - `box`: 適合承接 smoke tests、runbook、低風險支援腳本
 
 ## Next Step
-- 已完成 `water preview`
-- 已完成 `payment-records API boundary`
-- 已完成 `migration write path`
-- 已完成 `migration scaffold`
-- 已完成 `OCR adapter`
-- 已完成 `LINE webhook`
-- 已完成 `Sheets export-only`
-- 下一步可進入整體收尾：總結 / 最終驗收 / commit-push 整理
+- 依 `real-data-manual-fields-checklist.md` 補完 M1-M16 實際欄位明細
+- 先解 `user/users`、`year_month`、`Room/Tenant/待修` 三個匯入 blocker
+- 之後進入真實資料 dry-run import
 
 ## Risks / Blockers
 - 目前沒有結構性 blocker

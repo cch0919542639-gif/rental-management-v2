@@ -47,6 +47,123 @@ Status: Draft gate document
 | M15 | P2 | `calc_methods` | 水費計算方法對照 | 若舊系統未明確記錄，需人工指定預設 | 水費規則 | MAP_DEFAULT | Business | 可用正式 enum 預設 |
 | M16 | P2 | Cross-cutting | Google Sheet / 月報 CSV 差異處理 | 同一欄位若多來源不一致，需指定主來源 | Sheet + CSV + 舊系統 | REQUIRED | Business | 匯入前決定 source of truth |
 
+## Owner Decisions Captured On 2026-07-03
+
+以下決議已由專案 Owner 明確回答，可直接視為 Gate B 依據。
+
+### Confirmed
+
+1. `M1` 屋主電話：
+   來源欄位暫未建立，首批匯入允許空值。
+
+2. `M2/M3` 押金：
+   若房間層與合約層都有押金，兩邊應相同。
+   若不相同，視為資料錯誤，必須列入異常報告，不可默默覆蓋。
+   若舊資料缺值，先保留空值，並提醒人工補登。
+
+3. `M4/M5` 合約開始日 / 結束日空白：
+   允許空值。
+   原因：部分為屋主承租中的房客，舊系統沒有完整合約資料。
+   匯入後需在畫面上顯示提醒，由人工補登。
+
+4. `M8` 電費率型別：
+   若舊資料沒有明確型別，預設為固定單價。
+
+5. `M9` 水費率型別：
+   若舊資料沒有明確型別，預設為 `0` 元。
+
+6. `M10` 初始電表讀數：
+   若缺值可先空。
+   本輪只要求補到今年年初，使今年報表完整；更早歷史資料暫不追。
+
+7. `M11` 初始水表讀數：
+   若缺值可先空，規則同 `M10`。
+
+8. `M16` 管理費語意：
+   匯入到獨立欄位。
+   有些資料沒有管理費，允許空值或 0，但不可混入 `other_charges`。
+
+### Still Unresolved
+
+1. `M6` / `M7` 的主幹程式目前仍以單一 `rate` 欄位為主，
+   但業務規則已明確超出單一數值模式。
+   後續需要依 [utility-billing-policy-draft.md](D:/CodexRuntime/rental/rebuild/docs/operations/utility-billing-policy-draft.md)
+   實作正式的計算策略層。
+
+## Import Rules Derived From The Owner Decisions
+
+- 押金不一致：列為 `CRITICAL mismatch`，停止該筆匯入，待人工確認。
+- 合約日期缺值：允許匯入，但必須保留 `missing contract dates` 後補清單。
+- 屋主電話缺值：允許匯入，不阻擋核心資料第一批。
+- 初始表讀缺值：允許匯入，但僅適用於本輪「先補今年資料」策略。
+- 管理費：不得塞進 `other_charges`，需保留獨立欄位語義。
+
+## Revised Definition For M6 / M7
+
+自 2026-07-03 起，`M6` / `M7` 不再定義為「舊系統哪個單一欄位要對映進 rate 欄位」，而改定義為：
+
+- `M6`：電費計算方式與必要參數
+- `M7`：水費計算方式與必要參數
+
+### M6 — 電費計算方式
+
+允許的正式策略：
+
+1. `electricity_fixed_rate`
+   - 定義：固定每度單價
+   - 例：`5 元/度`、`6 元/度`
+   - 公式：`房間用電度數 × 固定單價`
+   - 必要參數：`electricity_rate`
+
+2. `electricity_bill_usage_ratio`
+   - 定義：依整期電費單金額，按房客用電度數比例分攤
+   - 公式：`(該期電費單金額 / 該期總房客使用電度) × 該房本期用電度數`
+   - 必要參數：`bill.total_amount`、`bill.total_usage`、`room usage`
+
+3. `electricity_bill_usage_ratio_plus_public_share`
+   - 定義：先均攤公電，再把剩餘電費按房客用電比例分攤
+   - 公式：`(大樓公共用電費 / 有合約房間數) + ((電費單金額 - 大樓公電費) / 該期總房客使用電度) × 該房本期用電度數`
+   - 必要參數：`bill.total_amount`、`bill.public_amount`、`bill.total_usage`、`active contract room count`、`room usage`
+
+套用層級：
+
+- 預設以 `property` 為主
+- 允許 `room` 或 `contract` 覆蓋
+- 若房間未指定，則沿用物件預設
+
+### M7 — 水費計算方式
+
+允許的正式策略：
+
+1. `water_fixed_monthly`
+   - 定義：固定每月金額
+   - 例：每月 `100`
+   - 必要參數：固定月費
+
+2. `water_free`
+   - 定義：不收水費
+   - 金額固定為 `0`
+
+3. `water_bill_by_stay_days`
+   - 定義：依整期水費總額，按居住天數分攤
+   - 公式：`該期水費單金額 / 該期總居住天數 × 該房本期居住天數`
+   - 必要參數：`water_bill.total_amount`、`total stay days`、`contract stay days`
+
+套用層級：
+
+- 預設以 `property` 為主
+- 允許 `room` 或 `contract` 覆蓋
+
+## Gate B Impact
+
+`M6` / `M7` 的結論現在是「策略已定義、欄位實作未完成」。
+
+因此：
+
+- 核心資料第一批匯入，不應被 `M6/M7` 阻擋
+- 水電相關正式匯入與計算，需等策略層實作完成後再進第二批
+- 若舊系統已能辨識某物件為固定單價 / 固定月費，可先把可直接確定的固定型資料匯入
+
 ## Immediate Pre-Import Questions
 
 以下 6 題必須在正式匯入前被填完：

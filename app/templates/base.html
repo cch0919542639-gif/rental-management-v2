@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Rental Rebuild{% endblock %}</title>
+  <title>{% block title %}租屋管理系統{% endblock %}</title>
   <style>
     body { font-family: "Segoe UI", sans-serif; margin: 0; background: #f4f6f8; color: #1f2933; }
     header { background: #0f172a; color: #fff; padding: 16px 24px; display: flex; justify-content: space-between; }
@@ -23,22 +23,22 @@
 </head>
 <body>
   <header>
-    <div><strong>Rental Rebuild</strong></div>
+    <div><strong>租屋管理系統</strong></div>
     <nav>
       {% if current_user.is_authenticated %}
-      <a href="{{ url_for('dashboard.dashboard_home') }}" style="color:#fff; margin-right:16px;">Dashboard</a>
-      <a href="{{ url_for('billing.billing_list') }}" style="color:#fff; margin-right:16px;">Billing</a>
-      <a href="{{ url_for('payments.payment_list') }}" style="color:#fff; margin-right:16px;">Payments</a>
-      <a href="{{ url_for('electricity.electricity_dashboard') }}" style="color:#fff; margin-right:16px;">Electricity</a>
-      <a href="{{ url_for('water.water_list') }}" style="color:#fff; margin-right:16px;">Water</a>
-      <a href="{{ url_for('reports.report_index') }}" style="color:#fff; margin-right:16px;">Reports</a>
-      <a href="{{ url_for('maintenance.maintenance_index') }}" style="color:#fff; margin-right:16px;">Maintenance</a>
-      <a href="{{ url_for('landlords.landlord_list') }}" style="color:#fff; margin-right:16px;">Landlords</a>
-      <a href="{{ url_for('properties.property_list') }}" style="color:#fff; margin-right:16px;">Properties</a>
-      <a href="{{ url_for('rooms.room_list') }}" style="color:#fff; margin-right:16px;">Rooms</a>
-      <a href="{{ url_for('tenants.tenant_list') }}" style="color:#fff; margin-right:16px;">Tenants</a>
-      <a href="{{ url_for('contracts.contract_list') }}" style="color:#fff; margin-right:16px;">Contracts</a>
-      <a href="{{ url_for('auth.logout') }}" style="color:#fff;">Logout</a>
+      <a href="{{ url_for('dashboard.dashboard_home') }}" style="color:#fff; margin-right:16px;">儀表板</a>
+      <a href="{{ url_for('billing.billing_list') }}" style="color:#fff; margin-right:16px;">帳單</a>
+      <a href="{{ url_for('payments.payment_list') }}" style="color:#fff; margin-right:16px;">付款</a>
+      <a href="{{ url_for('electricity.electricity_dashboard') }}" style="color:#fff; margin-right:16px;">電費</a>
+      <a href="{{ url_for('water.water_list') }}" style="color:#fff; margin-right:16px;">水費</a>
+      <a href="{{ url_for('reports.report_index') }}" style="color:#fff; margin-right:16px;">報表</a>
+      <a href="{{ url_for('maintenance.maintenance_index') }}" style="color:#fff; margin-right:16px;">維修</a>
+      <a href="{{ url_for('landlords.landlord_list') }}" style="color:#fff; margin-right:16px;">房東</a>
+      <a href="{{ url_for('properties.property_list') }}" style="color:#fff; margin-right:16px;">物件</a>
+      <a href="{{ url_for('rooms.room_list') }}" style="color:#fff; margin-right:16px;">房間</a>
+      <a href="{{ url_for('tenants.tenant_list') }}" style="color:#fff; margin-right:16px;">房客</a>
+      <a href="{{ url_for('contracts.contract_list') }}" style="color:#fff; margin-right:16px;">合約</a>
+      <a href="{{ url_for('auth.logout') }}" style="color:#fff;">登出</a>
       {% endif %}
     </nav>
   </header>

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Monthly Report{% endblock %}
+{% block title %}月報表{% endblock %}
 {% block content %}
 <h1>月報表</h1>
 <form method="post" class="inline" style="margin-bottom:16px;">
@@ -30,7 +30,7 @@
       <td>{{ row.other_charges }}</td>
       <td>{{ row.other_desc or '-' }}</td>
       <td>{{ row.total }}</td>
-      <td>{{ 'Y' if row.paid else 'N' }}</td>
+      <td>{{ '是' if row.paid else '否' }}</td>
     </tr>
     {% else %}
     <tr><td colspan="15">該月份尚無資料</td></tr>

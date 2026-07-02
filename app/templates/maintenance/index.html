@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Maintenance{% endblock %}
+{% block title %}維修管理{% endblock %}
 {% block content %}
 <div class="card" style="margin-bottom:16px;">
-  <h1>Maintenance</h1>
+  <h1>維修管理</h1>
   <p>維修請求獨立於房間狀態管理，避免把待修污染回 `Room.status`。</p>
   <p>目前 maintenance schema 已獨立建模，後續流程在此主幹上擴充。</p>
   <a href="{{ url_for('maintenance.maintenance_create') }}">新增維修單</a>
   <a href="{{ url_for('maintenance.maintenance_index') }}" style="margin-left:8px;">全部維修單</a>
-  <a href="{{ url_for('maintenance.maintenance_open') }}" style="margin-left:8px;">Open 維修單</a>
+  <a href="{{ url_for('maintenance.maintenance_open') }}" style="margin-left:8px;">待處理維修單</a>
 </div>
 <div class="card" style="margin-bottom:16px;">
   <h2>{{ scope_label }}</h2>
@@ -85,7 +85,7 @@
 <table>
   <thead>
     <tr>
-      <th>Room ID</th><th>物件</th><th>房號</th><th>狀態</th><th>備註</th><th></th>
+      <th>房間 ID</th><th>物件</th><th>房號</th><th>狀態</th><th>備註</th><th></th>
     </tr>
   </thead>
   <tbody>

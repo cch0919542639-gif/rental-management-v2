@@ -8,7 +8,7 @@ def test_404_page_renders_html(client):
     assert response.status_code == 404
     text = response.get_data(as_text=True)
     assert "404｜找不到頁面" in text
-    assert "Dashboard" in text
+    assert "儀表板" in text
 
 
 def test_500_page_renders_html(app, client):
@@ -23,7 +23,7 @@ def test_500_page_renders_html(app, client):
     assert response.status_code == 500
     text = response.get_data(as_text=True)
     assert "500｜伺服器錯誤" in text
-    assert "回 Dashboard" in text
+    assert "回儀表板" in text
 
 
 def test_migration_index_script_lists_available_scripts():

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Reports{% endblock %}
+{% block title %}報表中心{% endblock %}
 {% block content %}
 <div class="grid">
   <div class="card">
@@ -14,7 +14,7 @@
   </div>
   <div class="card">
     <h2>年度總覽</h2>
-    <p>查看全年 total / paid / unpaid 趨勢。</p>
+    <p>查看全年總額 / 已收 / 未收趨勢。</p>
     <a href="{{ url_for('reports.yearly_overview', year=current_year) }}">開啟 {{ current_year }}</a>
   </div>
 </div>

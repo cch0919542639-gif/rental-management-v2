@@ -7,7 +7,7 @@ def test_auth_dashboard_and_payment_flow(app, logged_in_client, seeded_data):
 
     response = client.get("/")
     assert response.status_code == 200
-    assert "Dashboard" in response.get_data(as_text=True)
+    assert "儀表板" in response.get_data(as_text=True)
 
     response = client.get("/billing/?year_month=2026-06")
     assert response.status_code == 200

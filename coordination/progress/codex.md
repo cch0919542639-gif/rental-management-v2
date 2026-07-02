@@ -1,13 +1,12 @@
 # codex
 
 Status: IN_PROGRESS
-Last Updated: 2026-07-02 14:30
+Last Updated: 2026-07-03 13:10
 
 ## Current Task
 - 真實資料導入前控制文件收斂
-- 建立人工確認欄位總表
-- 建立正式匯入 gate checklist
-- 將 Open / Mimo / Box / Reasonix 的導入前結論收斂為可執行順序
+- Utility billing policy 文件凍結
+- 根據舊系統策略盤點，整理 utility policy 最小 schema / config 方案
 
 ## Scope
 - 以 `rebuild/app/` 建立新版模組化主幹
@@ -113,9 +112,8 @@ Last Updated: 2026-07-02 14:30
 - `box`: 適合承接 smoke tests、runbook、低風險支援腳本
 
 ## Next Step
-- 依 `real-data-manual-fields-checklist.md` 補完 M1-M16 實際欄位明細
-- 先解 `user/users`、`year_month`、`Room/Tenant/待修` 三個匯入 blocker
-- 之後進入真實資料 dry-run import
+- 以 `utility-policy-minimum-schema-plan.md` 為基礎，決定是否進入 policy_code migration
+- 將第一批核心資料匯入與第二批水電策略匯入正式拆開
 
 ## Risks / Blockers
 - 目前沒有結構性 blocker

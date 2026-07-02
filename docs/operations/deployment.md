@@ -131,6 +131,7 @@ py -3 .\scripts\restore_runtime_db.py --source .\backups\runtime_YYYYMMDD_HHMMSS
 
 Phase 5 正式操作時，請一併閱讀：
 
+- `docs/operations/phase5-closeout-summary.md`
 - `docs/operations/phase5-operator-runbook.md`
 - `docs/operations/phase5-cutover-checklist.md`
 - `docs/operations/phase5-rollback-checklist.md`

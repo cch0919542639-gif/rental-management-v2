@@ -12,6 +12,10 @@ Last Updated: 2026-07-02
 2. 指令用什麼順序跑
 3. 哪些輸出一定要留證
 
+進場前先讀：
+
+- `docs/operations/phase5-closeout-summary.md`
+
 ## Environment Baseline
 
 請先複製以下模板作為本次操作的環境基線：

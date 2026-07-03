@@ -39,6 +39,15 @@ SCRIPT_NOTES = {
         "rollback": "Delete the alembic_version row/table and remove the bridge entry from schema_migration_log if execution must be reverted.",
         "description": "Final custom-runner migration that stamps the Alembic baseline revision before Phase 5 cutover.",
     },
+    "apply_20260703_000003_utility_policy_codes.py": {
+        "mode": "apply",
+        "type": "schema extension",
+        "safety": "review-required",
+        "requires_review": "yes",
+        "verification": "Dry-run first, then verify the 4 policy_code columns exist on properties and rooms after execute.",
+        "rollback": "Restore the database from backup if the added columns must be reverted.",
+        "description": "Add property-level defaults and room-level override columns for utility policy codes.",
+    },
     "maintenance_legacy_scan.py": {
         "mode": "scan",
         "type": "read-only scan",

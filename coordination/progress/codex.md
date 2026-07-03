@@ -1,12 +1,13 @@
 # codex
 
 Status: IN_PROGRESS
-Last Updated: 2026-07-03 13:10
+Last Updated: 2026-07-03 14:25
 
 ## Current Task
 - 真實資料導入前控制文件收斂
 - Utility billing policy 文件凍結
 - 根據舊系統策略盤點，整理 utility policy 最小 schema / config 方案
+- 已開始 `policy_code migration + resolver gating` 主幹實作
 
 ## Scope
 - 以 `rebuild/app/` 建立新版模組化主幹
@@ -112,8 +113,8 @@ Last Updated: 2026-07-03 13:10
 - `box`: 適合承接 smoke tests、runbook、低風險支援腳本
 
 ## Next Step
-- 以 `utility-policy-minimum-schema-plan.md` 為基礎，決定是否進入 policy_code migration
-- 將第一批核心資料匯入與第二批水電策略匯入正式拆開
+- 已完成最小 `policy_code` 欄位與 gating 骨架
+- 下一步可進行 commit/push，之後再決定是否補 property/room 設定 UI
 
 ## Risks / Blockers
 - 目前沒有結構性 blocker

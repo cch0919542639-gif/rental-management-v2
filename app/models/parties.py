@@ -29,6 +29,8 @@ class Property(BaseModel):
     electricity_meter_type = db.Column(db.String(20), default="independent")
     water_meter_type = db.Column(db.String(20), default="independent")
     billing_rule = db.Column(db.String(50), default="proportion")
+    electricity_policy_code = db.Column(db.String(50))
+    water_policy_code = db.Column(db.String(50))
 
     rooms = db.relationship("Room", backref="property", lazy=True, cascade="all, delete-orphan")
 
@@ -44,6 +46,8 @@ class Room(BaseModel):
     water_meter_id = db.Column(db.String(50))
     area_ping = db.Column(db.Numeric(8, 1))
     status = db.Column(db.String(20), default="vacant")
+    electricity_policy_code = db.Column(db.String(50))
+    water_policy_code = db.Column(db.String(50))
     notes = db.Column(db.Text)
 
     contracts = db.relationship("Contract", backref="room", lazy=True)

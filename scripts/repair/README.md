@@ -10,6 +10,7 @@
 | `room_status_audit.py` | 稽核 `rooms.status` 是否只含 `vacant` / `occupied` | Read-only |
 | `contract_expiry_repair.py` | 檢查並修正已過期但仍為 `active` 的合約 | Dry-run |
 | `user_table_audit.py` | 稽核 `user` / `users` 雙表是否同時存在與筆數差異 | Read-only |
+| `monthly_bill_paid_null_repair.py` | 檢查並修正 `monthly_bills.paid IS NULL` 為 `False` | Dry-run |
 
 ## Usage
 
@@ -19,6 +20,8 @@ py -3 .\scripts\repair\room_status_audit.py
 py -3 .\scripts\repair\contract_expiry_repair.py
 py -3 .\scripts\repair\contract_expiry_repair.py --execute
 py -3 .\scripts\repair\user_table_audit.py
+py -3 .\scripts\repair\monthly_bill_paid_null_repair.py
+py -3 .\scripts\repair\monthly_bill_paid_null_repair.py --execute
 ```
 
 ## Rule

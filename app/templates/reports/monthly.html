@@ -25,8 +25,8 @@
       <td>{{ row.electricity_amount }}</td>
       <td>{{ row.public_electricity }}</td>
       <td>{{ row.electricity_usage }}</td>
-      <td>{{ row.water_amount }}</td>
-      <td>{{ row.water_usage }}</td>
+      <td>{{ row.water_amount or 0 }}</td>
+      <td>{{ row.water_usage or 0 }}</td>
       <td>{{ row.other_charges }}</td>
       <td>{{ row.other_desc or '-' }}</td>
       <td>{{ row.total }}</td>

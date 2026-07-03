@@ -7,6 +7,10 @@ from app.models.maintenance import MaintenanceRequest
 
 class ReportRepository:
     @staticmethod
+    def _paid_expr():
+        return func.coalesce(MonthlyBill.paid, False)
+
+    @staticmethod
     def monthly_report_rows(year_month: str):
         return (
             db.session.query(
@@ -24,7 +28,7 @@ class ReportRepository:
                 MonthlyBill.other_desc.label("other_desc"),
                 MonthlyBill.public_electricity.label("public_electricity"),
                 MonthlyBill.total.label("total"),
-                MonthlyBill.paid.label("paid"),
+                func.coalesce(MonthlyBill.paid, False).label("paid"),
             )
             .join(Contract, Contract.id == MonthlyBill.contract_id)
             .join(Room, Room.id == Contract.room_id)
@@ -46,8 +50,8 @@ class ReportRepository:
                 Property.name.label("property_name"),
                 func.count(MonthlyBill.id).label("bill_count"),
                 func.sum(MonthlyBill.total).label("total_amount"),
-                func.sum(case((MonthlyBill.paid.is_(True), MonthlyBill.total), else_=0)).label("paid_amount"),
-                func.sum(case((MonthlyBill.paid.is_(False), MonthlyBill.total), else_=0)).label("unpaid_amount"),
+                func.sum(case((ReportRepository._paid_expr().is_(True), MonthlyBill.total), else_=0)).label("paid_amount"),
+                func.sum(case((ReportRepository._paid_expr().is_(False), MonthlyBill.total), else_=0)).label("unpaid_amount"),
             )
             .join(Room, Room.property_id == Property.id)
             .join(Contract, Contract.room_id == Room.id)
@@ -65,8 +69,8 @@ class ReportRepository:
             db.session.query(
                 MonthlyBill.year_month.label("year_month"),
                 func.sum(MonthlyBill.total).label("total_amount"),
-                func.sum(case((MonthlyBill.paid.is_(True), MonthlyBill.total), else_=0)).label("paid_amount"),
-                func.sum(case((MonthlyBill.paid.is_(False), MonthlyBill.total), else_=0)).label("unpaid_amount"),
+                func.sum(case((ReportRepository._paid_expr().is_(True), MonthlyBill.total), else_=0)).label("paid_amount"),
+                func.sum(case((ReportRepository._paid_expr().is_(False), MonthlyBill.total), else_=0)).label("unpaid_amount"),
             )
             .filter(MonthlyBill.year_month.like(f"{year}%"))
             .group_by(MonthlyBill.year_month)

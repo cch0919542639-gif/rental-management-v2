@@ -45,7 +45,7 @@
         <td>{{ bill.rent }}</td>
         <td>{{ bill.electricity_amount }}</td>
         <td>{{ bill.public_electricity }}</td>
-        <td>{{ bill.water_amount }}</td>
+        <td>{{ bill.water_amount or 0 }}</td>
         <td>{{ bill.other_charges }}</td>
         <td>{{ bill.total }}</td>
         <td>{{ "是" if bill.paid else "否" }}</td>

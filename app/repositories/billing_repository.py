@@ -27,7 +27,7 @@ class BillingRepository:
     def sum_total_for_month(year_month: str, *, paid: bool | None = None):
         query = db.session.query(func.sum(MonthlyBill.total)).filter(MonthlyBill.year_month == to_db_year_month(year_month))
         if paid is not None:
-            query = query.filter(MonthlyBill.paid.is_(paid))
+            query = query.filter(func.coalesce(MonthlyBill.paid, False).is_(paid))
         return query.scalar() or 0
 
     @staticmethod

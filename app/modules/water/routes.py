@@ -80,7 +80,12 @@ def water_post(water_bill_id: int):
     water_bill = WaterBillRepository.get_or_404(water_bill_id)
     form = WaterPostForm()
     if form.validate_on_submit():
-        if form.mode.data == "shared_by_stay_days":
+        if form.mode.data == "auto_policy":
+            WaterService.post_policy_to_monthly_bill(
+                monthly_bill_id=form.monthly_bill_id.data,
+                water_bill=water_bill,
+            )
+        elif form.mode.data == "shared_by_stay_days":
             WaterService.post_shared_to_monthly_bill(
                 monthly_bill_id=form.monthly_bill_id.data,
                 water_bill=water_bill,

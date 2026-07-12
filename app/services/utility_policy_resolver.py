@@ -10,6 +10,20 @@ class UtilityPolicyResolver:
     WATER_FREE = "water_free"
     WATER_BILL_BY_STAY_DAYS = "water_bill_by_stay_days"
 
+    ELECTRICITY_POLICY_CHOICES = [
+        ("", "沿用既有固定費率"),
+        (FIXED_ELECTRICITY, "固定每度單價"),
+        (BILL_USAGE_RATIO, "整期按度數比例分攤"),
+        (BILL_USAGE_RATIO_PLUS_PUBLIC, "公電均攤 + 度數分攤"),
+    ]
+
+    WATER_POLICY_CHOICES = [
+        ("", "沿用既有預設"),
+        (WATER_FIXED_MONTHLY, "固定月費"),
+        (WATER_FREE, "不收水費"),
+        (WATER_BILL_BY_STAY_DAYS, "按居住天數分攤"),
+    ]
+
     @staticmethod
     def resolve_electricity_policy(contract: Contract | None):
         if contract is None:

@@ -15,6 +15,9 @@
 <div class="card" style="margin-bottom:16px;">
   <h2>預覽結果</h2>
   <p><strong>模式：</strong>{{ preview.mode }}</p>
+  {% if preview.resolved_policy %}
+  <p><strong>解析策略：</strong>{{ preview.resolved_policy }}</p>
+  {% endif %}
   <p><strong>月帳單：</strong>#{{ preview.monthly_bill.id }} / {{ preview.monthly_bill.year_month|year_month_ui }}</p>
   <p><strong>合約：</strong>#{{ preview.contract.id }} / 房間 {{ preview.contract.room.room_number }}</p>
   <p><strong>預覽水費金額：</strong>{{ preview.preview_water_amount }}</p>

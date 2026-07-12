@@ -39,6 +39,8 @@ def property_create():
             total_rooms=form.total_rooms.data,
             electricity_meter_type=form.electricity_meter_type.data,
             water_meter_type=form.water_meter_type.data,
+            electricity_policy_code=form.electricity_policy_code.data or None,
+            water_policy_code=form.water_policy_code.data or None,
             billing_rule=form.billing_rule.data,
         )
         flash("物件已建立", "success")
@@ -59,6 +61,8 @@ def property_create_for_landlord(landlord_id: int):
             total_rooms=form.total_rooms.data,
             electricity_meter_type=form.electricity_meter_type.data,
             water_meter_type=form.water_meter_type.data,
+            electricity_policy_code=form.electricity_policy_code.data or None,
+            water_policy_code=form.water_policy_code.data or None,
             billing_rule=form.billing_rule.data,
         )
         flash("物件已建立", "success")
@@ -86,6 +90,8 @@ def property_edit(property_id: int):
             total_rooms=form.total_rooms.data,
             electricity_meter_type=form.electricity_meter_type.data,
             water_meter_type=form.water_meter_type.data,
+            electricity_policy_code=form.electricity_policy_code.data or None,
+            water_policy_code=form.water_policy_code.data or None,
             billing_rule=form.billing_rule.data,
         )
         flash("物件已更新", "success")

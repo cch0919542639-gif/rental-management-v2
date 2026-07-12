@@ -39,6 +39,8 @@ def room_create():
             deposit=form.deposit.data,
             area_ping=form.area_ping.data,
             status=form.status.data,
+            electricity_policy_code=form.electricity_policy_code.data or None,
+            water_policy_code=form.water_policy_code.data or None,
             notes=form.notes.data,
         )
         flash("房間已建立", "success")
@@ -59,6 +61,8 @@ def room_create_for_property(property_id: int):
             deposit=form.deposit.data,
             area_ping=form.area_ping.data,
             status=form.status.data,
+            electricity_policy_code=form.electricity_policy_code.data or None,
+            water_policy_code=form.water_policy_code.data or None,
             notes=form.notes.data,
         )
         flash("房間已建立", "success")
@@ -86,6 +90,8 @@ def room_edit(room_id: int):
             deposit=form.deposit.data,
             area_ping=form.area_ping.data,
             status=form.status.data,
+            electricity_policy_code=form.electricity_policy_code.data or None,
+            water_policy_code=form.water_policy_code.data or None,
             notes=form.notes.data,
         )
         flash("房間已更新", "success")

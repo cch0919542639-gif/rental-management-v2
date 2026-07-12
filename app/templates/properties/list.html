@@ -15,6 +15,8 @@
         <th>名稱</th>
         <th>地址</th>
         <th>總房數</th>
+        <th>電費策略</th>
+        <th>水費策略</th>
         <th>操作</th>
       </tr>
     </thead>
@@ -25,7 +27,9 @@
         <td>{{ property.landlord.name }}</td>
         <td>{{ property.name }}</td>
         <td>{{ property.address }}</td>
-        <td>{{ property.total_rooms }}</td>
+        <td>{{ property.total_rooms or property.rooms|length }}</td>
+        <td>{{ property.electricity_policy_code or '-' }}</td>
+        <td>{{ property.water_policy_code or '-' }}</td>
         <td>
           <a href="{{ url_for('properties.property_edit', property_id=property.id) }}">編輯</a>
           <a href="{{ url_for('rooms.room_create_for_property', property_id=property.id) }}" style="margin-left:8px;">新增房間</a>

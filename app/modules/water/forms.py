@@ -24,7 +24,11 @@ class WaterPostForm(FlaskForm):
     monthly_bill_id = IntegerField("月帳單 ID", validators=[DataRequired()])
     mode = SelectField(
         "分攤模式",
-        choices=[("shared_by_stay_days", "按居住天數分攤"), ("independent_meter", "獨立水表")],
+        choices=[
+            ("auto_policy", "依房間 / 物件策略"),
+            ("shared_by_stay_days", "按居住天數分攤"),
+            ("independent_meter", "獨立水表"),
+        ],
         validators=[DataRequired()],
     )
     amount = DecimalField("獨立水表金額", validators=[Optional()], places=2)

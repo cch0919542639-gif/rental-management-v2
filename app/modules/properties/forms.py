@@ -2,6 +2,8 @@ from flask_wtf import FlaskForm
 from wtforms import IntegerField, SelectField, StringField, SubmitField
 from wtforms.validators import DataRequired, NumberRange, Optional
 
+from app.services import UtilityPolicyResolver
+
 
 class PropertyForm(FlaskForm):
     landlord_id = SelectField("房東", coerce=int, validators=[DataRequired()])
@@ -17,6 +19,16 @@ class PropertyForm(FlaskForm):
         "水表類型",
         choices=[("independent", "獨立水表"), ("shared", "共用水表")],
         validators=[DataRequired()],
+    )
+    electricity_policy_code = SelectField(
+        "電費策略",
+        choices=UtilityPolicyResolver.ELECTRICITY_POLICY_CHOICES,
+        validators=[Optional()],
+    )
+    water_policy_code = SelectField(
+        "水費策略",
+        choices=UtilityPolicyResolver.WATER_POLICY_CHOICES,
+        validators=[Optional()],
     )
     billing_rule = StringField("計費規則", validators=[Optional()])
     submit = SubmitField("儲存")

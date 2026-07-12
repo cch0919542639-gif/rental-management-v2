@@ -16,6 +16,8 @@
         <th>狀態</th>
         <th>租金</th>
         <th>押金</th>
+        <th>電費策略覆蓋</th>
+        <th>水費策略覆蓋</th>
         <th>操作</th>
       </tr>
     </thead>
@@ -28,6 +30,8 @@
         <td>{{ room.status }}</td>
         <td>{{ room.rent }}</td>
         <td>{{ room.deposit }}</td>
+        <td>{{ room.electricity_policy_code or '-' }}</td>
+        <td>{{ room.water_policy_code or '-' }}</td>
         <td><a href="{{ url_for('rooms.room_edit', room_id=room.id) }}">編輯</a></td>
       </tr>
       {% endfor %}

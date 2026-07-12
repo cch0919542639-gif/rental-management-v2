@@ -1,5 +1,27 @@
 # codex completed log
 
+## 2026-07-12 13:20
+
+Completed:
+- 建立 Batch 2 legacy whitelist exporter，固定輸出 PID `1, 2, 3, 4, 5, 6, 21, 22`
+- 建立 Batch 2 incremental importer，禁止 upsert 與既有 primary key 覆寫
+- 同步匯出 PID 5/6 的 electricity meters / bills / readings，保留比例分攤核對資料
+- 建立本機 `real_import/batch2/` evidence bundle：403 筆資料
+- 對 `runtime-real.db` 執行 utility policy migration dry-run，確認只涉及 4 個新增欄位
+
+Verification:
+- `rtk pytest tests\integration\test_batch2_whitelist_import_scripts.py tests\integration\test_batch2_policy_assignment_script.py tests\integration\test_batch2_utility_resolver_flow.py tests\integration\test_utility_policy_settings.py -q`
+- `rtk py -3 .\scripts\real_import\export_batch2_whitelist.py`
+- `DATABASE_URL=sqlite:///.../runtime-real.db rtk py -3 .\scripts\migration\run_migrations.py --id 20260703_000003_utility_policy_codes`
+
+Result:
+- `9 passed`
+- legacy export dry-run: `403` rows
+- target import dry-run intentionally stopped before write because `runtime-real.db` lacks the four policy-code columns
+
+Remaining:
+- Backup target, execute the approved additive migration, then run Batch 2 import dry-run / execute under the operator checklist
+
 ## 2026-07-12 12:05
 
 Completed:

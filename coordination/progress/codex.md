@@ -1,7 +1,7 @@
 # codex
 
 Status: IN_PROGRESS
-Last Updated: 2026-07-12 12:05
+Last Updated: 2026-07-12 13:20
 
 ## Current Task
 - 真實資料導入前控制文件收斂
@@ -120,12 +120,20 @@ Last Updated: 2026-07-12 12:05
 - 僅允許 PID `1, 2, 3, 4, 5, 6, 21, 22`
 - 預設 dry-run；缺少目標物件或既有策略衝突時停止
 - 新增 `tests/integration/test_batch2_policy_assignment_script.py`
+- 完成 Batch 2 真實資料白名單匯出／增量匯入主幹：
+- `scripts/real_import/export_batch2_whitelist.py`
+- `scripts/real_import/import_batch2_whitelist.py`
+- 只讀舊庫、固定 PID `1, 2, 3, 4, 5, 6, 21, 22`、輸出 403 筆資料
+- 目標端禁止 upsert；任何既有 primary key 都是 stop condition
+- 已建立 `real_import/batch2/` 本機 CSV evidence bundle，尚未寫入 `runtime-real.db`
 - `pytest tests\integration -q` 通過（61 passed, 15 skipped）
 - `python .\scripts\seed_demo_data.py` 可成功建立 demo data
 - `powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke_tests.ps1` 通過
 - `rtk pytest tests\integration\test_batch2_utility_resolver_flow.py tests\integration\test_utility_policy_gating.py tests\integration\test_water_preview.py tests\integration\test_billing_utility_algorithms.py -q` 通過（13 passed）
 - `rtk pytest tests\integration\test_utility_policy_settings.py tests\integration\test_nested_creation_routes.py tests\integration\test_repair_scripts_and_integrations_boundary.py tests\integration\test_electricity_calculation_and_posting.py tests\integration\test_water_preview.py tests\integration\test_batch2_utility_resolver_flow.py -q` 通過（20 passed）
 - `rtk pytest tests\integration\test_batch2_policy_assignment_script.py tests\integration\test_batch2_utility_resolver_flow.py tests\integration\test_utility_policy_settings.py tests\integration\test_utility_policy_gating.py tests\integration\test_water_preview.py -q` 通過（15 passed）
+- `rtk pytest tests\integration\test_batch2_whitelist_import_scripts.py tests\integration\test_batch2_policy_assignment_script.py tests\integration\test_batch2_utility_resolver_flow.py tests\integration\test_utility_policy_settings.py -q` 通過（9 passed）
+- `runtime-real.db` policy migration dry-run：只會新增 properties / rooms 共 4 個 policy_code 欄位
 
 ## Active Agent Allocation
 - `reasonix`: Phase 1 規格審查與風險守門，不直接重寫主幹
@@ -134,8 +142,9 @@ Last Updated: 2026-07-12 12:05
 - `box`: 適合承接 smoke tests、runbook、低風險支援腳本
 
 ## Next Step
-- 依序提交 paid-null repair、Batch 2 resolver + policy assignment、Codex 協作紀錄
-- 提交後由 box/hermes 以 Batch 2 whitelist CSV 做 dry-run / parity rehearsal
+- 提交 Batch 2 whitelist exporter / incremental importer 與測試
+- 備份 `runtime-real.db` 後，套用 policy_code migration 並重跑 Batch 2 import dry-run
+- dry-run 無衝突後才可由 box/hermes 執行 Batch 2 `--execute` 與 parity 驗收
 
 ## Risks / Blockers
 - 目前沒有結構性 blocker

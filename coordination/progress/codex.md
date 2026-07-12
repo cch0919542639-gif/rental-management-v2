@@ -1,13 +1,14 @@
 # codex
 
 Status: IN_PROGRESS
-Last Updated: 2026-07-03 14:25
+Last Updated: 2026-07-12 12:05
 
 ## Current Task
 - 真實資料導入前控制文件收斂
 - Utility billing policy 文件凍結
 - 根據舊系統策略盤點，整理 utility policy 最小 schema / config 方案
-- 已開始 `policy_code migration + resolver gating` 主幹實作
+- 已完成 `policy_code migration + resolver gating`
+- 進行 Batch 2 resolver path 主幹施工
 
 ## Scope
 - 以 `rebuild/app/` 建立新版模組化主幹
@@ -102,9 +103,29 @@ Last Updated: 2026-07-03 14:25
 - OCR analyze API / graceful fallback / validation detail 流程正確
 - LINE webhook config-missing / invalid-signature / valid-signed-payload 流程正確
 - reports export csv / xlsx / invalid-format 流程正確
+- 完成 `monthly_bill_paid_null_repair.py` 指向資料庫修正：支援 `--database-url`
+- 完成 property / room utility policy 設定 UI：
+- `properties/form,list`
+- `rooms/form,list`
+- property / room nested creation 可直接帶入 policy_code
+- 完成 Batch 2 resolver service path：
+- electricity `bill_usage_ratio`
+- electricity `bill_usage_ratio_plus_public_share`
+- water `auto_policy`
+- water `water_bill_by_stay_days`
+- water `water_free`
+- 完成 Batch 2 resolver integration tests
+- 完成 Batch 2 白名單策略套用器：
+- `scripts/real_import/apply_batch2_utility_policies.py`
+- 僅允許 PID `1, 2, 3, 4, 5, 6, 21, 22`
+- 預設 dry-run；缺少目標物件或既有策略衝突時停止
+- 新增 `tests/integration/test_batch2_policy_assignment_script.py`
 - `pytest tests\integration -q` 通過（61 passed, 15 skipped）
 - `python .\scripts\seed_demo_data.py` 可成功建立 demo data
 - `powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke_tests.ps1` 通過
+- `rtk pytest tests\integration\test_batch2_utility_resolver_flow.py tests\integration\test_utility_policy_gating.py tests\integration\test_water_preview.py tests\integration\test_billing_utility_algorithms.py -q` 通過（13 passed）
+- `rtk pytest tests\integration\test_utility_policy_settings.py tests\integration\test_nested_creation_routes.py tests\integration\test_repair_scripts_and_integrations_boundary.py tests\integration\test_electricity_calculation_and_posting.py tests\integration\test_water_preview.py tests\integration\test_batch2_utility_resolver_flow.py -q` 通過（20 passed）
+- `rtk pytest tests\integration\test_batch2_policy_assignment_script.py tests\integration\test_batch2_utility_resolver_flow.py tests\integration\test_utility_policy_settings.py tests\integration\test_utility_policy_gating.py tests\integration\test_water_preview.py -q` 通過（15 passed）
 
 ## Active Agent Allocation
 - `reasonix`: Phase 1 規格審查與風險守門，不直接重寫主幹
@@ -113,11 +134,12 @@ Last Updated: 2026-07-03 14:25
 - `box`: 適合承接 smoke tests、runbook、低風險支援腳本
 
 ## Next Step
-- 已完成最小 `policy_code` 欄位與 gating 骨架
-- 下一步可進行 commit/push，之後再決定是否補 property/room 設定 UI
+- 依序提交 paid-null repair、Batch 2 resolver + policy assignment、Codex 協作紀錄
+- 提交後由 box/hermes 以 Batch 2 whitelist CSV 做 dry-run / parity rehearsal
 
 ## Risks / Blockers
 - 目前沒有結構性 blocker
 - 本機有尚未整理 commit 的主幹變更
+- Batch 2 電費比例分攤目前以 property/room policy 為主，不含 custom module（7/8/9/10 與 Room 432 例外仍不在本輪）
 - 曾發生外部程序回退檔案；若再次出現，先比對 `maintenance/report/electricity` service/repository、`nested routes`、`error handlers` 是否被覆寫
 - 中斷恢復時，請先讀 `coordination/progress/codex.md` 與 `docs/operations/current-dispatch-and-handoff-plan.md`

@@ -1,5 +1,49 @@
 # codex completed log
 
+## 2026-07-12 12:05
+
+Completed:
+- 新增 Batch 2 白名單策略套用器 `scripts/real_import/apply_batch2_utility_policies.py`
+- 固定核准範圍為 PID `1, 2, 3, 4, 5, 6, 21, 22`
+- 預設 dry-run；缺少目標物件與既有策略衝突均會停止
+- 新增腳本整合測試與 operator README
+
+Verification:
+- `rtk pytest tests\integration\test_batch2_policy_assignment_script.py tests\integration\test_batch2_utility_resolver_flow.py tests\integration\test_utility_policy_settings.py tests\integration\test_utility_policy_gating.py tests\integration\test_water_preview.py -q`
+
+Result:
+- `15 passed`
+
+Remaining:
+- 提交本輪 Batch 2 resolver / policy assignment 主幹變更
+- 由 box/hermes 對真實 Batch 2 whitelist CSV 執行 dry-run、parity 與策略套用器預演
+
+## 2026-07-12 11:30
+
+Completed:
+- Batch 2 resolver path 第一輪主幹施工
+- 擴充 property / room utility policy 設定 UI 與 nested creation 測試
+- 補齊 `monthly_bill_paid_null_repair.py` 的 `--database-url`，可指向 `runtime-real.db`
+- 在 `electricity_service.py` 實作：
+- `electricity_bill_usage_ratio`
+- `electricity_bill_usage_ratio_plus_public_share`
+- 在 `water_service.py` 實作：
+- `auto_policy`
+- `water_bill_by_stay_days`
+- `water_free`
+- 新增 `tests/integration/test_batch2_utility_resolver_flow.py`
+
+Verification:
+- `rtk pytest tests\integration\test_batch2_utility_resolver_flow.py tests\integration\test_utility_policy_gating.py tests\integration\test_water_preview.py tests\integration\test_billing_utility_algorithms.py -q`
+- `rtk pytest tests\integration\test_utility_policy_settings.py tests\integration\test_nested_creation_routes.py tests\integration\test_repair_scripts_and_integrations_boundary.py tests\integration\test_electricity_calculation_and_posting.py tests\integration\test_water_preview.py tests\integration\test_batch2_utility_resolver_flow.py -q`
+
+Result:
+- `13 passed`
+- `20 passed`
+
+Remaining:
+- 整理 commit / push 範圍，之後銜接 Batch 2 匯入腳本與白名單擴大
+
 ## 2026-06-30 01:32
 
 Completed:

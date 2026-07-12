@@ -162,13 +162,14 @@ def test_monthly_bill_paid_null_repair_normalizes_null_flags(tmp_path):
 
     script = root / "scripts" / "repair" / "monthly_bill_paid_null_repair.py"
     dry_run = subprocess.run(
-        [sys.executable, str(script)],
+        [sys.executable, str(script), "--database-url", database_uri],
         capture_output=True,
         text=True,
         cwd=root,
         env=env,
         check=True,
     )
+    assert database_uri in dry_run.stdout
     assert "Candidate count: 1" in dry_run.stdout
     assert "Dry-run only" in dry_run.stdout
 
@@ -177,7 +178,7 @@ def test_monthly_bill_paid_null_repair_normalizes_null_flags(tmp_path):
         assert bill.paid is None
 
     execute = subprocess.run(
-        [sys.executable, str(script), "--execute"],
+        [sys.executable, str(script), "--database-url", database_uri, "--execute"],
         capture_output=True,
         text=True,
         cwd=root,

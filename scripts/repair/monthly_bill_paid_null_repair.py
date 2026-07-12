@@ -9,6 +9,7 @@ Default behavior:
 
 Execute mode:
   py -3 .\\scripts\\repair\\monthly_bill_paid_null_repair.py --execute
+  py -3 .\\scripts\\repair\\monthly_bill_paid_null_repair.py --database-url sqlite:///D:\\CodexRuntime\\rental\\rebuild\\runtime-real.db --execute
 
 Rollback:
   - Restore the database from backup if this normalization should be reverted.
@@ -16,6 +17,7 @@ Rollback:
 """
 
 import argparse
+import os
 from pathlib import Path
 import sys
 
@@ -31,12 +33,15 @@ from scripts.repair._common import build_script_app
 def _build_parser():
     parser = argparse.ArgumentParser(description="Dry-run-first repair for monthly_bills.paid NULL values")
     parser.add_argument("--execute", action="store_true", help="Apply the repair instead of dry-run")
+    parser.add_argument("--database-url", help="Override DATABASE_URL for this repair run")
     return parser
 
 
 def main(argv: list[str]):
     args = _build_parser().parse_args(argv)
     execute = args.execute
+    if args.database_url:
+        os.environ["DATABASE_URL"] = args.database_url
     app = build_script_app()
 
     with app.app_context():
@@ -44,6 +49,7 @@ def main(argv: list[str]):
         print("=" * 72)
         print(f"MonthlyBill Paid NULL Repair ({'EXECUTE' if execute else 'DRY-RUN'})")
         print("=" * 72)
+        print(f"Database URL: {os.getenv('DATABASE_URL', '(default runtime.db)')}")
         print(f"Candidate count: {len(candidates)}")
         print("Rollback note: restore from backup if NULL -> False normalization must be reverted.")
         for bill in candidates[:20]:

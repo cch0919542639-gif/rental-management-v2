@@ -22,6 +22,7 @@ py -3 .\scripts\repair\contract_expiry_repair.py --execute
 py -3 .\scripts\repair\user_table_audit.py
 py -3 .\scripts\repair\monthly_bill_paid_null_repair.py
 py -3 .\scripts\repair\monthly_bill_paid_null_repair.py --execute
+py -3 .\scripts\repair\monthly_bill_paid_null_repair.py --database-url sqlite:///D:\CodexRuntime\rental\rebuild\runtime-real.db --execute
 ```
 
 ## Rule

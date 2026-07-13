@@ -314,6 +314,13 @@ Remaining:
 ## 2026-07-13
 
 Completed:
+- 以 Google Sheet `202605`／`202606` 逐筆核對並完成全部 11 筆 Batch 2 historical total 對帳。
+- `previous_balance` 支援正負值；負值代表前期貸項／超收，不再誤判為資料錯誤。
+- 新增公設電費單欄修復腳本，bill 943 依來源修正 `public_electricity=0`。
+- bill 172、567、573、578、833 已依 Sheet 的 signed 未收款欄完成修復。
+- Google Sheet `202605`／`202606` 核對侯家敏（凱旋309號5樓房6）：
+  - bill 171 寫入 `previous_balance=78`，`4520 = 4200 + 52 + 190 + 78`
+  - bill 832 寫入 `previous_balance=20`，`4220 = 4200 + 20`
 - 高富國／凱旋309號5樓／房間 5 的 legacy total 對帳完成：
   - bill 170（202605）寫入 `previous_balance=17615`，總額維持 `22654`
   - bill 831（202606）寫入 `previous_balance=18154`，總額維持 `22654`

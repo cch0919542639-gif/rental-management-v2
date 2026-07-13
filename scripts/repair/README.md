@@ -11,7 +11,8 @@
 | `contract_expiry_repair.py` | 檢查並修正已過期但仍為 `active` 的合約 | Dry-run |
 | `user_table_audit.py` | 稽核 `user` / `users` 雙表是否同時存在與筆數差異 | Read-only |
 | `monthly_bill_paid_null_repair.py` | 檢查並修正 `monthly_bills.paid IS NULL` 為 `False` | Dry-run |
-| `monthly_bill_previous_balance_repair.py` | 依核對結果設定單筆前期未收餘額並重算總額 | Dry-run |
+| `monthly_bill_previous_balance_repair.py` | 依核對結果設定單筆前期餘額（可為負數貸項）並重算總額 | Dry-run |
+| `monthly_bill_public_electricity_repair.py` | 依核對結果修正單筆公設電費並重算總額 | Dry-run |
 
 ## Usage
 

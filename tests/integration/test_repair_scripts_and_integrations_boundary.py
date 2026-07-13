@@ -13,6 +13,7 @@ from sqlalchemy import text
 from app.core.db import db
 from app.core.db import init_extensions
 from app.models import Contract, Landlord, MonthlyBill, Property, Room, Tenant
+from app.services import BillingService
 
 
 def _run_script(script_path: Path, *, env=None):
@@ -296,6 +297,78 @@ def test_monthly_bill_previous_balance_repair_recalculates_total(tmp_path):
         bill = db.session.get(MonthlyBill, bill_id)
         assert float(bill.previous_balance) == 25047.0
         assert float(bill.total) == 29710.0
+
+    credit_execute = subprocess.run(
+        [
+            sys.executable,
+            str(script),
+            "--database-url",
+            database_uri,
+            "--bill-id",
+            str(bill_id),
+            "--amount",
+            "-55",
+            "--execute",
+        ],
+        capture_output=True,
+        text=True,
+        cwd=root,
+        env=env,
+        check=True,
+    )
+    assert "Updated count: 1" in credit_execute.stdout
+
+    with app.app_context():
+        bill = db.session.get(MonthlyBill, bill_id)
+        assert float(bill.previous_balance) == -55.0
+        assert float(bill.total) == 4608.0
+
+
+def test_monthly_bill_public_electricity_repair_recalculates_total(tmp_path):
+    root = Path(__file__).resolve().parents[2]
+    database_uri = f"sqlite:///{tmp_path / 'public-electricity-repair.db'}"
+    env = os.environ.copy()
+    env["DATABASE_URL"] = "sqlite:///:memory:"
+    env["SCRIPT_APP_CONFIG"] = "default"
+
+    app = _build_db_app(database_uri)
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+        landlord = Landlord(name="L1")
+        db.session.add(landlord)
+        db.session.flush()
+        prop = Property(landlord_id=landlord.id, name="P1")
+        db.session.add(prop)
+        db.session.flush()
+        room = Room(property_id=prop.id, room_number="A01", status="occupied")
+        tenant = Tenant(name="T1")
+        db.session.add_all([room, tenant])
+        db.session.flush()
+        contract = Contract(tenant_id=tenant.id, room_id=room.id, start_date=date(2026, 1, 1), end_date=date(2026, 12, 31), rent=6500, status="active")
+        db.session.add(contract)
+        db.session.flush()
+        bill = MonthlyBill(contract_id=contract.id, year_month="202605", rent=6500, electricity_amount=289, public_electricity=40, water_amount=18, paid=False)
+        db.session.add(bill)
+        BillingService.calculate_total(bill)
+        db.session.commit()
+        bill_id = bill.id
+
+    script = root / "scripts" / "repair" / "monthly_bill_public_electricity_repair.py"
+    dry_run = subprocess.run(
+        [sys.executable, str(script), "--database-url", database_uri, "--bill-id", str(bill_id), "--amount", "0"],
+        capture_output=True, text=True, cwd=root, env=env, check=True,
+    )
+    assert "Total: 6,847 -> 6,807" in dry_run.stdout
+
+    subprocess.run(
+        [sys.executable, str(script), "--database-url", database_uri, "--bill-id", str(bill_id), "--amount", "0", "--execute"],
+        capture_output=True, text=True, cwd=root, env=env, check=True,
+    )
+    with app.app_context():
+        bill = db.session.get(MonthlyBill, bill_id)
+        assert float(bill.public_electricity) == 0.0
+        assert float(bill.total) == 6807.0
 
 
 def _line_signature(secret: str, body: bytes) -> str:

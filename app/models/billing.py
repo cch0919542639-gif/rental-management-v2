@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 
 from app.core.db import db
 from app.models.base import BaseModel
@@ -21,6 +21,7 @@ class MonthlyBill(BaseModel):
     water_amount = db.Column(db.Numeric(10, 2), default=0)
     other_charges = db.Column(db.Numeric(10, 2), default=0)
     other_desc = db.Column(db.String(200))
+    previous_balance = db.Column(db.Numeric(10, 2), default=0)
     total = db.Column(db.Numeric(10, 2), default=0)
     paid = db.Column(db.Boolean, default=False)
     paid_date = db.Column(db.Date)
@@ -29,14 +30,18 @@ class MonthlyBill(BaseModel):
     __table_args__ = (db.UniqueConstraint("contract_id", "year_month", name="uq_monthly_bill_contract_year_month"),)
 
     @staticmethod
-    def calculate_total(*, rent=0, electricity_amount=0, public_electricity=0, water_amount=0, other_charges=0):
-        return (
+    def calculate_total(
+        *, rent=0, electricity_amount=0, public_electricity=0, water_amount=0, other_charges=0, previous_balance=0
+    ):
+        total = (
             Decimal(str(rent or 0))
             + Decimal(str(electricity_amount or 0))
             + Decimal(str(public_electricity or 0))
             + Decimal(str(water_amount or 0))
             + Decimal(str(other_charges or 0))
+            + Decimal(str(previous_balance or 0))
         )
+        return total.quantize(Decimal("1"), rounding=ROUND_HALF_UP)
 
 
 class PaymentRecord(BaseModel):

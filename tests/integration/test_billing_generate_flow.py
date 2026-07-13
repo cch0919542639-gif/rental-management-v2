@@ -31,7 +31,8 @@ def test_billing_create_generate_and_toggle_paid(app, logged_in_client, seeded_d
     with app.app_context():
         july = MonthlyBill.query.filter_by(contract_id=seeded_data["contract_id"], year_month="202607").first()
         assert july is not None
-        assert float(july.total) == 12100.0
+        assert float(july.previous_balance) == 12000.0
+        assert float(july.total) == 24100.0
         july_id = july.id
 
     response = client.post(f"/billing/{july_id}/toggle-paid", follow_redirects=True)
@@ -51,6 +52,7 @@ def test_billing_create_generate_and_toggle_paid(app, logged_in_client, seeded_d
     with app.app_context():
         august = MonthlyBill.query.filter_by(contract_id=seeded_data["contract_id"], year_month="202608").first()
         assert august is not None
+        assert float(august.previous_balance) == 0.0
 
     response = client.post(
         "/billing/batch",

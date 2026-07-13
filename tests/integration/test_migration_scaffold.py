@@ -207,3 +207,47 @@ def test_utility_policy_migration_runs_in_dry_run_and_execute_modes(tmp_path):
     )
     assert "Utility policy columns applied" in execute.stdout
     assert "Applied and recorded." in execute.stdout
+
+
+def test_monthly_bill_previous_balance_migration_runs_in_dry_run_and_execute_modes(tmp_path):
+    root = Path(__file__).resolve().parents[2]
+    script = root / "scripts" / "migration" / "run_migrations.py"
+    db_path = tmp_path / "previous-balance.db"
+    env = os.environ.copy()
+    env["DATABASE_URL"] = f"sqlite:///{db_path}"
+    env["SCRIPT_APP_CONFIG"] = "default"
+    env["SECRET_KEY"] = "test-secret"
+    subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "from app import create_app; from app.core.db import db; "
+            "app = create_app('default'); ctx = app.app_context(); ctx.push(); "
+            "db.drop_all(); db.create_all(); ctx.pop()",
+        ],
+        capture_output=True,
+        text=True,
+        cwd=root,
+        env=env,
+        check=True,
+    )
+
+    dry_run = subprocess.run(
+        [sys.executable, str(script), "--id", "20260712_000004_monthly_bill_previous_balance"],
+        capture_output=True,
+        text=True,
+        cwd=root,
+        env=env,
+        check=True,
+    )
+    assert "monthly_bills.previous_balance already exists" in dry_run.stdout
+
+    execute = subprocess.run(
+        [sys.executable, str(script), "--execute", "--id", "20260712_000004_monthly_bill_previous_balance"],
+        capture_output=True,
+        text=True,
+        cwd=root,
+        env=env,
+        check=True,
+    )
+    assert "Applied and recorded." in execute.stdout

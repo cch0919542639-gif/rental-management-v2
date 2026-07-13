@@ -53,6 +53,7 @@ def test_reports_monthly_renders_for_tenant_and_paid_status(app, logged_in_clien
     assert response.status_code == 200
     text = response.get_data(as_text=True)
     assert "Tenant One" in text
+    assert "前期未收" in text
 
     # Basic sanity: page contains expected section headings/keywords
     assert "monthly" in text.lower() or "報表" in text

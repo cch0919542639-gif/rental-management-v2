@@ -2,6 +2,7 @@
 {% block title %}{{ title }}{% endblock %}
 {% block content %}
 <h1>{{ title }}</h1>
+<p class="card" style="max-width:860px;">總應繳 = 租金 + 電費 + 公電 + 水費 + 其他費用 + 前期未收餘額。計算金額四捨五入至整數元。</p>
 <form method="post" class="card" style="display:grid;gap:12px;max-width:860px;">
   {{ form.hidden_tag() }}
   {{ form.contract_id.label }} {{ form.contract_id() }}
@@ -18,6 +19,7 @@
   {{ form.water_amount.label }} {{ form.water_amount() }}
   {{ form.other_charges.label }} {{ form.other_charges() }}
   {{ form.other_desc.label }} {{ form.other_desc() }}
+  {{ form.previous_balance.label }} {{ form.previous_balance() }}
   <label>{{ form.paid() }} {{ form.paid.label.text }}</label>
   {{ form.notes.label }} {{ form.notes(rows=4) }}
   {{ form.submit() }}

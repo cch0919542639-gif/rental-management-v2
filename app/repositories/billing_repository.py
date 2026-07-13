@@ -1,3 +1,5 @@
+from decimal import Decimal, ROUND_HALF_UP
+
 from sqlalchemy import func
 
 from app.core.db import db
@@ -29,6 +31,26 @@ class BillingRepository:
         if paid is not None:
             query = query.filter(func.coalesce(MonthlyBill.paid, False).is_(paid))
         return query.scalar() or 0
+
+    @staticmethod
+    def prior_unpaid_balance(contract_id: int, year_month: str):
+        """Return unique unpaid charges before a new statement, without carry duplication."""
+        bills = (
+            MonthlyBill.query.filter(MonthlyBill.contract_id == contract_id)
+            .filter(MonthlyBill.year_month < to_db_year_month(year_month))
+            .order_by(MonthlyBill.year_month.asc(), MonthlyBill.id.asc())
+            .all()
+        )
+        balance = Decimal("0")
+        for bill in bills:
+            if bool(bill.paid):
+                # A paid later statement includes any balance it carried from
+                # earlier periods, so it clears the running statement balance.
+                balance = Decimal("0")
+                continue
+            current_period_due = Decimal(str(bill.total or 0)) - Decimal(str(bill.previous_balance or 0))
+            balance += current_period_due
+        return balance.quantize(Decimal("1"), rounding=ROUND_HALF_UP)
 
     @staticmethod
     def list_for_month(year_month: str):

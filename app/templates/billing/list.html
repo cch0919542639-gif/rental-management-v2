@@ -14,8 +14,8 @@
 </div>
 
 <div class="grid" style="margin-bottom:24px;">
-  <div class="card"><div>{{ year_month }} 已收</div><strong>{{ month_collected }}</strong></div>
-  <div class="card"><div>{{ year_month }} 未收</div><strong>{{ month_unpaid }}</strong></div>
+  <div class="card"><div>{{ year_month }} 已收</div><strong>{{ month_collected | money_int }}</strong></div>
+  <div class="card"><div>{{ year_month }} 未收</div><strong>{{ month_unpaid | money_int }}</strong></div>
 </div>
 
 <div class="card">
@@ -25,12 +25,14 @@
       <tr>
         <th>ID</th>
         <th>月份</th>
+        <th>物件／房間／房客</th>
         <th>合約</th>
         <th>租金</th>
         <th>電費</th>
         <th>公電</th>
         <th>水費</th>
         <th>其他費用</th>
+        <th>前期未收</th>
         <th>總額</th>
         <th>已繳</th>
         <th>操作</th>
@@ -41,13 +43,18 @@
       <tr>
         <td>{{ bill.id }}</td>
         <td>{{ bill.year_month | year_month_ui }}</td>
+        <td>
+          {{ bill.contract.room.property.name }}<br>
+          房間 {{ bill.contract.room.room_number }}／{{ bill.contract.tenant.name }}
+        </td>
         <td><a href="{{ url_for('billing.billing_contract_list', contract_id=bill.contract_id) }}">合約 {{ bill.contract_id }}</a></td>
-        <td>{{ bill.rent }}</td>
-        <td>{{ bill.electricity_amount }}</td>
-        <td>{{ bill.public_electricity }}</td>
-        <td>{{ bill.water_amount or 0 }}</td>
-        <td>{{ bill.other_charges }}</td>
-        <td>{{ bill.total }}</td>
+        <td>{{ bill.rent | money_int }}</td>
+        <td>{{ bill.electricity_amount | money_int }}</td>
+        <td>{{ bill.public_electricity | money_int }}</td>
+        <td>{{ bill.water_amount | money_int }}</td>
+        <td>{{ bill.other_charges | money_int }}</td>
+        <td>{{ bill.previous_balance | money_int }}</td>
+        <td>{{ bill.total | money_int }}</td>
         <td>{{ "是" if bill.paid else "否" }}</td>
         <td>
           <a href="{{ url_for('billing.billing_edit', monthly_bill_id=bill.id) }}">編輯</a>

@@ -42,6 +42,7 @@ class BillingGenerationService:
             "water_amount": 0,
             "other_charges": 0,
             "other_desc": None,
+            "previous_balance": BillingRepository.prior_unpaid_balance(contract.id, db_year_month),
             "paid": False,
             "notes": None,
         }
@@ -54,6 +55,8 @@ class BillingGenerationService:
             raise ConflictError("此合約在該月份已有帳單")
 
         contract = ContractRepository.get_or_404(payload["contract_id"])
+        if payload.get("previous_balance") is None:
+            payload["previous_balance"] = BillingRepository.prior_unpaid_balance(contract.id, db_year_month)
         bill = MonthlyBill(**payload)
         bill.year_month = db_year_month
         if not bill.rent:

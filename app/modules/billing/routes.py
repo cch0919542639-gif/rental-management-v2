@@ -53,6 +53,7 @@ def billing_create():
             water_amount=form.water_amount.data,
             other_charges=form.other_charges.data,
             other_desc=form.other_desc.data,
+            previous_balance=form.previous_balance.data,
             paid=form.paid.data,
             notes=form.notes.data,
         )
@@ -85,6 +86,7 @@ def billing_edit(monthly_bill_id: int):
             water_amount=form.water_amount.data,
             other_charges=form.other_charges.data,
             other_desc=form.other_desc.data,
+            previous_balance=form.previous_balance.data,
             paid=form.paid.data,
             notes=form.notes.data,
         )

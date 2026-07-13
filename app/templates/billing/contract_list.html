@@ -17,6 +17,7 @@
         <th>ID</th>
         <th>月份</th>
         <th>租金</th>
+        <th>前期未收</th>
         <th>總額</th>
         <th>已繳</th>
         <th>操作</th>
@@ -27,8 +28,9 @@
       <tr>
         <td>{{ bill.id }}</td>
         <td>{{ bill.year_month | year_month_ui }}</td>
-        <td>{{ bill.rent }}</td>
-        <td>{{ bill.total }}</td>
+        <td>{{ bill.rent | money_int }}</td>
+        <td>{{ bill.previous_balance | money_int }}</td>
+        <td>{{ bill.total | money_int }}</td>
         <td>{{ "是" if bill.paid else "否" }}</td>
         <td>
           <a href="{{ url_for('billing.billing_edit', monthly_bill_id=bill.id) }}">編輯</a>

@@ -27,6 +27,7 @@ class ReportRepository:
                 MonthlyBill.other_charges.label("other_charges"),
                 MonthlyBill.other_desc.label("other_desc"),
                 MonthlyBill.public_electricity.label("public_electricity"),
+                MonthlyBill.previous_balance.label("previous_balance"),
                 MonthlyBill.total.label("total"),
                 func.coalesce(MonthlyBill.paid, False).label("paid"),
             )

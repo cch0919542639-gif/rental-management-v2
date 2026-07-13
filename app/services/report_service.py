@@ -24,6 +24,7 @@ class ReportService:
                 "water_usage": row.water_usage,
                 "other_charges": row.other_charges,
                 "other_desc": row.other_desc,
+                "previous_balance": row.previous_balance,
                 "total": row.total,
                 "paid": row.paid,
             }

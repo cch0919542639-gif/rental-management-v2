@@ -10,5 +10,6 @@ class BillingService:
             public_electricity=monthly_bill.public_electricity,
             water_amount=monthly_bill.water_amount,
             other_charges=monthly_bill.other_charges,
+            previous_balance=monthly_bill.previous_balance,
         )
         return monthly_bill.total

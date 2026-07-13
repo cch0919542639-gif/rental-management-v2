@@ -13,8 +13,8 @@
   <div class="card"><div>總房數</div><strong>{{ room_count }}</strong></div>
   <div class="card"><div>已出租</div><strong>{{ occupied_count }}</strong></div>
   <div class="card"><div>空房</div><strong>{{ vacant_count }}</strong></div>
-  <div class="card"><div>{{ current_month }} 已收</div><strong>{{ month_collected }}</strong></div>
-  <div class="card"><div>{{ current_month }} 未收</div><strong>{{ month_unpaid }}</strong></div>
+  <div class="card"><div>{{ current_month }} 已收</div><strong>{{ month_collected | money_int }}</strong></div>
+  <div class="card"><div>{{ current_month }} 未收</div><strong>{{ month_unpaid | money_int }}</strong></div>
   <div class="card"><div>有效合約</div><strong>{{ active_contracts }}</strong></div>
 </div>
 
@@ -36,8 +36,8 @@
       <tr>
         <td>{{ bill.id }}</td>
         <td>{{ bill.year_month | year_month_ui }}</td>
-        <td>{{ bill.rent }}</td>
-        <td>{{ bill.total }}</td>
+        <td>{{ bill.rent | money_int }}</td>
+        <td>{{ bill.total | money_int }}</td>
         <td>{{ "是" if bill.paid else "否" }}</td>
       </tr>
       {% endfor %}

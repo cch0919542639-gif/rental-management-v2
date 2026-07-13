@@ -7,10 +7,11 @@
   {{ form.year_month.label }} {{ form.year_month() }}
   {{ form.submit() }}
 </form>
-<table>
+<div class="report-table-scroll">
+<table style="min-width:1550px;">
   <thead>
     <tr>
-      <th>月份</th><th>房東</th><th>物件</th><th>房號</th><th>房客</th><th>租金</th><th>電費</th><th>公設電費</th><th>用電</th><th>水費</th><th>用水</th><th>其他</th><th>其他說明</th><th>總額</th><th>已付</th>
+      <th>月份</th><th>房東</th><th>物件</th><th>房號</th><th>房客</th><th>租金</th><th>電費</th><th>公設電費</th><th>用電</th><th>水費</th><th>用水</th><th>其他</th><th>其他說明</th><th>前期未收</th><th>總額</th><th>已付</th>
     </tr>
   </thead>
   <tbody>
@@ -21,20 +22,26 @@
       <td>{{ row.property_name }}</td>
       <td>{{ row.room_number }}</td>
       <td>{{ row.tenant_name }}</td>
-      <td>{{ row.rent }}</td>
-      <td>{{ row.electricity_amount }}</td>
-      <td>{{ row.public_electricity }}</td>
+      <td>{{ row.rent | money_int }}</td>
+      <td>{{ row.electricity_amount | money_int }}</td>
+      <td>{{ row.public_electricity | money_int }}</td>
       <td>{{ row.electricity_usage }}</td>
-      <td>{{ row.water_amount or 0 }}</td>
+      <td>{{ row.water_amount | money_int }}</td>
       <td>{{ row.water_usage or 0 }}</td>
-      <td>{{ row.other_charges }}</td>
+      <td>{{ row.other_charges | money_int }}</td>
       <td>{{ row.other_desc or '-' }}</td>
-      <td>{{ row.total }}</td>
+      <td>{{ row.previous_balance | money_int }}</td>
+      <td>{{ row.total | money_int }}</td>
       <td>{{ '是' if row.paid else '否' }}</td>
     </tr>
     {% else %}
-    <tr><td colspan="15">該月份尚無資料</td></tr>
+    <tr><td colspan="16">該月份尚無資料</td></tr>
     {% endfor %}
   </tbody>
 </table>
+</div>
+<style>
+  .report-table-scroll { max-height: calc(100vh - 190px); overflow: auto; border: 1px solid #e5e7eb; }
+  .report-table-scroll th { position: sticky; top: 0; z-index: 1; box-shadow: 0 1px 0 #cbd5e1; }
+</style>
 {% endblock %}

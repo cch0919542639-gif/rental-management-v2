@@ -48,6 +48,15 @@ SCRIPT_NOTES = {
         "rollback": "Restore the database from backup if the added columns must be reverted.",
         "description": "Add property-level defaults and room-level override columns for utility policy codes.",
     },
+    "apply_20260712_000004_monthly_bill_previous_balance.py": {
+        "mode": "apply",
+        "type": "schema extension",
+        "safety": "review-required",
+        "requires_review": "yes",
+        "verification": "Dry-run first, then verify monthly_bills.previous_balance exists and existing rows default to 0.",
+        "rollback": "Restore the database backup if the added column must be reverted.",
+        "description": "Add a separate carry-forward balance for previous unpaid monthly bill amounts.",
+    },
     "maintenance_legacy_scan.py": {
         "mode": "scan",
         "type": "read-only scan",

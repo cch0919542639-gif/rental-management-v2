@@ -1,3 +1,5 @@
+from decimal import Decimal, ROUND_HALF_UP
+
 from flask import Flask
 
 from app.core.config import get_config
@@ -18,6 +20,10 @@ def create_app(config_name: str | None = None) -> Flask:
     register_blueprints(flask_app)
 
     flask_app.add_template_filter(to_ui_year_month, "year_month_ui")
+    flask_app.add_template_filter(
+        lambda value: f"{Decimal(str(value or 0)).quantize(Decimal('1'), rounding=ROUND_HALF_UP):,.0f}",
+        "money_int",
+    )
 
     # Import models after extensions so SQLAlchemy metadata is populated.
     import app.models  # noqa: F401

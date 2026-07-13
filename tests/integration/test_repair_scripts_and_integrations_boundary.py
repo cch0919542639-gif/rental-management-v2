@@ -15,12 +15,13 @@ from app.core.db import init_extensions
 from app.models import Contract, Landlord, MonthlyBill, Property, Room, Tenant
 
 
-def _run_script(script_path: Path):
+def _run_script(script_path: Path, *, env=None):
     return subprocess.run(
         [sys.executable, str(script_path)],
         capture_output=True,
         text=True,
         cwd=script_path.parents[2],
+        env=env,
         check=True,
     )
 
@@ -41,8 +42,16 @@ def _build_db_app(database_uri: str):
     return flask_app
 
 
-def test_repair_scripts_run_read_only():
+def test_repair_scripts_run_read_only(tmp_path):
     root = Path(__file__).resolve().parents[2]
+    database_uri = f"sqlite:///{tmp_path / 'repair-read-only.db'}"
+    env = os.environ.copy()
+    env["DATABASE_URL"] = database_uri
+    env["SCRIPT_APP_CONFIG"] = "default"
+    app = _build_db_app(database_uri)
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
     scripts = [
         root / "scripts" / "repair" / "year_month_audit.py",
         root / "scripts" / "repair" / "room_status_audit.py",
@@ -51,7 +60,7 @@ def test_repair_scripts_run_read_only():
         root / "scripts" / "repair" / "monthly_bill_paid_null_repair.py",
     ]
     for script in scripts:
-        result = _run_script(script)
+        result = _run_script(script, env=env)
         assert result.returncode == 0
         assert result.stdout.strip()
 
@@ -124,9 +133,11 @@ def test_contract_expiry_repair_execute_updates_expired_contracts(tmp_path):
 def test_monthly_bill_paid_null_repair_normalizes_null_flags(tmp_path):
     root = Path(__file__).resolve().parents[2]
     db_path = tmp_path / "paid-null-repair.db"
+    default_db_path = tmp_path / "wrong-default.db"
     database_uri = f"sqlite:///{db_path}"
+    default_database_uri = f"sqlite:///{default_db_path}"
     env = os.environ.copy()
-    env["DATABASE_URL"] = database_uri
+    env["DATABASE_URL"] = default_database_uri
     env["SCRIPT_APP_CONFIG"] = "default"
 
     app = _build_db_app(database_uri)
@@ -160,6 +171,11 @@ def test_monthly_bill_paid_null_repair_normalizes_null_flags(tmp_path):
         db.session.execute(text("UPDATE monthly_bills SET paid = NULL WHERE id = :bill_id"), {"bill_id": bill_id})
         db.session.commit()
 
+    default_app = _build_db_app(default_database_uri)
+    with default_app.app_context():
+        db.drop_all()
+        db.create_all()
+
     script = root / "scripts" / "repair" / "monthly_bill_paid_null_repair.py"
     dry_run = subprocess.run(
         [sys.executable, str(script), "--database-url", database_uri],
@@ -190,6 +206,96 @@ def test_monthly_bill_paid_null_repair_normalizes_null_flags(tmp_path):
     with app.app_context():
         bill = db.session.get(MonthlyBill, bill_id)
         assert bill.paid is False
+
+
+def test_monthly_bill_previous_balance_repair_recalculates_total(tmp_path):
+    root = Path(__file__).resolve().parents[2]
+    db_path = tmp_path / "previous-balance-repair.db"
+    database_uri = f"sqlite:///{db_path}"
+    env = os.environ.copy()
+    env["DATABASE_URL"] = "sqlite:///:memory:"
+    env["SCRIPT_APP_CONFIG"] = "default"
+
+    app = _build_db_app(database_uri)
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+        landlord = Landlord(name="L1")
+        db.session.add(landlord)
+        db.session.flush()
+        prop = Property(landlord_id=landlord.id, name="P1")
+        db.session.add(prop)
+        db.session.flush()
+        room = Room(property_id=prop.id, room_number="A01", status="occupied")
+        tenant = Tenant(name="T1")
+        db.session.add_all([room, tenant])
+        db.session.flush()
+        contract = Contract(
+            tenant_id=tenant.id,
+            room_id=room.id,
+            start_date=date(2026, 1, 1),
+            end_date=date(2026, 12, 31),
+            rent=4465,
+            status="active",
+        )
+        db.session.add(contract)
+        db.session.flush()
+        bill = MonthlyBill(
+            contract_id=contract.id,
+            year_month="202606",
+            rent=4465,
+            other_charges=198,
+            total=4663,
+            paid=False,
+        )
+        db.session.add(bill)
+        db.session.commit()
+        bill_id = bill.id
+
+    script = root / "scripts" / "repair" / "monthly_bill_previous_balance_repair.py"
+    dry_run = subprocess.run(
+        [
+            sys.executable,
+            str(script),
+            "--database-url",
+            database_uri,
+            "--bill-id",
+            str(bill_id),
+            "--amount",
+            "25047",
+        ],
+        capture_output=True,
+        text=True,
+        cwd=root,
+        env=env,
+        check=True,
+    )
+    assert "Total: 4,663 -> 29,710" in dry_run.stdout
+
+    execute = subprocess.run(
+        [
+            sys.executable,
+            str(script),
+            "--database-url",
+            database_uri,
+            "--bill-id",
+            str(bill_id),
+            "--amount",
+            "25047",
+            "--execute",
+        ],
+        capture_output=True,
+        text=True,
+        cwd=root,
+        env=env,
+        check=True,
+    )
+    assert "Updated count: 1" in execute.stdout
+
+    with app.app_context():
+        bill = db.session.get(MonthlyBill, bill_id)
+        assert float(bill.previous_balance) == 25047.0
+        assert float(bill.total) == 29710.0
 
 
 def _line_signature(secret: str, body: bytes) -> str:

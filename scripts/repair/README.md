@@ -11,6 +11,7 @@
 | `contract_expiry_repair.py` | 檢查並修正已過期但仍為 `active` 的合約 | Dry-run |
 | `user_table_audit.py` | 稽核 `user` / `users` 雙表是否同時存在與筆數差異 | Read-only |
 | `monthly_bill_paid_null_repair.py` | 檢查並修正 `monthly_bills.paid IS NULL` 為 `False` | Dry-run |
+| `monthly_bill_previous_balance_repair.py` | 依核對結果設定單筆前期未收餘額並重算總額 | Dry-run |
 
 ## Usage
 
@@ -23,6 +24,7 @@ py -3 .\scripts\repair\user_table_audit.py
 py -3 .\scripts\repair\monthly_bill_paid_null_repair.py
 py -3 .\scripts\repair\monthly_bill_paid_null_repair.py --execute
 py -3 .\scripts\repair\monthly_bill_paid_null_repair.py --database-url sqlite:///D:\CodexRuntime\rental\rebuild\runtime-real.db --execute
+py -3 .\scripts\repair\monthly_bill_previous_balance_repair.py --database-url sqlite:///D:\CodexRuntime\rental\rebuild\runtime-real.db --bill-id 819 --amount 25047
 ```
 
 ## Rule

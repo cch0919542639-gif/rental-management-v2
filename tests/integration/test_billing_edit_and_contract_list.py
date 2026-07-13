@@ -39,6 +39,7 @@ def test_billing_edit_updates_total(app, logged_in_client, seeded_data):
             "water_amount": "0",
             "other_charges": "200",
             "other_desc": "test fee",
+            "previous_balance": "25047",
             "paid": "y",
             "notes": "edit test",
         },
@@ -49,8 +50,13 @@ def test_billing_edit_updates_total(app, logged_in_client, seeded_data):
     with app.app_context():
         bill = db.session.get(MonthlyBill, bill_id)
         assert float(bill.other_charges) == 200.0
-        assert float(bill.total) == 12200.0  # 12000 rent + 200 other = 12200
+        assert float(bill.previous_balance) == 25047.0
+        assert float(bill.total) == 37247.0
         assert bill.paid is True
+
+
+def test_monthly_bill_total_rounds_half_up_to_whole_currency_unit():
+    assert MonthlyBill.calculate_total(rent="1.5", electricity_amount="0.5") == 2
 
 
 def test_billing_contract_list_renders(app, logged_in_client, seeded_data):

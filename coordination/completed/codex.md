@@ -1,5 +1,44 @@
 # codex completed log
 
+## 2026-07-12 16:10
+
+Completed:
+- 凍結「前期未收餘額」為 MonthlyBill 正式領域術語，新增 `CONTEXT.md` 與 ADR
+- 新增 `monthly_bills.previous_balance` schema migration
+- 總額公式加入 previous_balance；計算與畫面金額採四捨五入整數
+- 帳單清單新增物件／房間／房客與前期未收欄位
+- 新增單筆前期未收 repair script
+- `runtime-real.db` migration execute 後，bill 819 寫入 `previous_balance=25047`
+
+Verification:
+- `pytest tests\integration -q`
+- `109 passed, 15 skipped`
+- bill 819：`4465 + 198 + 25047 = 29710`
+
+Remaining:
+- incident 剩餘 10 筆 legacy total mismatch 待業務確認
+
+## 2026-07-12 14:20
+
+Completed:
+- 備份 `runtime-real.db`：`backups/runtime_20260712_163020.db`
+- 對 target 套用 `20260703_000003_utility_policy_codes`
+- Batch 2 whitelist import execute：403 rows
+- Batch 2 policy assignment execute：8 properties
+- 修正 `monthly_bill_paid_null_repair.py` 的 delayed config import，讓 `--database-url` 真正覆寫目標 DB
+- `paid=NULL` repair execute：39 rows -> `paid=0`
+
+Verification:
+- 目標資料庫筆數：landlords/properties/rooms/tenants/contracts/monthly_bills = `10/13/89/80/80/391`
+- policy pair 覆蓋：8 approved properties
+- active contract missing dates：0
+- invalid year_month：0
+- paid NULL：0
+- 11 筆 total formula mismatch 均與舊資料庫逐欄一致
+
+Remaining:
+- 11 筆 legacy total mismatch 等待業務決策；incident 已建立
+
 ## 2026-07-12 13:20
 
 Completed:
@@ -272,3 +311,18 @@ Result:
 
 Remaining:
 - Phase 2 剩餘缺口施工與 commit/push 整理
+## 2026-07-13
+
+Completed:
+- 高富國／凱旋309號5樓／房間 5 的 legacy total 對帳完成：
+  - bill 170（202605）寫入 `previous_balance=17615`，總額維持 `22654`
+  - bill 831（202606）寫入 `previous_balance=18154`，總額維持 `22654`
+- 月報表格改為可捲動容器；16 欄標頭在垂直捲動時固定於頂端。
+
+Verification:
+- 直接讀取 `runtime-real.db`：兩筆 `previous_balance`、`total` 均符合確認值。
+- `pytest tests\\integration -q`：`109 passed, 0 failed, 15 skipped`
+- 本機服務 `http://127.0.0.1:5001/healthz`：HTTP 200。
+
+Remaining:
+- bill 170 的 `paid=4500` 為既有付款語意異常，未自動轉換；需另行確認舊資料代表的實際收款。

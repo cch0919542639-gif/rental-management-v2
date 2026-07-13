@@ -1,7 +1,7 @@
 # codex
 
-Status: IN_PROGRESS
-Last Updated: 2026-07-12 13:20
+Status: IN_PROGRESS - DATA_RECONCILIATION_GATE_OPEN
+Last Updated: 2026-07-13
 
 ## Current Task
 - 真實資料導入前控制文件收斂
@@ -126,6 +126,18 @@ Last Updated: 2026-07-12 13:20
 - 只讀舊庫、固定 PID `1, 2, 3, 4, 5, 6, 21, 22`、輸出 403 筆資料
 - 目標端禁止 upsert；任何既有 primary key 都是 stop condition
 - 已建立 `real_import/batch2/` 本機 CSV evidence bundle，尚未寫入 `runtime-real.db`
+- Batch 2 正式資料導入完成：
+- target backup：`backups/runtime_20260712_163020.db`
+- 403 rows inserted；8 個 property policy pairs 已設定
+- `paid=NULL` 39 rows 已正規化為 `paid=0`
+- 11 筆 legacy monthly bill total mismatch 已建立 incident，禁止自動覆寫
+- 完成前期未收餘額主幹：
+- `MonthlyBill.previous_balance` 與 additive migration
+- 總額公式加入前期未收，計算金額四捨五入至整數
+- 帳單／合約帳單／儀表板／月報改用整數金額 display，帳單清單新增物件／房間／房客與前期未收
+- bill `819` 已依 Owner 確認寫入 `previous_balance=25047`，總額 `29710` 完成對帳
+- bill `170`、`831` 已依 Owner 確認寫入前期未收 `17615`、`18154`，兩筆總額均維持 `22654`
+- 月報 16 欄標頭已改為垂直捲動時固定顯示
 - `pytest tests\integration -q` 通過（61 passed, 15 skipped）
 - `python .\scripts\seed_demo_data.py` 可成功建立 demo data
 - `powershell -ExecutionPolicy Bypass -File .\scripts\run_smoke_tests.ps1` 通過
@@ -134,6 +146,7 @@ Last Updated: 2026-07-12 13:20
 - `rtk pytest tests\integration\test_batch2_policy_assignment_script.py tests\integration\test_batch2_utility_resolver_flow.py tests\integration\test_utility_policy_settings.py tests\integration\test_utility_policy_gating.py tests\integration\test_water_preview.py -q` 通過（15 passed）
 - `rtk pytest tests\integration\test_batch2_whitelist_import_scripts.py tests\integration\test_batch2_policy_assignment_script.py tests\integration\test_batch2_utility_resolver_flow.py tests\integration\test_utility_policy_settings.py -q` 通過（9 passed）
 - `runtime-real.db` policy migration dry-run：只會新增 properties / rooms 共 4 個 policy_code 欄位
+- `pytest tests\integration -q` 通過（109 passed, 15 skipped）
 
 ## Active Agent Allocation
 - `reasonix`: Phase 1 規格審查與風險守門，不直接重寫主幹
@@ -142,12 +155,12 @@ Last Updated: 2026-07-12 13:20
 - `box`: 適合承接 smoke tests、runbook、低風險支援腳本
 
 ## Next Step
-- 提交 Batch 2 whitelist exporter / incremental importer 與測試
-- 備份 `runtime-real.db` 後，套用 policy_code migration 並重跑 Batch 2 import dry-run
-- dry-run 無衝突後才可由 box/hermes 執行 Batch 2 `--execute` 與 parity 驗收
+- 交由 reasonix/open 盤點剩餘 10 筆 total mismatch 的修復選項與證據需求
+- 待 Owner 決定 preserve / formula recalculate / source component correction 後，才可關閉 Batch 2 財務驗收 Gate
 
 ## Risks / Blockers
-- 目前沒有結構性 blocker
+- Batch 2 financial reconciliation blocker：剩餘 8 筆 legacy `monthly_bills.total` 尚待對帳；bill 819、170、831 已透過正式 `previous_balance` 欄位完成對帳。
+- bill 170 的 `paid=4500` 不符合布林付款欄位語意，待 Owner 確認後再修正，禁止推測為已繳或未繳。
 - 本機有尚未整理 commit 的主幹變更
 - Batch 2 電費比例分攤目前以 property/room policy 為主，不含 custom module（7/8/9/10 與 Room 432 例外仍不在本輪）
 - 曾發生外部程序回退檔案；若再次出現，先比對 `maintenance/report/electricity` service/repository、`nested routes`、`error handlers` 是否被覆寫

@@ -6,6 +6,7 @@ from app.core.db import db
 from app.core.year_month import to_db_year_month
 from app.models import MonthlyBill
 from app.repositories._helpers import session_get_or_404
+from app.repositories.payment_repository import PaymentRepository
 
 
 class BillingRepository:
@@ -43,13 +44,20 @@ class BillingRepository:
         )
         balance = Decimal("0")
         for bill in bills:
-            if bool(bill.paid):
-                # A paid later statement includes any balance it carried from
-                # earlier periods, so it clears the running statement balance.
+            recorded_prior_balance = Decimal(str(bill.previous_balance or 0))
+            # Imported statements may begin after older, unavailable history.
+            # Their recorded prior balance is the authoritative ledger snapshot.
+            if balance != recorded_prior_balance:
+                balance = recorded_prior_balance
+            linked_amount = Decimal(str(PaymentRepository.linked_amount_for_bill(bill.id) or 0))
+            if bool(bill.paid) and linked_amount == 0:
+                # Legacy/manual toggle-paid records predate PaymentRecord. Keep
+                # their explicit full-settlement meaning during the transition.
                 balance = Decimal("0")
                 continue
             current_period_due = Decimal(str(bill.total or 0)) - Decimal(str(bill.previous_balance or 0))
             balance += current_period_due
+            balance -= linked_amount
         return balance.quantize(Decimal("1"), rounding=ROUND_HALF_UP)
 
     @staticmethod

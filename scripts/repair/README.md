@@ -13,6 +13,7 @@
 | `monthly_bill_paid_null_repair.py` | 檢查並修正 `monthly_bills.paid IS NULL` 為 `False` | Dry-run |
 | `monthly_bill_previous_balance_repair.py` | 依核對結果設定單筆前期餘額（可為負數貸項）並重算總額 | Dry-run |
 | `monthly_bill_public_electricity_repair.py` | 依核對結果修正單筆公設電費並重算總額 | Dry-run |
+| `import_historical_payment_records.py` | 從已覆核 CSV 建立、驗證並連結歷史 PaymentRecord | Dry-run |
 
 ## Usage
 

@@ -1,5 +1,7 @@
 from datetime import date
 
+from sqlalchemy import func
+
 from app.models import PaymentRecord
 from app.repositories._helpers import session_get_or_404
 
@@ -20,6 +22,17 @@ class PaymentRepository:
     @staticmethod
     def get_by_transaction_id(transaction_id: str):
         return PaymentRecord.query.filter_by(transaction_id=transaction_id).first()
+
+    @staticmethod
+    def linked_amount_for_bill(monthly_bill_id: int):
+        return (
+            PaymentRecord.query.with_entities(func.coalesce(func.sum(PaymentRecord.amount), 0))
+            .filter(
+                PaymentRecord.monthly_bill_id == monthly_bill_id,
+                PaymentRecord.record_status == "linked",
+            )
+            .scalar()
+        )
 
     @staticmethod
     def list_filtered(

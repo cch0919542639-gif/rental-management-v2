@@ -91,8 +91,12 @@ class PaymentService:
         if notes is not None:
             record.notes = notes
 
-        if PaymentReconciliationService.is_bill_paid(bill_total=monthly_bill.total, paid_amount=record.amount):
-            monthly_bill.paid = True
+        linked_amount = PaymentRepository.linked_amount_for_bill(monthly_bill.id)
+        monthly_bill.paid = PaymentReconciliationService.is_bill_paid(
+            bill_total=monthly_bill.total,
+            paid_amount=linked_amount,
+        )
+        if monthly_bill.paid:
             monthly_bill.paid_date = record.transaction_date
 
         db.session.commit()

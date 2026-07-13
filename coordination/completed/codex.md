@@ -314,6 +314,9 @@ Remaining:
 ## 2026-07-13
 
 Completed:
+- 建立歷史付款 CSV 匯入器，透過 `PaymentService` 建立、驗證、連結 PaymentRecord。
+- 11 筆已核對帳單的付款已匯入；dry-run 重跑結果為 `0 created / 11 skipped`。
+- 修正多筆部分付款的繳清判斷與新月份前期餘額計算。
 - 以 Google Sheet `202605`／`202606` 逐筆核對並完成全部 11 筆 Batch 2 historical total 對帳。
 - `previous_balance` 支援正負值；負值代表前期貸項／超收，不再誤判為資料錯誤。
 - 新增公設電費單欄修復腳本，bill 943 依來源修正 `public_electricity=0`。

@@ -371,6 +371,58 @@ def test_monthly_bill_public_electricity_repair_recalculates_total(tmp_path):
         assert float(bill.total) == 6807.0
 
 
+def test_historical_payment_import_is_idempotent_and_links_partial_payments(tmp_path):
+    root = Path(__file__).resolve().parents[2]
+    database_uri = f"sqlite:///{tmp_path / 'historical-payments.db'}"
+    env = os.environ.copy()
+    env["DATABASE_URL"] = "sqlite:///:memory:"
+    env["SCRIPT_APP_CONFIG"] = "default"
+
+    app = _build_db_app(database_uri)
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+        landlord = Landlord(name="L1")
+        db.session.add(landlord)
+        db.session.flush()
+        prop = Property(landlord_id=landlord.id, name="P1")
+        db.session.add(prop)
+        db.session.flush()
+        room = Room(property_id=prop.id, room_number="A01", status="occupied")
+        tenant = Tenant(name="T1")
+        db.session.add_all([room, tenant])
+        db.session.flush()
+        contract = Contract(tenant_id=tenant.id, room_id=room.id, start_date=date(2026, 1, 1), end_date=date(2026, 12, 31), rent=100, status="active")
+        db.session.add(contract)
+        db.session.flush()
+        bill = MonthlyBill(contract_id=contract.id, year_month="202605", rent=100, total=100, paid=False)
+        db.session.add(bill)
+        db.session.commit()
+        bill_id = bill.id
+
+    csv_path = tmp_path / "historical-payments.csv"
+    csv_path.write_text(
+        "monthly_bill_id,amount,payer_name,source_month,source_row,transaction_date,bank_name,account_number\n"
+        f"{bill_id},40,T1,202605,20,,Bank,001\n"
+        f"{bill_id},60,T1,202605,21,2026-06-08,Bank,001\n",
+        encoding="utf-8",
+    )
+    script = root / "scripts" / "repair" / "import_historical_payment_records.py"
+    command = [sys.executable, str(script), "--database-url", database_uri, "--csv", str(csv_path)]
+    dry_run = subprocess.run(command, capture_output=True, text=True, cwd=root, env=env, check=True)
+    assert "Created: 0; skipped existing: 0; candidates: 2" in dry_run.stdout
+
+    execute = subprocess.run(command + ["--execute"], capture_output=True, text=True, cwd=root, env=env, check=True)
+    assert "Created: 2; skipped existing: 0; candidates: 2" in execute.stdout
+    rerun = subprocess.run(command + ["--execute"], capture_output=True, text=True, cwd=root, env=env, check=True)
+    assert "Created: 0; skipped existing: 2; candidates: 2" in rerun.stdout
+
+    with app.app_context():
+        bill = db.session.get(MonthlyBill, bill_id)
+        assert bill.paid is True
+        assert len(bill.payment_records) == 2
+
+
 def _line_signature(secret: str, body: bytes) -> str:
     digest = hmac.new(secret.encode("utf-8"), body, hashlib.sha256).digest()
     return base64.b64encode(digest).decode("utf-8")

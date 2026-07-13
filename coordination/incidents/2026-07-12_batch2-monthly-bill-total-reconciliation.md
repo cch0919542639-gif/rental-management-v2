@@ -49,9 +49,12 @@ signed "未收款" column.
 
 ## Follow-up: Historical Payments
 
-The Sheets also contain partial-payment amounts for several rows (for example,
-侯家敏 202605 paid 4,500 of 4,520). `MonthlyBill.paid` is only a full-payment
-boolean and must not hold a currency amount. Historical partial payments need
-separate `PaymentRecord` rows with source date/evidence before payment status
-can be reconciled. This is a payment-import follow-up, not a total-formula
-blocker.
+The 11 reconciled Sheet rows now have one verified, linked `PaymentRecord`
+each. Stable IDs in the form `legacy-sheet-YYYYMM-rowN-billID` make the import
+idempotent; a re-run skips all 11 existing records.
+
+Partial payments remain correctly open: bills `170`, `171`, `578`, `831`, and
+`832`. Full or overpaid entries are marked paid through linked-payment totals.
+The importer preserves an empty transaction date when the Sheet provides no
+date evidence. This completes payment reconciliation only for the 11 reviewed
+rows; wider historical-payment import remains a separate controlled batch.

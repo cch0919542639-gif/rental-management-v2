@@ -141,6 +141,8 @@ Last Updated: 2026-07-13
 - 侯家敏兩筆「已繳」金額 `4500`、`4200` 尚未建立歷史 PaymentRecord；帳單維持未全額繳清，禁止將金額寫入 `paid` 布林欄。
 - Google Sheet 完成其餘 6 筆核對：bill `172`、`567`、`573`、`578`、`833` 已寫入正負前期餘額；bill `943` 已修正誤匯的公設電費 `40 -> 0`。
 - 全部 11 筆 historical total 已對齊 expanded formula；不再是 Batch 2 財務總額 blocker。
+- 已匯入 11 筆已核對的歷史 PaymentRecord；來源交易 ID 可重跑去重，部分付款保持未全額繳清。
+- 前期餘額生成改為扣除已連結付款，並保留手動 `paid` 舊帳的相容語意。
 - 月報 16 欄標頭已改為垂直捲動時固定顯示
 - `pytest tests\integration -q` 通過（61 passed, 15 skipped）
 - `python .\scripts\seed_demo_data.py` 可成功建立 demo data
@@ -159,7 +161,7 @@ Last Updated: 2026-07-13
 - `box`: 適合承接 smoke tests、runbook、低風險支援腳本
 
 ## Next Step
-- 下一個資料導入工作為歷史部分付款匯入：僅可建立有轉帳日期或可追溯證據的 PaymentRecord。
+- 下一個資料導入工作為擴大歷史付款盤點：每批都需 Sheet 列號與可重跑來源交易 ID。
 
 ## Risks / Blockers
 - 歷史付款資料仍不完整：Google Sheet 的部分收款金額不能寫入 `MonthlyBill.paid`，必須以 PaymentRecord 匯入與連結。

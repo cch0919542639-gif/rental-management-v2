@@ -54,6 +54,17 @@ py -3 .\scripts\restore_runtime_db.py --source .\backups\runtime_20260701_120000
 py -3 .\scripts\check_postgres_tooling.py --skip-binaries
 ```
 
+## Local Administrator Bootstrap
+
+`runtime-real.db` does not import legacy password hashes as an automatic login
+path. Create a controlled local administrator interactively; the password is
+not accepted as a command-line argument or written to a file.
+
+```powershell
+py -3 .\scripts\create_local_admin.py `
+  --database-url sqlite:///D:\CodexRuntime\rental\rebuild\runtime-real.db
+```
+
 For PostgreSQL bridge environments:
 
 ```powershell

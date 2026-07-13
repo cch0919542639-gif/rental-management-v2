@@ -25,7 +25,7 @@ def _create_legacy_source(source_db: Path):
         "rooms": ["id", "property_id", "room_number", "rent", "deposit", "electricity_meter_id", "water_meter_id", "area_ping", "status", "notes", "created_at"],
         "tenants": ["id", "name", "phone", "id_number", "emergency_contact", "emergency_phone", "notes", "created_at"],
         "contracts": ["id", "tenant_id", "room_id", "start_date", "end_date", "rent", "deposit", "electricity_rate", "water_rate", "status", "notes", "start_electricity_reading", "start_water_reading", "created_at"],
-        "monthly_bills": ["id", "contract_id", "year_month", "rent", "electricity_prev", "electricity_curr", "electricity_usage", "electricity_amount", "public_electricity", "water_prev", "water_curr", "water_usage", "water_amount", "other_charges", "other_desc", "total", "paid", "paid_date", "notes", "created_at"],
+        "monthly_bills": ["id", "contract_id", "year_month", "rent", "electricity_prev", "electricity_curr", "electricity_usage", "electricity_amount", "public_electricity", "water_prev", "water_curr", "water_usage", "water_amount", "other_charges", "other_desc", "previous_balance", "total", "paid", "paid_date", "notes", "created_at"],
         "electricity_meters": ["id", "property_id", "is_main", "meter_number", "room_id", "room_number", "notes", "created_at"],
         "electricity_bills": ["id", "property_id", "meter_id", "period_start", "period_end", "year_month", "prev_reading", "curr_reading", "total_usage", "total_amount", "public_amount", "flow_amount", "calc_method_id", "status", "ocr_raw_text", "notes", "created_at", "created_by"],
         "electricity_readings": ["id", "bill_id", "meter_id", "room_id", "prev_reading", "curr_reading", "usage", "calculated_amount", "confirmed_amount", "notes", "created_at"],
@@ -78,6 +78,8 @@ def test_batch2_whitelist_export_and_incremental_import_round_trip(tmp_path):
 
     export = _run(root, "export_batch2_whitelist.py", "--source-db", str(source_db), "--output-dir", str(output_dir), "--execute")
     assert export.returncode == 0
+    manifest = json.loads((output_dir / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["created_at_fallback"] == "1970-01-01 00:00:00"
     _create_target_from_bundle(target_db, output_dir)
     target_url = f"sqlite:///{target_db}"
 

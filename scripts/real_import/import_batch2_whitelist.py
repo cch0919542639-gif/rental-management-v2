@@ -44,6 +44,9 @@ def _load_bundle(input_dir):
             raise RuntimeError(f"CSV missing for {entry['table']}: {path}")
         with path.open(newline="", encoding="utf-8") as handle:
             rows = [{key: (value if value != "" else None) for key, value in row.items()} for row in csv.DictReader(handle)]
+        if entry["table"] == "monthly_bills":
+            for row in rows:
+                row["previous_balance"] = row.get("previous_balance") or 0
         if len(rows) != entry["rows"]:
             raise RuntimeError(f"CSV row count mismatch for {entry['table']}")
         bundle.append((entry, rows))

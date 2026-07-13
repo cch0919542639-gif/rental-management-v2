@@ -1,4 +1,4 @@
-"""Apply approved Batch 2 utility policies to an already imported target database.
+r"""Apply approved Batch 2 utility policies to an already imported target database.
 
 Default mode is read-only.  The script intentionally knows only the eight
 properties approved in ``open-batch2-resolver-candidates-01.md``.  It refuses

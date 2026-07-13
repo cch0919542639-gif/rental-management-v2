@@ -25,11 +25,6 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from app.core.db import db
-from app.models import MonthlyBill
-from scripts.repair._common import build_script_app
-
-
 def _build_parser():
     parser = argparse.ArgumentParser(description="Dry-run-first repair for monthly_bills.paid NULL values")
     parser.add_argument("--execute", action="store_true", help="Apply the repair instead of dry-run")
@@ -42,6 +37,13 @@ def main(argv: list[str]):
     execute = args.execute
     if args.database_url:
         os.environ["DATABASE_URL"] = args.database_url
+
+    # Settings are evaluated during app import, so resolve the command-line
+    # database target before importing any application module.
+    from app.core.db import db
+    from app.models import MonthlyBill
+    from scripts.repair._common import build_script_app
+
     app = build_script_app()
 
     with app.app_context():

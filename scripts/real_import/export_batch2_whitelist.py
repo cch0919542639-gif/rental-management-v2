@@ -20,6 +20,10 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_SOURCE = Path(r"D:\rental\rental.db")
 DEFAULT_OUTPUT = PROJECT_ROOT / "real_import" / "batch2"
 PROPERTY_IDS = (1, 2, 3, 4, 5, 6, 21, 22)
+# Legacy rows occasionally omit this technical timestamp while the rebuild
+# schema requires it. The sentinel preserves that it was unknown rather than
+# inventing a misleading business event time.
+UNKNOWN_CREATED_AT = "1970-01-01 00:00:00"
 
 TABLE_COLUMNS = {
     "landlords": (
@@ -44,7 +48,7 @@ TABLE_COLUMNS = {
     "monthly_bills": (
         "id", "contract_id", "year_month", "rent", "electricity_prev", "electricity_curr", "electricity_usage",
         "electricity_amount", "public_electricity", "water_prev", "water_curr", "water_usage", "water_amount",
-        "other_charges", "other_desc", "total", "paid", "paid_date", "notes", "created_at",
+        "other_charges", "other_desc", "previous_balance", "total", "paid", "paid_date", "notes", "created_at",
     ),
     "electricity_meters": (
         "id", "property_id", "is_main", "meter_number", "room_id", "room_number", "notes", "created_at",
@@ -86,9 +90,14 @@ def _table_columns(conn, table):
 def _normalized_rows(conn, table, rows):
     available = _table_columns(conn, table)
     output = []
+    fallback_count = 0
     for row in rows:
-        output.append({column: row.get(column) if column in available else None for column in TABLE_COLUMNS[table]})
-    return output
+        normalized = {column: row.get(column) if column in available else None for column in TABLE_COLUMNS[table]}
+        if "created_at" in normalized and not normalized["created_at"]:
+            normalized["created_at"] = UNKNOWN_CREATED_AT
+            fallback_count += 1
+        output.append(normalized)
+    return output, fallback_count
 
 
 def _collect_bundle(conn):
@@ -139,7 +148,11 @@ def _collect_bundle(conn):
             bill_ids,
         ) if bill_ids else [],
     }
-    return {table: _normalized_rows(conn, table, rows) for table, rows in raw.items()}
+    bundle = {}
+    fallback_counts = {}
+    for table, rows in raw.items():
+        bundle[table], fallback_counts[table] = _normalized_rows(conn, table, rows)
+    return bundle, fallback_counts
 
 
 def _validate_bundle(bundle):
@@ -165,7 +178,7 @@ def _validate_bundle(bundle):
         raise RuntimeError("; ".join(failures))
 
 
-def _write_bundle(output_dir, bundle, source_db):
+def _write_bundle(output_dir, bundle, source_db, fallback_counts):
     if output_dir.exists() and any(output_dir.iterdir()):
         raise RuntimeError(f"Output directory is not empty: {output_dir}. Choose a new directory; do not overwrite evidence.")
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -185,6 +198,8 @@ def _write_bundle(output_dir, bundle, source_db):
                 "batch": "batch2",
                 "approved_property_ids": list(PROPERTY_IDS),
                 "source_db": str(source_db),
+                "created_at_fallback": UNKNOWN_CREATED_AT,
+                "created_at_fallback_counts": fallback_counts,
                 "tables": tables,
             },
             ensure_ascii=False,
@@ -200,7 +215,7 @@ def main(argv: list[str]) -> int:
         raise SystemExit(f"Legacy source database not found: {args.source_db}")
     with sqlite3.connect(args.source_db) as conn:
         conn.row_factory = sqlite3.Row
-        bundle = _collect_bundle(conn)
+        bundle, fallback_counts = _collect_bundle(conn)
     _validate_bundle(bundle)
 
     print("=" * 72)
@@ -214,8 +229,11 @@ def main(argv: list[str]) -> int:
         total += count
         print(f"  {table}: {count}")
     print(f"Total rows: {total}")
+    fallback_total = sum(fallback_counts.values())
+    if fallback_total:
+        print(f"created_at fallback: {fallback_total} row(s) -> {UNKNOWN_CREATED_AT}")
     if args.execute:
-        _write_bundle(args.output_dir, bundle, args.source_db)
+        _write_bundle(args.output_dir, bundle, args.source_db, fallback_counts)
         print(f"Written: {args.output_dir}")
     else:
         print("Dry-run only. Re-run with --execute to write the CSV bundle.")

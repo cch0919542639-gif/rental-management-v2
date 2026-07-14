@@ -1,16 +1,16 @@
-# box Completed Log — Round 01 (Water Preview)
+# box Completed Log — Round 02 (Missing Monthly Bills Backfill)
 
-Completed Time: 2026-06-29  
-Branch: `codex-phase2-mainline-01`  
-Author: box (tests / runbook / scripts agent)
+Completed Time: 2026-07-14  
+Branch: `agent/box-safe-monthly-backfill-01`  
+Author: box (tests / scripts / runbook agent)
 
 ---
 
 ## Summary
 
-Added water preview edge-case tests and produced manual verification runbook. No logic changes.
+Created dry-run-first backfill script for missing historical MonthlyBill rows (202604/202605). Script implements 9 stop conditions, maps Sheet rows to DB contracts via property→room→contract chain, and caps processing to 25 approved safe candidates (24 × 202604 + 1 × 202605).
 
-**pytest: 50 passed, 15 skipped, 0 failures** (was 46; +4 from water preview tests)
+**pytest: 60 passed, 15 skipped, 0 failures** (was 50; +10 new tests)
 
 ---
 
@@ -18,24 +18,33 @@ Added water preview edge-case tests and produced manual verification runbook. No
 
 | File | Action | Description |
 |------|--------|-------------|
-| `docs/reports/box-phase3-water-preview-runbook-01.md` | Created | Water preview runbook with shared/independent verification steps |
-| `tests/integration/test_water_preview.py` | Updated | +2 tests (GET form, POST missing field); improved robustness |
+| `scripts/repair/backfill_missing_monthly_bills.py` | Created | Dry-run-first backfill script with 9 stop conditions |
+| `tests/integration/test_backfill_missing_monthly_bills.py` | Created | 10 tests: dry-run, execute, rerun, skip-list, virtual, rent diff, total diff, 202605 pb, no property, rent=0 |
+| `scripts/repair/README.md` | Updated | Added backfill script entry + usage examples |
 
-## Test Changes Detail
+## Dry-Run Results (runtime-real.db)
 
-| Change | Reason |
-|--------|--------|
-| `/water/1/preview` → dynamic `water_bill_id` | Hardcoded ID was fragile across test ordering |
-| `test_water_preview_get_renders_form` (new) | GET renders form, no preview result |
-| `test_water_preview_post_no_monthly_bill` (new) | Missing required field → form re-renders gracefully |
+| Year-Month | SAFE | SKIP | STOP | Created |
+|------------|------|------|------|---------|
+| 202604 | 24 | 129 | 0 | 0 (dry-run) |
+| 202605 | 1 | 152 | 0 | 0 (dry-run) |
 
-## Coverage Gap Acknowledged
+### 202604 SAFE Candidates (24)
 
-- Multi-contract shared preview: not tested (requires 2+ contracts — allocation logic, not test gap)
-- Preview vs. actual post consistency: not tested (cross-service comparison — Phase 3)
+伸格股份有限公司, 楊仁銘, 郭毓涵, 王國成, 林家綺, 蘇正泰, 柯伒砡, 王芃筑, 陳泓瑞, 趙千慧, 李福欽, 許博文, 曾志任, 趙建成, 陳筱梅, 唐玉燕兒, 劉彥廷, 陳敬容, 林胤妘, 孫哲綸, 吳昱叡, 廖有畯, JACKMILLS, 沙慶余
+
+### 202605 SAFE Candidate (1)
+
+吳慧娟 (contract 214, 苓中路33巷 5A)
 
 ## Constraints Honored
 
-- ✅ No allocation rules changed
-- ✅ No model/service modifications
-- ✅ No schema changes
+- ✅ No schema, model, service, route, or template modifications
+- ✅ Dry-run by default; `--execute` required to persist
+- ✅ `paid=False`, `paid_date=None` on all created bills
+- ✅ `total` recalculated via `MonthlyBill.calculate_total()`
+- ✅ 202604: `previous_balance=0`, notes includes "前期差額無證據，設為0"
+- ✅ 202605: `previous_balance` from Sheet 未收款 column
+- ✅ Stop conditions: rent diff >100, total diff >10, virtual tenant, stop-list, duplicate, no contract, rent=0
+- ✅ No PaymentRecord creation
+- ✅ All stop-list tenants skipped: 張硯傑, 張啟中, 邱聖霖, 高富國, 侯家敏, 李政諺, 何佾洋, 鄭博仁, 田美麗

@@ -14,6 +14,7 @@
 | `monthly_bill_previous_balance_repair.py` | 依核對結果設定單筆前期餘額（可為負數貸項）並重算總額 | Dry-run |
 | `monthly_bill_public_electricity_repair.py` | 依核對結果修正單筆公設電費並重算總額 | Dry-run |
 | `import_historical_payment_records.py` | 從已覆核 CSV 建立、驗證並連結歷史 PaymentRecord | Dry-run |
+| `backfill_missing_monthly_bills.py` | 從 Google Sheet 證據回填缺漏的歷史 MonthlyBill（202604/202605） | Dry-run |
 
 ## Usage
 
@@ -27,6 +28,8 @@ py -3 .\scripts\repair\monthly_bill_paid_null_repair.py
 py -3 .\scripts\repair\monthly_bill_paid_null_repair.py --execute
 py -3 .\scripts\repair\monthly_bill_paid_null_repair.py --database-url sqlite:///D:\CodexRuntime\rental\rebuild\runtime-real.db --execute
 py -3 .\scripts\repair\monthly_bill_previous_balance_repair.py --database-url sqlite:///D:\CodexRuntime\rental\rebuild\runtime-real.db --bill-id 819 --amount 25047
+py -3 .\scripts\repair\backfill_missing_monthly_bills.py --database-url sqlite:///D:/CodexRuntime/rental/rebuild/runtime-real.db --csv .\real_import\sheet_202604.csv --year-month 202604
+py -3 .\scripts\repair\backfill_missing_monthly_bills.py --database-url sqlite:///D:/CodexRuntime/rental/rebuild/runtime-real.db --csv .\real_import\sheet_202605.csv --year-month 202605 --execute
 ```
 
 ## Rule

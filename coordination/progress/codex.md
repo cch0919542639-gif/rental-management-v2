@@ -1,7 +1,14 @@
 # codex
 
 Status: IN_PROGRESS - DATA_RECONCILIATION_GATE_OPEN
-Last Updated: 2026-07-13
+Last Updated: 2026-07-14
+
+## 2026-07-14 Missing Bill Backfill
+- Integrated the dry-run-first backfill tool and verified its 9 stop conditions.
+- Executed only the approved candidates: 24 bills for 202604 and 1 bill for 202605.
+- Imported 23 matching historical payments through PaymentRecord; 2 zero-payment rows remain unpaid.
+- Verified no duplicate bills, zero formula mismatches, 23 linked payment records, and an idempotent payment rerun.
+- Backups: `backups/runtime-real_before_missing_bills_20260714_180206.db` and `backups/runtime-real_before_backfill_payments_20260714_180706.db`.
 
 ## Current Task
 - 真實資料導入前控制文件收斂

@@ -1,5 +1,28 @@
 # codex completed log
 
+## 2026-07-14
+
+Completed:
+- Integrated the dry-run-first missing MonthlyBill backfill tool.
+- Backed up `runtime-real.db` before each write stage.
+- Inserted 24 approved 202604 bills and 1 approved 202605 bill; all use calculated totals and `paid=0` initially.
+- Created, verified, and linked 23 historical PaymentRecord rows from the corresponding Sheet evidence.
+
+Verification:
+- Backfilled bills: `202604=24`, `202605=1`.
+- Formula mismatch: `0`; duplicate `(contract_id, year_month)`: `0`.
+- New payments: `23 linked`; idempotency dry-run: `0 created / 23 skipped`.
+- `pytest tests\\integration -q`: `122 passed, 0 failed, 15 skipped`.
+
+Known balances retained from Sheet evidence:
+- Bill 1120: remaining `50`; bill 1140: remaining `48`.
+- Bills 1126 and 1134: no payment evidence, remain unpaid.
+- Bill 1123: payment exceeds bill total by `3`; the PaymentRecord retains the original amount. Cross-period credit allocation is not implemented.
+
+Backups:
+- `backups/runtime-real_before_missing_bills_20260714_180206.db`
+- `backups/runtime-real_before_backfill_payments_20260714_180706.db`
+
 ## 2026-07-12 16:10
 
 Completed:

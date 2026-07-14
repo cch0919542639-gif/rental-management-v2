@@ -1,19 +1,20 @@
 # open
 
 Status: DONE
-Last Updated: 2026-06-30
+Last Updated: 2026-07-14
 
 ## Current Task
-- Phase 4 gap audit（open 視角）
+- Missing monthly bills audit for 202604/202605 backfill candidates
 
 ## Deliverables
-- `docs/reports/open-phase4-gap-audit-01.md`
+- `docs/reports/open-missing-monthly-bills-audit-01.md`
 
 ## Summary
-- 盤點 P0: 6（含引用 reasonix B1–B4，open 獨自發現 5 項：user_loader、models import、production WSGI server、pagination、delete/detail 缺口）
-- 盤點 P1: 9（route/flow 6 項、測試維運 3 項）
-- 盤點 P2: 7（polish 項目）
-- 總計 22 項，含 open 獨自發現 5 項不在 reasonix 報告中
+- Audited 34 missing bills (33 x 202604 + 1 x 202605) across old system, new system, and Google Sheet CSVs
+- Classified: SAFE=25, CAUTION=6, BLOCKED=3
+- 3 blockers identified (contract 21 negative due, contracts 81/83 zero due with active rent)
+- Contracts matched by (tenant_id, room_id) — both systems share tenant/room entities
 
 ## Next Step
-- Codex 可根據報告中的 Phase 4A→4B→4C→4D 順序安排施工
+- Codex can generate backfill script from the report's column spec
+- Resolve 3 BLOCKED items before bulk execution

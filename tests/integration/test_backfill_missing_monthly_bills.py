@@ -212,6 +212,41 @@ def test_stop_rent_diff_exceeds_threshold(tmp_path):
     assert "rent diff=" in result.stdout
 
 
+def test_reviewed_override_allows_documented_stop_list_and_historical_rent(tmp_path):
+    """A reviewed CSV is the only supported bypass for a stop-list exception."""
+    ids = _seed_basic_scenario(f"sqlite:///{tmp_path / 'reviewed.db'}")
+    csv_path = _seed_csv(
+        tmp_path, "test_202604.csv",
+        "屋主,地點,房號,姓名,電話,起租,到約,租金,電費,水費,管理費,其他,應繳,已繳,本月差額,轉帳帳號,轉入帳號,入帳時間\n"
+        "L1,廣東73號4樓,1,張硯傑,,,,7000,0,0,0,,7000,7000,0,,,\n",
+    )
+    overrides = _seed_csv(
+        tmp_path, "reviewed.csv",
+        "source_row,contract_id,rent,previous_balance,approved_reason\n"
+        f"2,{ids['contract_id']},7000,0,Sheet evidence confirms historical rate\n",
+    )
+    result = _run(
+        tmp_path,
+        "reviewed.db",
+        [
+            "--csv", csv_path,
+            "--year-month", "202604",
+            "--reviewed-overrides", overrides,
+            "--execute",
+        ],
+    )
+    assert result.returncode == 0
+    assert "SAFE: 1" in result.stdout
+    assert "Created: 1" in result.stdout
+
+    app = _build_db_app(f"sqlite:///{tmp_path / 'reviewed.db'}")
+    with app.app_context():
+        bill = MonthlyBill.query.one()
+        assert float(bill.rent) == 7000
+        assert float(bill.total) == 7000
+        assert "覆核前期差額" in bill.notes
+
+
 # ── stop condition: total diff > 10 ────────────────────────────────────
 
 def test_stop_total_diff_exceeds_threshold(tmp_path):

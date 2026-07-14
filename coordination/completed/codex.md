@@ -1,5 +1,28 @@
 # codex completed log
 
+## 2026-07-14 Reviewed 202604 Exceptions
+
+Completed:
+- Added `--reviewed-overrides` to the dry-run-first backfill tool. Each override requires `source_row`, `contract_id`, historical `rent`, `previous_balance`, and an approval reason.
+- Created five reviewed 202604 bills from Sheet evidence and chained carryover evidence.
+- Created, verified, and linked three payment records. Two bills remain unpaid because the Sheet has no payment evidence.
+
+Verification:
+- Reviewed bills: `5`; formula mismatches: `0`; linked payments: `3`.
+- Payment result: bills `1143` and `1144` are paid; `1142` and `1145` have no payment evidence; bill `1146` retains a remaining balance of `78`.
+- `pytest tests\\integration -q`: `123 passed, 0 failed, 15 skipped`.
+
+Deferred:
+- Li Zhengyan: historical negative credit requires a credit-policy decision.
+- He Yiyang: terminated zero-rent contract and no 202604 due amount.
+- Zheng Boren: Sheet total contains an unexplained `160`.
+- Tian Meili: 202604 due amount is blank.
+- Qiu Shenglin 202605: Sheet `other=6` is not yet represented in the imported bill.
+
+Backups:
+- `backups/runtime-real_before_reviewed_backfill_20260714_222035.db`
+- `backups/runtime-real_before_reviewed_payments_20260714_222116.db`
+
 ## 2026-07-14
 
 Completed:

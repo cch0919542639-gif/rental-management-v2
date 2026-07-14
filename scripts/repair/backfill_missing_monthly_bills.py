@@ -68,6 +68,14 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--database-url", required=True, help="Target database URL")
     parser.add_argument("--csv", type=Path, required=True, help="Sheet CSV path")
     parser.add_argument("--year-month", required=True, help="Target year-month (YYYYMM)")
+    parser.add_argument(
+        "--reviewed-overrides",
+        type=Path,
+        help=(
+            "Optional reviewed CSV for exceptional rows. Required columns: "
+            "source_row,contract_id,rent,previous_balance,approved_reason"
+        ),
+    )
     parser.add_argument("--execute", action="store_true", help="Persist the created bills")
     return parser
 
@@ -75,6 +83,29 @@ def _build_parser() -> argparse.ArgumentParser:
 def _load_rows(path: Path) -> list[dict[str, str]]:
     with path.open(encoding="utf-8-sig", newline="") as handle:
         return list(csv.DictReader(handle))
+
+
+def _load_reviewed_overrides(path: Path | None) -> dict[int, dict[str, str]]:
+    if path is None:
+        return {}
+
+    required = {"source_row", "contract_id", "rent", "previous_balance", "approved_reason"}
+    with path.open(encoding="utf-8-sig", newline="") as handle:
+        reader = csv.DictReader(handle)
+        missing = required - set(reader.fieldnames or [])
+        if missing:
+            raise SystemExit(
+                "Override CSV missing required columns: " + ", ".join(sorted(missing))
+            )
+        overrides: dict[int, dict[str, str]] = {}
+        for row in reader:
+            source_row = int(row["source_row"])
+            if source_row in overrides:
+                raise SystemExit(f"Duplicate override source_row: {source_row}")
+            if not row["approved_reason"].strip():
+                raise SystemExit(f"Override source_row {source_row} is missing approved_reason")
+            overrides[source_row] = row
+    return overrides
 
 
 def _find_contract(db, prop_address: str, room_number: str):
@@ -154,6 +185,7 @@ def main(argv: list[str]) -> int:
 
     app = build_script_app()
     rows = _load_rows(args.csv)
+    overrides = _load_reviewed_overrides(args.reviewed_overrides)
     year_month = args.year_month
 
     header = f"Missing Monthly Bills Backfill ({'EXECUTE' if args.execute else 'DRY-RUN'})"
@@ -163,6 +195,7 @@ def main(argv: list[str]) -> int:
     print(f"Database URL: {args.database_url}")
     print(f"CSV: {args.csv}")
     print(f"Year-Month: {year_month}")
+    print(f"Reviewed overrides: {len(overrides)}")
     print(f"CSV rows: {len(rows)}")
     print(sep)
 
@@ -177,6 +210,7 @@ def main(argv: list[str]) -> int:
             tenant_name = row.get("姓名", "").strip()
             prop_address = row.get("地點", "").strip()
             room_number = row.get("房號", "").strip()
+            override = overrides.get(row_idx)
 
             # ── C-08: Virtual tenant filter ────────────────
             if _is_virtual_name(tenant_name):
@@ -186,7 +220,7 @@ def main(argv: list[str]) -> int:
                 continue
 
             # ── Stop list check ─────────────────────────────
-            if tenant_name in STOP_TENANT_NAMES:
+            if tenant_name in STOP_TENANT_NAMES and override is None:
                 skipped += 1
                 results.append(dict(row=row_idx, name=tenant_name,
                                     status="SKIP", reason="stop-list tenant"))
@@ -198,6 +232,17 @@ def main(argv: list[str]) -> int:
                 skipped += 1
                 results.append(dict(row=row_idx, name=tenant_name,
                                     status="SKIP", reason=name_or_reason))
+                continue
+
+            if override is not None and int(override["contract_id"]) != contract.id:
+                stopped += 1
+                results.append(dict(
+                    row=row_idx, name=tenant_name, status="STOP",
+                    reason=(
+                        f"override contract_id={override['contract_id']} does not match "
+                        f"resolved contract_id={contract.id}"
+                    ),
+                ))
                 continue
 
             # ── C-07: Contract rent = 0 guard ──────────────
@@ -234,32 +279,46 @@ def main(argv: list[str]) -> int:
 
             # ── C-09: Rent mismatch check ──────────────────
             rent_ok, rent_msg = _check_rent_diff(sheet_rent, contract_rent)
-            if not rent_ok:
-                stopped += 1
-                results.append(dict(row=row_idx, name=tenant_name,
-                                    status="STOP", reason=rent_msg))
-                continue
-
-            # ── C-01: previous_balance ─────────────────────
-            if year_month == "202604":
-                previous_balance = Decimal("0")
-                notes_balance = "前期差額無證據，設為0"
-            elif year_month == "202605":
-                raw_pb = row.get("未收款", "").strip()
-                if raw_pb:
-                    previous_balance = _parse_decimal(raw_pb)
-                else:
-                    previous_balance = Decimal("0")
-                notes_balance = f"前期差額={_money(previous_balance)}（Sheet未收款）"
+            if override is not None:
+                rent = _parse_decimal(override["rent"])
+                if abs(rent - sheet_rent) > TOTAL_DIFF_THRESHOLD:
+                    stopped += 1
+                    results.append(dict(
+                        row=row_idx, name=tenant_name, status="STOP",
+                        reason=(
+                            f"override rent={_money(rent)} does not match "
+                            f"sheet rent={_money(sheet_rent)}"
+                        ),
+                    ))
+                    continue
+                previous_balance = _parse_decimal(override["previous_balance"])
+                notes_balance = (
+                    f"覆核前期差額={_money(previous_balance)}；"
+                    f"理由={override['approved_reason'].strip()}"
+                )
+                rent_msg = f"REVIEWED override: {override['approved_reason'].strip()}"
             else:
-                stopped += 1
-                results.append(dict(row=row_idx, name=tenant_name,
-                                    status="STOP", reason=f"unsupported year_month {year_month}"))
-                continue
+                if not rent_ok:
+                    stopped += 1
+                    results.append(dict(row=row_idx, name=tenant_name,
+                                        status="STOP", reason=rent_msg))
+                    continue
+                if year_month == "202604":
+                    previous_balance = Decimal("0")
+                    notes_balance = "前期差額無證據，設為0"
+                elif year_month == "202605":
+                    raw_pb = row.get("未收款", "").strip()
+                    previous_balance = _parse_decimal(raw_pb) if raw_pb else Decimal("0")
+                    notes_balance = f"前期差額={_money(previous_balance)}（Sheet未收款）"
+                else:
+                    stopped += 1
+                    results.append(dict(row=row_idx, name=tenant_name,
+                                        status="STOP", reason=f"unsupported year_month {year_month}"))
+                    continue
+
+                rent = contract_rent
 
             # ── Build bill fields ───────────────────────────
-            # Use contract rent (authoritative) when there's a small diff
-            rent = contract_rent if rent_ok else sheet_rent
             # electricity_prev/curr/usage = 0 per C-03
             # water_prev/curr/usage = 0 per C-04
             # public_electricity = 0 per C-05

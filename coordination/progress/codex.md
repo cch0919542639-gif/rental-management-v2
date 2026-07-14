@@ -10,6 +10,14 @@ Last Updated: 2026-07-14
 - Verified no duplicate bills, zero formula mismatches, 23 linked payment records, and an idempotent payment rerun.
 - Backups: `backups/runtime-real_before_missing_bills_20260714_180206.db` and `backups/runtime-real_before_backfill_payments_20260714_180706.db`.
 
+## 2026-07-14 Reviewed Exception Backfill
+- Added reviewed-override support for explicitly evidenced historical exceptions; it still validates source row, contract, Sheet rent, duplicate bills, and calculated totals.
+- Backfilled five 202604 rows: Zhang Yanjie, Zhang Qizhong, Qiu Shenglin, Gao Fuguo, and Hou Jiamin.
+- Linked three payment records where Sheet evidence existed; two rows have no payment evidence.
+- Remaining blocked rows: Li Zhengyan (negative credit), He Yiyang (terminated zero-rent contract and no due amount), Zheng Boren (unclassified 160 difference), and Tian Meili (missing due amount).
+- Follow-up repair candidate: Qiu Shenglin 202605 Sheet has `other=6`, while the imported bill total is 6 lower.
+- Backup: `backups/runtime-real_before_reviewed_backfill_20260714_222035.db` and `backups/runtime-real_before_reviewed_payments_20260714_222116.db`.
+
 ## Current Task
 - 真實資料導入前控制文件收斂
 - Utility billing policy 文件凍結

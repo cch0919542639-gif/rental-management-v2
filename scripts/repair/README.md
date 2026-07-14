@@ -32,6 +32,26 @@ py -3 .\scripts\repair\backfill_missing_monthly_bills.py --database-url sqlite:/
 py -3 .\scripts\repair\backfill_missing_monthly_bills.py --database-url sqlite:///D:/CodexRuntime/rental/rebuild/runtime-real.db --csv .\real_import\sheet_202605.csv --year-month 202605 --execute
 ```
 
+### Reviewed Historical Exceptions
+
+Rows that fail a normal stop condition must not be edited with SQL. Use a
+separate reviewed CSV with exactly these columns:
+
+```text
+source_row,contract_id,rent,previous_balance,approved_reason
+```
+
+The script still validates the resolved contract, Sheet rent, duplicate bill,
+and calculated total. The override CSV is evidence, not a broad bypass.
+
+```powershell
+py -3 .\scripts\repair\backfill_missing_monthly_bills.py `
+  --database-url sqlite:///D:/CodexRuntime/rental/rebuild/runtime-real.db `
+  --csv .\real_import\sheet_202604.csv `
+  --year-month 202604 `
+  --reviewed-overrides .\real_import\reviewed_202604_overrides.csv
+```
+
 ## Rule
 
 - 預設必須是 read-only 或 dry-run

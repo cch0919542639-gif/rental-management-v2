@@ -5,40 +5,38 @@ Last Updated: 2026-07-14
 
 ## Current Task
 
-Missing Monthly Bills Backfill — Dry-Run & Script (Round 02)
+Reporting Expansion Verification (Round 03)
 
-- Branch: `agent/box-safe-monthly-backfill-01`
+- Branch: `agent/box-reporting-expansion-verify-01`
 - Baseline: `codex-phase2-mainline-01`
-- Scope: 24 safe 202604 candidates + 1 safe 202605 candidate
+- Repo: `D:\CodexRuntime\rental\rebuild-main`
 
 ## Completed
 
-- [x] Read guard report `docs/reports/reasonix-missing-monthly-bills-guard-01.md`
-- [x] Read audit/CSV/DB schema for contract→room→property mapping
-- [x] Created `scripts/repair/backfill_missing_monthly_bills.py` with 9 stop conditions
-- [x] Dry-run on runtime-real.db: 202604 → 24 SAFE, 129 SKIP, 0 STOP
-- [x] Dry-run on runtime-real.db: 202605 → 1 SAFE, 152 SKIP, 0 STOP
-- [x] Integration tests: 10 tests covering dry-run/execute/skip/stop conditions
-- [x] `pytest tests/integration -q` → 60 passed (was 50; +10 new tests)
-- [x] Updated `scripts/repair/README.md`, `coordination/progress/box.md`, `coordination/completed/box.md`
-- [x] Branch, commit, push
+- [x] Ran `test_reporting_expansion.py` — 5/5 passed
+- [x] Ran full `tests/integration` — 128 passed, 15 skipped, 0 failures
+- [x] Verified CSV export: Content-Type `text/csv`, contains `paid_amount`
+- [x] Verified XLSX export: Content-Type `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`
+- [x] Verified PaymentRecord linked amount: paid=4,000, outstanding=6,100
+- [x] Verified overpayment cap: 14,000 paid → outstanding=0
+- [x] Verified export money rounding: 100.5 → 101
+- [x] Verified property permission scope: cross-landlord → 403
+- [x] Produced `docs/reports/box-reporting-expansion-verify-01.md`
 
-## Test Changes
+## Verification Result
 
-| File | Change |
+| Test | Status |
 |------|--------|
-| `tests/integration/test_backfill_missing_monthly_bills.py` | Created (10 tests) |
-| `scripts/repair/backfill_missing_monthly_bills.py` | Created |
-| `scripts/repair/README.md` | Updated with new script |
+| Reporting expansion tests | ✅ 5/5 |
+| Full integration suite | ✅ 128/128 (15 skipped) |
+| CSV export | ✅ text/csv |
+| XLSX export | ✅ xlsx content type |
+| Payment linked amount | ✅ 4,000 linked |
+| Overpayment cap | ✅ capped at 0 |
+| Money rounding | ✅ Decimal→int |
+| Property scope guard | ✅ 403 |
 
 ## Constraints Honored
 
-- ✅ No schema, model, service, route, or template modifications
-- ✅ Dry-run by default; `--execute` required to persist
-- ✅ `paid=False`, `paid_date=None` on all created bills
-- ✅ `total` recalculated via `MonthlyBill.calculate_total()`
-- ✅ 202604: `previous_balance=0`, notes includes "前期差額無證據，設為0"
-- ✅ 202605: `previous_balance` from Sheet 未收款 column
-- ✅ Stop conditions: rent diff >100, total diff >10, virtual tenant, stop-list, duplicate, no contract, rent=0
-- ✅ No PaymentRecord creation
-- ✅ All stop-list tenants skipped: 張硯傑, 張啟中, 邱聖霖, 高富國, 侯家敏, 李政諺, 何佾洋, 鄭博仁, 田美麗
+- ✅ No app/scripts/tests/schema/DB modifications
+- ✅ Read-only verification only

@@ -5,5 +5,39 @@
   .report-actions { margin: 0 0 12px; }
   .report-table-scroll { max-height: calc(100vh - 270px); overflow: auto; border: 1px solid #e5e7eb; }
   .report-table-scroll th { position: sticky; top: 0; z-index: 1; box-shadow: 0 1px 0 #cbd5e1; white-space: nowrap; }
-  @media (max-width: 720px) { .report-table-scroll { max-height: calc(100vh - 320px); } }
+
+  @media (max-width: 720px) {
+    .report-table-scroll { max-height: calc(100vh - 320px); }
+    .report-table-scroll th,
+    .report-table-scroll td { padding: 6px 8px; font-size: 0.82rem; }
+    .report-filter select[multiple] { min-width: 0; width: 100%; }
+    .hide-mobile { display: none; }
+
+    /* Collection: 18 cols — keep 月份(1) 物件(3) 房號(4) 房客(5) 應收(16) 已繳(17) 未收(18) */
+    [data-table="collection"] :is(th, td):nth-child(2),
+    [data-table="collection"] :is(th, td):nth-child(n+6):nth-child(-n+8),
+    [data-table="collection"] :is(th, td):nth-child(n+9):nth-child(-n+15) {
+      display: none;
+    }
+
+    /* Settlement: 12 cols — keep 物件(2) 帳單數(3) 應收(10) 已繳(11) 未收(12) */
+    [data-table="settlement"] :is(th, td):nth-child(1),
+    [data-table="settlement"] :is(th, td):nth-child(n+4):nth-child(-n+9) {
+      display: none;
+    }
+
+    /* New Tenants: 12 cols — keep 物件(1) 房號(2) 房客(3) 起租日(5) 到期日(6) 租金(8) 合約狀態(11) */
+    [data-table="new-tenants"] :is(th, td):nth-child(4),
+    [data-table="new-tenants"] :is(th, td):nth-child(7),
+    [data-table="new-tenants"] :is(th, td):nth-child(9),
+    [data-table="new-tenants"] :is(th, td):nth-child(10),
+    [data-table="new-tenants"] :is(th, td):nth-child(12) {
+      display: none;
+    }
+
+    /* Yearly: 12 cols — keep 月份(1) 物件(2) 帳單數(3) 應收(10) 已繳(11) 未收(12) */
+    [data-table="yearly"] :is(th, td):nth-child(n+4):nth-child(-n+9) {
+      display: none;
+    }
+  }
 </style>

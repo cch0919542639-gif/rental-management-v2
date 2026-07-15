@@ -1,19 +1,21 @@
 # open
 
 Status: DONE
-Last Updated: 2026-06-30
+Last Updated: 2026-07-14
 
 ## Current Task
-- Phase 4 gap audit（open 視角）
+- Expense & Move-Out Settlement source audit (R3/R6)
 
 ## Deliverables
-- `docs/reports/open-phase4-gap-audit-01.md`
+- `docs/reports/open-expense-moveout-source-audit-01.md`
 
 ## Summary
-- 盤點 P0: 6（含引用 reasonix B1–B4，open 獨自發現 5 項：user_loader、models import、production WSGI server、pagination、delete/detail 缺口）
-- 盤點 P1: 9（route/flow 6 項、測試維運 3 項）
-- 盤點 P2: 7（polish 項目）
-- 總計 22 項，含 open 獨自發現 5 項不在 reasonix 報告中
+- Scanned old system DB (18 tables), Google Sheet CSVs (202604/202605/202606), new system DB (empty)
+- R3 PropertyExpense: DIRECT=8, CAUTION=4, BLOCKED=5 — only `utility` (electricity_bills) has source data
+- R6 MoveOutSettlement: DIRECT=9, CAUTION=5, BLOCKED=7 — 6 terminated contracts but all settlement fields empty
+- 7 questions raised for Owner (deposit, cleaning, repair, move-out dates, prorated rent)
+- Hard blockers: no cleaning/repair/deposit/refund data anywhere in old system
 
 ## Next Step
-- Codex 可根據報告中的 Phase 4A→4B→4C→4D 順序安排施工
+- Owner answers Q1–Q7 before R6 can be imported
+- R3 utility expenses (11 electricity_bills) can be imported after R3 model deployment

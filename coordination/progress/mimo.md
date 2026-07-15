@@ -1,36 +1,30 @@
 # mimo
 
-Status: DONE
-Last Updated: 2026-06-30
+Status: IN_PROGRESS
+Last Updated: 2026-07-15
 
 ## Current Task
 
-- Phase 3 UI/API Regression收尾 (mimo-phase3-ui-api-regression-01)
+- Reporting Expansion UI Regression — read-only acceptance (mimo-reporting-expansion-ui-regression-01)
 
 ## Scope
 
-- payments UI (/payments/, create, verify, reject, link)
-- payment-records API (CRUD + lifecycle endpoints)
-- LINE webhook (config/invalid/valid scenarios)
-- error/feedback consistency (422/404 JSON, Chinese labels)
+- /reports/collection (物件收租明細)
+- /reports/property-settlement (物件收款彙總)
+- /reports/new-tenants (新增房客明細)
+- /reports/property-yearly (物件年度月別統計)
 
 ## Completed This Round
 
-- Verified all 8 payment pages (list, create, verify, reject, link, 404, 500, app_error)
-- Verified all 8 payment-records API endpoints
-- Verified LINE webhook (3 scenarios)
-- Fixed UI consistency issues:
-  - review_form.html: English labels → Chinese, status mapping, amount format
-  - link_form.html: English labels → Chinese, status mapping, amount format
-  - list.html: amount format to 2dp, OCR block word-wrap
-  - error pages: English titles → Chinese (404, 500, app_error)
-  - error handlers: 404/500 JSON messages English → Chinese
-- Tests: 62 passed, 15 skipped (baseline maintained)
+- Static template / code review of 4 new report pages
+- Verified: filtering, multi-property selection, empty states, horizontal scroll, sticky headers, mobile width, money integer format, outstanding ≥0, contract dates, CSV/XLSX field consistency
+- Found 0 P0, 2 P1 (mobile responsiveness), 4 P2 (polish)
+- No template or code modifications — report only
 
 ## Delivered
 
-- docs/reports/mimo-phase3-ui-api-regression-01.md
+- docs/reports/mimo-reporting-expansion-ui-regression-01.md
 
 ## Status
 
-All regression items verified. No blockers. No contract changes.
+Read-only acceptance complete. 2 P1 issues identified (mobile responsiveness). No blocking defects.

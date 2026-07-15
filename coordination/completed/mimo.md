@@ -1,5 +1,15 @@
 # mimo Completed Log
 
+## 2026-07-15: Reporting Expansion UI Regression
+
+- Branch: `agent/mimo-reporting-expansion-ui-regression-01`
+- Base: `codex-phase2-mainline-01`
+- Read-only template / code review of 4 new report pages
+- Verified: filtering, multi-property selection, empty states, horizontal scroll, sticky headers, mobile width, money integer format, outstanding ≥0, contract dates, CSV/XLSX field consistency
+- Found 0 P0, 2 P1 (mobile responsiveness), 4 P2 (polish)
+- No template or code modifications — report only
+- 交付 docs/reports/mimo-reporting-expansion-ui-regression-01.md
+
 ## 2026-06-30: Phase 3 UI/API Regression收尾
 
 - Branch: `agent/mimo-phase3-ui-api-regression-01`

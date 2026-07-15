@@ -1,7 +1,7 @@
 from datetime import date
 
 from flask_wtf import FlaskForm
-from wtforms import DateField, IntegerField, SelectField, StringField, SubmitField
+from wtforms import DateField, IntegerField, SelectField, SelectMultipleField, StringField, SubmitField
 from wtforms.validators import DataRequired, NumberRange, Optional
 
 
@@ -17,6 +17,14 @@ class ReportYearForm(FlaskForm):
         default=date.today().year,
     )
     submit = SubmitField("查詢")
+
+
+class PropertyReportMonthForm(ReportMonthForm):
+    property_ids = SelectMultipleField("物件（可複選）", coerce=int, choices=[], validators=[Optional()])
+
+
+class PropertyReportYearForm(ReportYearForm):
+    property_ids = SelectMultipleField("物件（可複選）", coerce=int, choices=[], validators=[Optional()])
 
 
 class MaintenanceReportForm(FlaskForm):

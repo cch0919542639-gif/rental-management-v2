@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}物件收租明細{% endblock %}
+{% block content %}
+<h1>物件收租明細</h1>
+<p>依月份與物件查看每位房客應收、實收與未收金額。</p>
+<form method="post" class="report-filter">
+  {{ form.hidden_tag() }}
+  <label>{{ form.year_month.label }} {{ form.year_month() }}</label>
+  <label>{{ form.property_ids.label }} {{ form.property_ids(size=6) }}</label>
+  {{ form.submit() }}
+</form>
+<p class="report-actions">
+  匯出：<a href="{{ url_for('reports.collection_report_export', year_month=year_month, property_id=selected_property_ids, format='csv') }}">CSV</a>
+  <a href="{{ url_for('reports.collection_report_export', year_month=year_month, property_id=selected_property_ids, format='xlsx') }}">XLSX</a>
+</p>
+<div class="report-table-scroll">
+<table style="min-width:1740px;">
+  <thead><tr>
+    <th>月份</th><th>房東</th><th>物件</th><th>房號</th><th>房客</th><th>電話</th><th>起租</th><th>到約</th><th>租金</th><th>電費</th><th>公設電費</th><th>水費</th><th>其他</th><th>其他說明</th><th>前期未收</th><th>應收總額</th><th>已繳</th><th>未收</th>
+  </tr></thead>
+  <tbody>
+  {% for row in rows %}
+    <tr>
+      <td>{{ row.year_month }}</td><td>{{ row.landlord_name }}</td><td>{{ row.property_name }}</td><td>{{ row.room_number }}</td><td>{{ row.tenant_name }}</td><td>{{ row.tenant_phone or '-' }}</td><td>{{ row.contract_start_date }}</td><td>{{ row.contract_end_date }}</td>
+      <td>{{ row.rent | money_int }}</td><td>{{ row.electricity_amount | money_int }}</td><td>{{ row.public_electricity | money_int }}</td><td>{{ row.water_amount | money_int }}</td><td>{{ row.other_charges | money_int }}</td><td>{{ row.other_desc or '-' }}</td><td>{{ row.previous_balance | money_int }}</td><td>{{ row.total | money_int }}</td><td>{{ row.paid_amount | money_int }}</td><td>{{ row.outstanding_amount | money_int }}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="18">符合條件的收租資料尚無資料</td></tr>
+  {% endfor %}
+  </tbody>
+  <tfoot><tr>
+    <th colspan="15">合計</th><th>{{ totals.total | money_int }}</th><th>{{ totals.paid_amount | money_int }}</th><th>{{ totals.outstanding_amount | money_int }}</th>
+  </tr></tfoot>
+</table>
+</div>
+{% include "reports/_report_table_style.html" %}
+{% endblock %}

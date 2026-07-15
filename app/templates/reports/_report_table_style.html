@@ -1,0 +1,9 @@
+<style>
+  .report-filter { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; margin-bottom: 12px; }
+  .report-filter label { display: grid; gap: 4px; font-weight: 600; }
+  .report-filter select[multiple] { min-width: 240px; padding: 8px; }
+  .report-actions { margin: 0 0 12px; }
+  .report-table-scroll { max-height: calc(100vh - 270px); overflow: auto; border: 1px solid #e5e7eb; }
+  .report-table-scroll th { position: sticky; top: 0; z-index: 1; box-shadow: 0 1px 0 #cbd5e1; white-space: nowrap; }
+  @media (max-width: 720px) { .report-table-scroll { max-height: calc(100vh - 320px); } }
+</style>

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}新增房客明細{% endblock %}
+{% block content %}
+<h1>新增房客明細</h1>
+<p>列出指定月份起租的新合約；出租費、補助申請等欄位尚未建立資料來源，故不在本表推估。</p>
+<form method="post" class="report-filter">
+  {{ form.hidden_tag() }}
+  <label>{{ form.year_month.label }} {{ form.year_month() }}</label>
+  <label>{{ form.property_ids.label }} {{ form.property_ids(size=6) }}</label>
+  {{ form.submit() }}
+</form>
+<p class="report-actions">
+  匯出：<a href="{{ url_for('reports.new_tenants_report_export', year_month=year_month, property_id=selected_property_ids, format='csv') }}">CSV</a>
+  <a href="{{ url_for('reports.new_tenants_report_export', year_month=year_month, property_id=selected_property_ids, format='xlsx') }}">XLSX</a>
+</p>
+<div class="report-table-scroll">
+<table style="min-width:1280px;">
+  <thead><tr>
+    <th>物件</th><th>房號</th><th>房客</th><th>電話</th><th>起租日</th><th>到期日</th><th>押金</th><th>租金</th><th>起始電表</th><th>起始水表</th><th>合約狀態</th><th>備註</th>
+  </tr></thead>
+  <tbody>
+  {% for row in rows %}
+    <tr>
+      <td>{{ row.property_name }}</td><td>{{ row.room_number }}</td><td>{{ row.tenant_name }}</td><td>{{ row.tenant_phone or '-' }}</td><td>{{ row.start_date or '-' }}</td><td>{{ row.end_date or '-' }}</td><td>{{ row.deposit | money_int }}</td><td>{{ row.rent | money_int }}</td><td>{{ row.start_electricity_reading if row.start_electricity_reading is not none else '-' }}</td><td>{{ row.start_water_reading if row.start_water_reading is not none else '-' }}</td><td>{{ row.contract_status }}</td><td>{{ row.notes or '-' }}</td>
+    </tr>
+  {% else %}
+    <tr><td colspan="12">符合條件的新增房客尚無資料</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% include "reports/_report_table_style.html" %}
+{% endblock %}

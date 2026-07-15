@@ -17,5 +17,25 @@
     <p>查看全年總額 / 已收 / 未收趨勢。</p>
     <a href="{{ url_for('reports.yearly_overview', year=current_year) }}">開啟 {{ current_year }}</a>
   </div>
+  <div class="card">
+    <h2>物件收租明細</h2>
+    <p>選擇單一或多個物件，查看每筆應收、已繳與未收。</p>
+    <a href="{{ url_for('reports.collection_report', year_month=current_month) }}">開啟 {{ current_month }}</a>
+  </div>
+  <div class="card">
+    <h2>物件收款彙總</h2>
+    <p>依物件彙總當月帳單金額與已連結付款。</p>
+    <a href="{{ url_for('reports.property_settlement_report', year_month=current_month) }}">開啟 {{ current_month }}</a>
+  </div>
+  <div class="card">
+    <h2>新增房客明細</h2>
+    <p>查看指定月份起租的新合約與基本資料。</p>
+    <a href="{{ url_for('reports.new_tenants_report', year_month=current_month) }}">開啟 {{ current_month }}</a>
+  </div>
+  <div class="card">
+    <h2>物件年度月別統計</h2>
+    <p>按物件查看全年每月帳單、實收與未收。</p>
+    <a href="{{ url_for('reports.property_yearly_report', year=current_year) }}">開啟 {{ current_year }}</a>
+  </div>
 </div>
 {% endblock %}

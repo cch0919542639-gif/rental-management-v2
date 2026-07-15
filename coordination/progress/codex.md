@@ -1,7 +1,19 @@
 # codex
 
-Status: IN_PROGRESS - DATA_RECONCILIATION_GATE_OPEN
-Last Updated: 2026-07-14
+Status: IN_PROGRESS - REPORTING_EXPANSION_R1_R2_R4_R5
+Last Updated: 2026-07-15
+
+## 2026-07-15 Reporting Expansion (R1 / R2 / R4 / R5)
+- Added read-only report routes for property collection, selected-property settlement, new-tenant details, and property annual monthly statistics.
+- Every new report supports month/year filtering, multi-property selection, sticky table headers, integer money display, empty-state messaging, and CSV/XLSX export.
+- Actual received amount is derived only from linked `PaymentRecord.amount`; outstanding amount is `max(MonthlyBill.total - linked payments, 0)` so overpayments never appear as negative debt.
+- Collection rows now include contract start/end dates; CSV/XLSX money fields use the same whole-dollar rounding rule as the UI.
+- Added a selected-property total row to the settlement and yearly views.
+- R3 property expenses and R6 move-out settlements remain separate-ledger work. They must not be stored in `MonthlyBill`.
+
+Verification:
+- `pytest tests\\integration\\test_reporting_expansion.py -q`: `5 passed`.
+- `pytest tests\\integration -q`: `128 passed, 15 skipped`.
 
 ## 2026-07-14 Missing Bill Backfill
 - Integrated the dry-run-first backfill tool and verified its 9 stop conditions.
@@ -19,11 +31,8 @@ Last Updated: 2026-07-14
 - Backup: `backups/runtime-real_before_reviewed_backfill_20260714_222035.db` and `backups/runtime-real_before_reviewed_payments_20260714_222116.db`.
 
 ## Current Task
-- 真實資料導入前控制文件收斂
-- Utility billing policy 文件凍結
-- 根據舊系統策略盤點，整理 utility policy 最小 schema / config 方案
-- 已完成 `policy_code migration + resolver gating`
-- 進行 Batch 2 resolver path 主幹施工
+- 建立 R3 `PropertyExpense` 的正式資料契約、遷移、CRUD 與物件支出明細。
+- 在 Owner 決策後建立 R6 `MoveOutSettlement`，處理押金、結清、退款與付款分攤。
 
 ## Scope
 - 以 `rebuild/app/` 建立新版模組化主幹
@@ -42,7 +51,7 @@ Last Updated: 2026-07-14
 - 完成 `billing` 正式流程：create / edit / toggle paid / per-contract list / generate / batch generate
 - 完成 `electricity` 骨架：meter / bill / reading / calculate / post to monthly bill
 - 完成 `water` 骨架：water bill CRUD / shared_by_stay_days / independent_meter posting
-- 完成 `reports` 骨架：monthly / landlord summary / yearly overview query + presenter
+- 完成 `reports`：monthly / landlord summary / yearly overview，以及 R1/R2/R4/R5 物件選取與 CSV/XLSX 匯出
 - 完成 `maintenance` 模組邊界頁：不新增 schema，只保留正式入口與 room snapshot
 - 完成 `maintenance Phase 2B`：filter / open list / room-scoped list / summary cards / maintenance report / legacy scan
 - 完成 `electricity property detail`：property overview / recent bills / property filter 導流
@@ -176,10 +185,11 @@ Last Updated: 2026-07-14
 - `box`: 適合承接 smoke tests、runbook、低風險支援腳本
 
 ## Next Step
-- 下一個資料導入工作為擴大歷史付款盤點：每批都需 Sheet 列號與可重跑來源交易 ID。
+- 先完成 R3 物件支出帳本；其後再依押金退款與付款分攤決策開啟 R6 退租結清。
 
 ## Risks / Blockers
 - 歷史付款資料仍不完整：Google Sheet 的部分收款金額不能寫入 `MonthlyBill.paid`，必須以 PaymentRecord 匯入與連結。
+- 支出與退租結清尚無正式帳本資料，R1/R2/R5 不會推估房東費用、管理費、清潔費或維修費。
 - 本機有尚未整理 commit 的主幹變更
 - Batch 2 電費比例分攤目前以 property/room policy 為主，不含 custom module（7/8/9/10 與 Room 432 例外仍不在本輪）
 - 曾發生外部程序回退檔案；若再次出現，先比對 `maintenance/report/electricity` service/repository、`nested routes`、`error handlers` 是否被覆寫

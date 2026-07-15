@@ -1,5 +1,21 @@
 # codex completed log
 
+## 2026-07-15 Reporting Expansion R1 / R2 / R4 / R5
+
+Completed:
+- Added four read-only reports: property collection, multi-property settlement, new tenant details, and property yearly monthly statistics.
+- Added multi-property filters and CSV/XLSX export for each report.
+- Used only linked `PaymentRecord` amounts for actual receipts; no report treats the legacy `paid` boolean as a financial amount. Overpayments are capped at zero outstanding balance.
+- Added contract start/end fields to collection detail and applied the UI's whole-dollar rounding rule to CSV/XLSX exports.
+- Added responsive horizontal scrolling and sticky headers for wide tables; user-visible money is integer formatted.
+
+Verification:
+- Targeted reporting integration suite: `5 passed`.
+- Full integration suite: `128 passed, 15 skipped`.
+
+Deferred:
+- R3 property expenses and R6 move-out settlements require independent ledgers. No expense, cleaning, repair, deposit refund, or payment-allocation figure is inferred from `MonthlyBill`.
+
 ## 2026-07-14 Reviewed 202604 Exceptions
 
 Completed:

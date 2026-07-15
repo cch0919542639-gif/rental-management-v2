@@ -14,7 +14,7 @@
   <a href="{{ url_for('reports.new_tenants_report_export', year_month=year_month, property_id=selected_property_ids, format='xlsx') }}">XLSX</a>
 </p>
 <div class="report-table-scroll">
-<table style="min-width:1280px;">
+<table data-table="new-tenants" style="min-width:1280px;">
   <thead><tr>
     <th>物件</th><th>房號</th><th>房客</th><th>電話</th><th>起租日</th><th>到期日</th><th>押金</th><th>租金</th><th>起始電表</th><th>起始水表</th><th>合約狀態</th><th>備註</th>
   </tr></thead>

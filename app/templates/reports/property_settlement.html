@@ -14,7 +14,7 @@
   <a href="{{ url_for('reports.property_settlement_report_export', year_month=year_month, property_id=selected_property_ids, format='xlsx') }}">XLSX</a>
 </p>
 <div class="report-table-scroll">
-<table style="min-width:1510px;">
+<table data-table="settlement" style="min-width:1510px;">
   <thead><tr>
     <th>房東</th><th>物件</th><th>帳單數</th><th>租金</th><th>電費</th><th>公設電費</th><th>水費</th><th>其他</th><th>前期未收</th><th>應收總額</th><th>已繳</th><th>未收</th>
   </tr></thead>
@@ -28,7 +28,7 @@
   {% endfor %}
   </tbody>
   <tfoot><tr>
-    <th colspan="2">合計</th><th>{{ totals.bill_count }}</th><th>{{ totals.rent_amount | money_int }}</th><th>{{ totals.electricity_amount | money_int }}</th><th>{{ totals.public_electricity | money_int }}</th><th>{{ totals.water_amount | money_int }}</th><th>{{ totals.other_charges | money_int }}</th><th>{{ totals.previous_balance | money_int }}</th><th>{{ totals.total_amount | money_int }}</th><th>{{ totals.paid_amount | money_int }}</th><th>{{ totals.outstanding_amount | money_int }}</th>
+    <th class="hide-mobile" colspan="2">合計</th><th>{{ totals.bill_count }}</th><th>{{ totals.rent_amount | money_int }}</th><th>{{ totals.electricity_amount | money_int }}</th><th>{{ totals.public_electricity | money_int }}</th><th>{{ totals.water_amount | money_int }}</th><th>{{ totals.other_charges | money_int }}</th><th>{{ totals.previous_balance | money_int }}</th><th>{{ totals.total_amount | money_int }}</th><th>{{ totals.paid_amount | money_int }}</th><th>{{ totals.outstanding_amount | money_int }}</th>
   </tr></tfoot>
 </table>
 </div>

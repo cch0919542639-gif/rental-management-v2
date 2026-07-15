@@ -1,25 +1,27 @@
 # reasonix
 
 Status: DONE
-Last Updated: 2026-06-29
+Last Updated: 2026-07-15
 
 ## Current Task
-- ✅ Phase 2B implementation review (round 5)
+- ✅ R3 PropertyExpense + R6 MoveOutSettlement contract decision package frozen
 
 ## Scope
-- 審查已實作的 Phase 2B 內容（filters / open view / room-scoped list / summary cards / reports/maintenance / legacy scan）
+- 凍結 R3 PropertyExpense 與 R6 MoveOutSettlement 的資料契約決策包，不寫程式。
 
 ## Completed So Far
-- ✅ 讀取 11 個已修改檔案
-- ✅ 比對 followup-04 分類：全部 11 項落在可直接實作範圍
-- ✅ 0 ADR 邊界違規
-- ✅ 0 forbidden 區域越界
-- ✅ 0 billing contamination
-- ✅ Legacy scan script 維持 read-only
-- ✅ docs/reports/reasonix-maintenance-phase2b-review-05.md
+- ✅ 從 codex-phase2-mainline-01 建立 agent/reasonix-expense-moveout-contract-01
+- ✅ 交付 docs/reports/reasonix-expense-moveout-contract-01.md
+- ✅ 含最小欄位（R3: 14 columns, R6: 25 columns）、狀態機、金額公式、FK/ondelete、不可變規則
+- ✅ 含 management fee、清潔費、維修費、欠款、押金扣抵/退款、結清付款邊界
+- ✅ 含 Owner 必答決策 8 項（ADR-R01 ~ ADR-R08），含安全預設與後果
+- ✅ 含 DIRECT / ADR_REQUIRED / FORBIDDEN 分類（12 FORBIDDEN items）
+- ✅ 含實作前 Gate（8 checkpoints）與驗收標準（R3: 13 criteria, R6: 18 criteria）
 
 ## Verdict
-- 全部合規，可 commit 進入主幹
+- R3 PropertyExpense schema, migration, CRUD, report 皆為 DIRECT，可立即施工。
+- R6 MoveOutSettlement schema, draft/finalized 為 DIRECT；closed 狀態需 ADR-R04/R05。
+- 無程式碼變更，無 schema 修改，無 runtime-real.db 異動。
 
 ## Risks / Blockers
-- 無
+- ADR-R04（押金退款證據）與 ADR-R05（結清付款分攤）為 R6 closed 狀態的 Owner 阻塞項。

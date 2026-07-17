@@ -1,4 +1,16 @@
-# mimo Completed Log
+﻿# mimo Completed Log
+
+## 2026-07-17: PropertyExpense UI/回歸規格
+
+- Branch: `agent/mimo-property-expense-ui-spec-01`
+- Base: `codex-phase2-mainline-01`
+- 交付 PropertyExpense UI 規格（純規格，不含 app 程式碼）
+- 涵蓋：清單、建立、編輯、入帳、作廢、刪除 draft 六個畫面
+- 桌面/手機欄位保留、固定表頭、整數金額、憑證編號顯示
+- 各狀態按鈕與禁止操作（draft/posted/voided）
+- 25 項驗收情境（AC-01 ~ AC-25）
+- 交付 docs/reports/mimo-property-expense-ui-spec-01.md
+
 
 ## 2026-06-30: Phase 3 UI/API Regression收尾
 
@@ -121,3 +133,4 @@
   - forms.py: mode choices (shared_by_stay_days → 按居住天數分攤, independent_meter → 獨立水表)
 - Tests: 46 passed, 15 skipped (maintains baseline)
 - 交付 docs/reports/mimo-phase3-water-preview-ui-01.md
+

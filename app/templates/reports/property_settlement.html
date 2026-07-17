@@ -27,8 +27,10 @@
     <tr><td colspan="12">符合條件的物件彙總尚無資料</td></tr>
   {% endfor %}
   </tbody>
-  <tfoot><tr>
-    <th class="hide-mobile" colspan="2">合計</th><th>{{ totals.bill_count }}</th><th>{{ totals.rent_amount | money_int }}</th><th>{{ totals.electricity_amount | money_int }}</th><th>{{ totals.public_electricity | money_int }}</th><th>{{ totals.water_amount | money_int }}</th><th>{{ totals.other_charges | money_int }}</th><th>{{ totals.previous_balance | money_int }}</th><th>{{ totals.total_amount | money_int }}</th><th>{{ totals.paid_amount | money_int }}</th><th>{{ totals.outstanding_amount | money_int }}</th>
+  <tfoot><tr class="tfoot-desktop">
+    <th colspan="2">合計</th><th>{{ totals.bill_count }}</th><th>{{ totals.rent_amount | money_int }}</th><th>{{ totals.electricity_amount | money_int }}</th><th>{{ totals.public_electricity | money_int }}</th><th>{{ totals.water_amount | money_int }}</th><th>{{ totals.other_charges | money_int }}</th><th>{{ totals.previous_balance | money_int }}</th><th>{{ totals.total_amount | money_int }}</th><th>{{ totals.paid_amount | money_int }}</th><th>{{ totals.outstanding_amount | money_int }}</th>
+  </tr><tr class="tfoot-mobile">
+    <th>合計</th><th class="show-mobile">{{ totals.bill_count }}</th><th class="show-mobile">{{ totals.total_amount | money_int }}</th><th class="show-mobile">{{ totals.paid_amount | money_int }}</th><th class="show-mobile">{{ totals.outstanding_amount | money_int }}</th>
   </tr></tfoot>
 </table>
 </div>

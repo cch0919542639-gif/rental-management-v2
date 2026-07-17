@@ -3,17 +3,16 @@
 - **Agent**: mimo
 - **Branch**: `agent/mimo-reporting-mobile-fix-01`
 - **Base**: `codex-phase2-mainline-01` (latest HEAD)
-- **Date**: 2026-07-15
-- **Type**: P1 mobile responsiveness fix
+- **Date**: 2026-07-17
+- **Type**: P1 mobile responsiveness fix (body + footer)
 
 ---
 
 ## 1. Problem Statement
 
-At ≤720px viewport width, all 4 new report tables were unreadable:
-- Collection (18 columns): required 4.6x horizontal scrolling on 375px mobile
-- Sticky header consumed excessive vertical space with no padding/font reduction
-- No column hiding strategy — all columns always visible
+At ≤720px viewport width, report tables had two issues:
+1. All columns visible — 18-column collection required 4.6x horizontal scroll
+2. `tfoot` used `colspan`, so `nth-child()` misaligned footer cells with body columns
 
 ## 2. Changes Made
 
@@ -23,26 +22,37 @@ Added `@media (max-width: 720px)` rules:
 
 | Rule | Effect |
 |------|--------|
-| `th, td { padding: 6px 8px; font-size: 0.82rem }` | Compact sticky header — smaller text/padding |
+| `th, td { padding: 6px 8px; font-size: 0.82rem }` | Compact sticky header |
 | `select[multiple] { min-width: 0; width: 100% }` | Filter dropdown fills mobile width |
 | `.hide-mobile { display: none }` | Utility class for footer cell hiding |
-| `[data-table="collection"] nth-child(2,6-15)` | Hides 11 columns on collection page |
-| `[data-table="settlement"] nth-child(1,4-9)` | Hides 7 columns on settlement page |
-| `[data-table="new-tenants"] nth-child(4,7,9,10,12)` | Hides 5 columns on new tenants page |
-| `[data-table="yearly"] nth-child(4-9)` | Hides 6 columns on yearly page |
+| `[data-table="collection"] nth-child(2,6-15)` | Hides 11 body columns |
+| `[data-table="settlement"] nth-child(1,4-9)` | Hides 7 body columns |
+| `[data-table="new-tenants"] nth-child(4,7,9,10,12)` | Hides 5 body columns |
+| `[data-table="yearly"] nth-child(4-9)` | Hides 6 body columns |
+| `.tfoot-desktop { display: none }` | Hides desktop footer row on mobile |
+| `.tfoot-mobile { display: table-row }` | Shows mobile footer row on mobile |
+| `.tfoot-mobile th:not(.show-mobile) { display: none }` | Hides non-show-mobile cells in mobile footer |
+
+Added `@media (min-width: 721px)`:
+- `.tfoot-mobile { display: none }` — hides mobile footer on desktop
 
 ### 2.2 Templates: `data-table` Attributes
 
-Added `data-table="<name>"` to `<table>` in each template for CSS targeting:
+Added `data-table="<name>"` to `<table>` for CSS targeting:
 - `collection.html`: `data-table="collection"`
 - `property_settlement.html`: `data-table="settlement"`
 - `new_tenants.html`: `data-table="new-tenants"`
 - `property_yearly.html`: `data-table="yearly"`
 
-### 2.3 Templates: Footer `hide-mobile` Classes
+### 2.3 Templates: Mobile Footer Rows
 
-- `property_settlement.html`: Added `class="hide-mobile"` to `<th colspan="2">合計</th>` (footer first cell — both landlord+property hidden in body)
-- `property_yearly.html`: Added `class="hide-mobile"` to 5 intermediate `<th>` cells in footer (rent through previous_balance — corresponding body columns hidden)
+Added `.tfoot-desktop` / `.tfoot-mobile` rows to `<tfoot>` in 3 templates:
+
+| Table | Mobile footer columns |
+|-------|----------------------|
+| collection | 合計 / 應收總額 / 已繳 / 未收 |
+| settlement | 合計 / 帳單數 / 應收總額 / 已繳 / 未收 |
+| yearly | 全年合計 / 帳單數 / 應收總額 / 已繳 / 未收 |
 
 ## 3. Mobile Column Visibility
 
@@ -132,8 +142,8 @@ Baseline maintained. 11 failures are pre-existing Windows cp950 encoding issue i
 
 | File | Change |
 |------|--------|
-| `app/templates/reports/_report_table_style.html` | Added responsive CSS rules |
-| `app/templates/reports/collection.html` | Added `data-table="collection"` |
-| `app/templates/reports/property_settlement.html` | Added `data-table="settlement"`, `hide-mobile` on footer th |
+| `app/templates/reports/_report_table_style.html` | Added responsive CSS rules + tfoot-desktop/mobile |
+| `app/templates/reports/collection.html` | Added `data-table="collection"`, tfoot-mobile row |
+| `app/templates/reports/property_settlement.html` | Added `data-table="settlement"`, tfoot-mobile row |
 | `app/templates/reports/new_tenants.html` | Added `data-table="new-tenants"` |
-| `app/templates/reports/property_yearly.html` | Added `data-table="yearly"`, `hide-mobile` on 5 footer th |
+| `app/templates/reports/property_yearly.html` | Added `data-table="yearly"`, tfoot-mobile row |

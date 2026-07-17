@@ -1,36 +1,30 @@
 # mimo
 
-Status: DONE
-Last Updated: 2026-06-30
+Status: IN PROGRESS
+Last Updated: 2026-07-17
 
 ## Current Task
 
-- Phase 3 UI/API Regression收尾 (mimo-phase3-ui-api-regression-01)
+- PropertyExpense UI/回歸規格 (mimo-property-expense-ui-spec-01)
 
 ## Scope
 
-- payments UI (/payments/, create, verify, reject, link)
-- payment-records API (CRUD + lifecycle endpoints)
-- LINE webhook (config/invalid/valid scenarios)
-- error/feedback consistency (422/404 JSON, Chinese labels)
+- PropertyExpense UI 規格：清單、建立、編輯、入帳、作廢、刪除 draft
+- 桌面/手機欄位保留、固定表頭、整數金額、憑證編號顯示
+- 各狀態按鈕與禁止操作
+- 25 項驗收情境
 
 ## Completed This Round
 
-- Verified all 8 payment pages (list, create, verify, reject, link, 404, 500, app_error)
-- Verified all 8 payment-records API endpoints
-- Verified LINE webhook (3 scenarios)
-- Fixed UI consistency issues:
-  - review_form.html: English labels → Chinese, status mapping, amount format
-  - link_form.html: English labels → Chinese, status mapping, amount format
-  - list.html: amount format to 2dp, OCR block word-wrap
-  - error pages: English titles → Chinese (404, 500, app_error)
-  - error handlers: 404/500 JSON messages English → Chinese
-- Tests: 62 passed, 15 skipped (baseline maintained)
+- 研讀既有模板模式（billing/list, payments/list, maintenance/index, properties/list）
+- 研讀 models（MonthlyBill, PaymentRecord, MaintenanceRequest）
+- 研讀 coordination 格式（mimo completed/progress）
+- 交付 docs/reports/mimo-property-expense-ui-spec-01.md（純規格，不含 app 程式碼）
 
 ## Delivered
 
-- docs/reports/mimo-phase3-ui-api-regression-01.md
+- docs/reports/mimo-property-expense-ui-spec-01.md
 
 ## Status
 
-All regression items verified. No blockers. No contract changes.
+規格完成。不含 routes/models/templates/service 修改。

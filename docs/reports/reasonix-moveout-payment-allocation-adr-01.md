@@ -2,7 +2,8 @@
 
 **Date:** 2026-07-17
 **Author:** reasonix
-**Status:** Proposed
+**Status:** Approved
+**Owner Decision:** Option C — 獨立 PaymentAllocation 表分攤
 **References:**
 - `docs/reports/reasonix-reporting-expansion-contract-01.md` (ADR-R05 定義來源)
 - `data_contracts/payments-contract.md`
@@ -13,7 +14,7 @@
 ## Executive Summary
 
 - 退租結清場景下，一筆銀行轉帳可能同時覆蓋最後一期月帳單未繳部分與結清單額外費用。現有 `PaymentRecord` 僅支援一對一連結 `monthly_bill_id`，無法表達此種分攤。
-- 比較三種方案後，推薦 **Option C：獨立 PaymentAllocation 分攤表**，因其在不變更現有 PaymentRecord 契約的前提下提供明確稽核軌跡、支援任意目標組合，且與現有架構的分層原則一致。
+- 比較三種方案後，Owner 選擇 **Option C：獨立 PaymentAllocation 分攤表**，因其在不變更現有 PaymentRecord 契約的前提下提供明確稽核軌跡、支援任意目標組合，且與現有架構的分層原則一致。
 - 此決策只定義資料模型與分攤規則；不涉及結清單最終化條件、押金退款證據、或退款付款處理（屬 ADR-R04、ADR-R06 範圍）。
 
 ## Confirmed Facts
@@ -89,7 +90,7 @@
 **Risks:**
 - 此設計將付款分攤邏輯嵌入 PaymentRecord 本身，未來若有更複雜的分攤需求（如一筆付款覆蓋多期帳單 + 結清單），schema 需再次 migrate。
 
-### Option C: 以獨立 PaymentAllocation 表分攤（推薦）
+### Option C: 以獨立 PaymentAllocation 表分攤（Owner 已批准 ✅）
 
 新增 `PaymentAllocation` 表，每筆付款可產生多條 allocation row，每條指向一個目標（`MonthlyBill` 或 `MoveOutSettlement`），並記錄分配金額。
 
@@ -123,7 +124,7 @@ PaymentAllocation
 
 ## Decision
 
-- **Selected Option: C — 獨立 PaymentAllocation 表分攤**
+- **Selected Option: C — 獨立 PaymentAllocation 表分攤**（Owner 已批准，2026-07-17）
 - **Why:**
   1. 最小侵入：`PaymentRecord` 模型不變，現有 API / OCR / 審核流程不受影響。
   2. 稽核優先：每筆分攤有獨立行，可追溯每筆付款流向哪個帳單或結清單，符合 `data_contracts/payments-contract.md` 中「同一筆付款記錄的來源、辨識結果、人工審核、帳單連結都能追溯」的要求。

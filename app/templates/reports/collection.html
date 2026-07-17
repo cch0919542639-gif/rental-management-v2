@@ -28,8 +28,10 @@
     <tr><td colspan="18">符合條件的收租資料尚無資料</td></tr>
   {% endfor %}
   </tbody>
-  <tfoot><tr>
+  <tfoot><tr class="tfoot-desktop">
     <th colspan="15">合計</th><th>{{ totals.total | money_int }}</th><th>{{ totals.paid_amount | money_int }}</th><th>{{ totals.outstanding_amount | money_int }}</th>
+  </tr><tr class="tfoot-mobile">
+    <th>合計</th><th class="show-mobile">{{ totals.total | money_int }}</th><th class="show-mobile">{{ totals.paid_amount | money_int }}</th><th class="show-mobile">{{ totals.outstanding_amount | money_int }}</th>
   </tr></tfoot>
 </table>
 </div>

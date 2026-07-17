@@ -1,19 +1,17 @@
 # open
 
 Status: DONE
-Last Updated: 2026-06-30
+Last Updated: 2026-07-17
 
 ## Current Task
-- Phase 4 gap audit（open 視角）
+- PropertyExpense 操作計畫 01（人工支出與歷史資料規則）
 
 ## Deliverables
-- `docs/reports/open-phase4-gap-audit-01.md`
+- `docs/reports/open-property-expense-operator-plan-01.md`
 
 ## Summary
-- 盤點 P0: 6（含引用 reasonix B1–B4，open 獨自發現 5 項：user_loader、models import、production WSGI server、pagination、delete/detail 缺口）
-- 盤點 P1: 9（route/flow 6 項、測試維運 3 項）
-- 盤點 P2: 7（polish 項目）
-- 總計 22 項，含 open 獨自發現 5 項不在 reasonix 報告中
+- 定義 PropertyExpense 操作規則：人工支出最低必要資料與憑證、舊系統 11 筆 utility 安全匯入前置條件、draft->posted->voided 操作流程、每月對帳與 rollback 步驟
+- 完全相容 `reasonix-reporting-expansion-contract-01.md`，不修改契約定義
 
 ## Next Step
-- Codex 可根據報告中的 Phase 4A→4B→4C→4D 順序安排施工
+- 等待 codex 或其他 agent 依本計畫實作 PropertyExpense 人工支出 UI/API 流程

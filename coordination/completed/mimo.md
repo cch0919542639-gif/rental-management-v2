@@ -1,5 +1,14 @@
 # mimo Completed Log
 
+## 2026-07-17: PropertyExpense UI Regression
+
+- Branch: `agent/mimo-property-expense-ui-regression-01`
+- Base: `codex-phase2-mainline-01`
+- 驗收 /expenses/ 與 /expenses/create（17 項檢查點）
+- 發現 12 個問題（P1: 4 分類/狀態中文本地化, P2: 6 手機適配/UX, P3: 2 低優先級）
+- 無 P0 blockers
+- 交付 docs/reports/mimo-property-expense-ui-regression-01.md
+
 ## 2026-06-30: Phase 3 UI/API Regression收尾
 
 - Branch: `agent/mimo-phase3-ui-api-regression-01`

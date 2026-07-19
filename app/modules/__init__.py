@@ -4,6 +4,7 @@ from app.modules.billing import billing_bp
 from app.modules.contracts import contracts_bp
 from app.modules.dashboard import dashboard_bp
 from app.modules.electricity import electricity_bp
+from app.modules.expenses import expenses_bp
 from app.modules.landlords import landlords_bp
 from app.modules.maintenance import maintenance_bp
 from app.modules.payments import payments_api_bp, payments_bp
@@ -20,6 +21,7 @@ def register_blueprints(app):
     app.register_blueprint(contracts_bp)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(electricity_bp)
+    app.register_blueprint(expenses_bp)
     app.register_blueprint(landlords_bp)
     app.register_blueprint(maintenance_bp)
     app.register_blueprint(payments_bp)

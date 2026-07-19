@@ -3,6 +3,7 @@ from app.services.billing_generation_service import BillingGenerationService
 from app.services.contract_service import ContractService
 from app.services.dashboard_service import DashboardService
 from app.services.electricity_service import ElectricityService
+from app.services.expense_service import PropertyExpenseService
 from app.services.landlord_service import LandlordService
 from app.services.maintenance_service import MaintenanceService
 from app.services.payment_reconciliation_service import PaymentReconciliationService
@@ -24,6 +25,7 @@ __all__ = [
     "ContractService",
     "DashboardService",
     "ElectricityService",
+    "PropertyExpenseService",
     "LandlordService",
     "MaintenanceService",
     "PaymentReconciliationService",

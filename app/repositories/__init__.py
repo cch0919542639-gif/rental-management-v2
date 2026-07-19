@@ -7,6 +7,7 @@ from app.repositories.electricity_repository import (
     ElectricityMeterRepository,
     ElectricityReadingRepository,
 )
+from app.repositories.expense_repository import PropertyExpenseRepository
 from app.repositories.landlord_repository import LandlordRepository
 from app.repositories.maintenance_repository import MaintenanceRepository
 from app.repositories.payment_repository import PaymentRepository
@@ -24,6 +25,7 @@ __all__ = [
     "ElectricityBillRepository",
     "ElectricityMeterRepository",
     "ElectricityReadingRepository",
+    "PropertyExpenseRepository",
     "LandlordRepository",
     "MaintenanceRepository",
     "PaymentRepository",

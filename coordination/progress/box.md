@@ -5,40 +5,41 @@ Last Updated: 2026-07-14
 
 ## Current Task
 
-Missing Monthly Bills Backfill — Dry-Run & Script (Round 02)
+PropertyExpense Verification (Round 04)
 
-- Branch: `agent/box-safe-monthly-backfill-01`
+- Branch: `agent/box-property-expense-verify-01`
 - Baseline: `codex-phase2-mainline-01`
-- Scope: 24 safe 202604 candidates + 1 safe 202605 candidate
+- Repo: `D:\CodexRuntime\rental\rebuild-main`
 
 ## Completed
 
-- [x] Read guard report `docs/reports/reasonix-missing-monthly-bills-guard-01.md`
-- [x] Read audit/CSV/DB schema for contract→room→property mapping
-- [x] Created `scripts/repair/backfill_missing_monthly_bills.py` with 9 stop conditions
-- [x] Dry-run on runtime-real.db: 202604 → 24 SAFE, 129 SKIP, 0 STOP
-- [x] Dry-run on runtime-real.db: 202605 → 1 SAFE, 152 SKIP, 0 STOP
-- [x] Integration tests: 10 tests covering dry-run/execute/skip/stop conditions
-- [x] `pytest tests/integration -q` → 60 passed (was 50; +10 new tests)
-- [x] Updated `scripts/repair/README.md`, `coordination/progress/box.md`, `coordination/completed/box.md`
-- [x] Branch, commit, push
+- [x] Ran `test_property_expense_crud_states.py` — 3/3 passed
+- [x] Ran full `tests/integration` — 131 passed, 15 skipped, 0 failures
+- [x] Verified migration dry-run/execute/idempotency
+- [x] Verified draft create/edit/delete
+- [x] Verified draft→posted→voided; void requires reason
+- [x] Verified posted/voided/cancelled immutable
+- [x] Verified category validation, amount ≤ 0 rejection
+- [x] Verified property/status/category filters
+- [x] Verified CSV/XLSX export only contains posted
+- [x] Produced `docs/reports/box-property-expense-verify-01.md`
 
-## Test Changes
+## Verification Result
 
-| File | Change |
+| Check | Status |
 |------|--------|
-| `tests/integration/test_backfill_missing_monthly_bills.py` | Created (10 tests) |
-| `scripts/repair/backfill_missing_monthly_bills.py` | Created |
-| `scripts/repair/README.md` | Updated with new script |
+| R3 PropertyExpense tests | ✅ 3/3 |
+| Full integration suite | ✅ 131/131 (15 skipped) |
+| Migration dry-run/execute/rerun | ✅ idempotent |
+| Draft CRUD | ✅ create/edit/delete |
+| State machine | ✅ draft→posted→voided |
+| Immutability (posted/voided/cancelled) | ✅ edit/delete rejected |
+| Category validation | ✅ invalid rejected, all 8 valid OK |
+| Amount ≤ 0 rejection | ✅ rejected |
+| Filters (property/status/category) | ✅ 200 |
+| CSV/XLSX only posted | ✅ |
 
 ## Constraints Honored
 
-- ✅ No schema, model, service, route, or template modifications
-- ✅ Dry-run by default; `--execute` required to persist
-- ✅ `paid=False`, `paid_date=None` on all created bills
-- ✅ `total` recalculated via `MonthlyBill.calculate_total()`
-- ✅ 202604: `previous_balance=0`, notes includes "前期差額無證據，設為0"
-- ✅ 202605: `previous_balance` from Sheet 未收款 column
-- ✅ Stop conditions: rent diff >100, total diff >10, virtual tenant, stop-list, duplicate, no contract, rent=0
-- ✅ No PaymentRecord creation
-- ✅ All stop-list tenants skipped: 張硯傑, 張啟中, 邱聖霖, 高富國, 侯家敏, 李政諺, 何佾洋, 鄭博仁, 田美麗
+- ✅ No app/scripts/tests/schema/DB modifications
+- ✅ Read-only verification only

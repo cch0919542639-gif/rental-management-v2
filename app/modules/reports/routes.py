@@ -244,6 +244,7 @@ def property_settlement_report():
             [
                 "bill_count", "rent_amount", "electricity_amount", "public_electricity", "water_amount",
                 "other_charges", "previous_balance", "total_amount", "paid_amount", "outstanding_amount",
+                "expense_amount", "net_amount",
             ],
         ),
     )
@@ -260,18 +261,63 @@ def property_settlement_report_export():
     headers = [
         "landlord_name", "property_name", "bill_count", "rent_amount", "electricity_amount", "public_electricity",
         "water_amount", "other_charges", "previous_balance", "total_amount", "paid_amount", "outstanding_amount",
+        "expense_amount", "net_amount",
     ]
     rows = ReportService.export_money_rows(
         rows,
         [
             "rent_amount", "electricity_amount", "public_electricity", "water_amount", "other_charges",
-            "previous_balance", "total_amount", "paid_amount", "outstanding_amount",
+            "previous_balance", "total_amount", "paid_amount", "outstanding_amount", "expense_amount", "net_amount",
         ],
     )
     return _download_export(
         rows=rows,
         headers=headers,
         filename_base=f"property-settlement-{year_month}",
+        export_format=export_format,
+    )
+
+
+@reports_bp.route("/property-expenses", methods=["GET", "POST"])
+@login_required
+def property_expenses_report():
+    form = PropertyReportMonthForm()
+    visible_properties = _visible_properties()
+    _populate_property_choices(form, visible_properties)
+    year_month = request.args.get("year_month") or date.today().strftime("%Y-%m")
+    if form.validate_on_submit():
+        year_month = form.year_month.data.strip()
+    else:
+        form.year_month.data = year_month
+        form.property_ids.data = request.args.getlist("property_id", type=int)
+    property_ids = _selected_property_ids(form, visible_properties)
+    rows = ReportService.property_expenses(year_month, property_ids)
+    return render_template(
+        "reports/property_expenses.html",
+        form=form,
+        rows=rows,
+        year_month=year_month,
+        selected_property_ids=property_ids,
+        totals=ReportService.totals(rows, ["amount"]),
+    )
+
+
+@reports_bp.get("/property-expenses/export")
+@login_required
+def property_expenses_report_export():
+    year_month = request.args.get("year_month") or date.today().strftime("%Y-%m")
+    visible_properties = _visible_properties()
+    property_ids = _selected_property_ids(PropertyReportMonthForm(meta={"csrf": False}), visible_properties)
+    export_format = request.args.get("format") or "csv"
+    rows = ReportService.property_expenses(year_month, property_ids)
+    headers = [
+        "transaction_date", "landlord_name", "property_name", "category", "amount", "payee", "reference_no", "notes",
+    ]
+    rows = ReportService.export_money_rows(rows, ["amount"])
+    return _download_export(
+        rows=rows,
+        headers=headers,
+        filename_base=f"property-expenses-{year_month}",
         export_format=export_format,
     )
 

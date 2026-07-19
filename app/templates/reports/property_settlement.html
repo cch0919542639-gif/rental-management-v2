@@ -2,7 +2,7 @@
 {% block title %}物件收款彙總{% endblock %}
 {% block content %}
 <h1>物件收款彙總</h1>
-<p>按物件彙總房客帳單金額及已連結付款；房東請款、服務費與物件支出將在支出帳本完成後納入。</p>
+<p>按物件彙總房客帳單、已連結付款與已過帳物件支出；淨額為已繳扣除支出。</p>
 <form method="post" class="report-filter">
   {{ form.hidden_tag() }}
   <label>{{ form.year_month.label }} {{ form.year_month() }}</label>
@@ -14,23 +14,23 @@
   <a href="{{ url_for('reports.property_settlement_report_export', year_month=year_month, property_id=selected_property_ids, format='xlsx') }}">XLSX</a>
 </p>
 <div class="report-table-scroll">
-<table data-table="settlement" style="min-width:1510px;">
+<table data-table="settlement" style="min-width:1700px;">
   <thead><tr>
-    <th>房東</th><th>物件</th><th>帳單數</th><th>租金</th><th>電費</th><th>公設電費</th><th>水費</th><th>其他</th><th>前期未收</th><th>應收總額</th><th>已繳</th><th>未收</th>
+    <th>房東</th><th>物件</th><th>帳單數</th><th>租金</th><th>電費</th><th>公設電費</th><th>水費</th><th>其他</th><th>前期未收</th><th>應收總額</th><th>已繳</th><th>未收</th><th>已過帳支出</th><th>淨額</th>
   </tr></thead>
   <tbody>
   {% for row in rows %}
     <tr>
-      <td>{{ row.landlord_name }}</td><td>{{ row.property_name }}</td><td>{{ row.bill_count }}</td><td>{{ row.rent_amount | money_int }}</td><td>{{ row.electricity_amount | money_int }}</td><td>{{ row.public_electricity | money_int }}</td><td>{{ row.water_amount | money_int }}</td><td>{{ row.other_charges | money_int }}</td><td>{{ row.previous_balance | money_int }}</td><td>{{ row.total_amount | money_int }}</td><td>{{ row.paid_amount | money_int }}</td><td>{{ row.outstanding_amount | money_int }}</td>
+      <td>{{ row.landlord_name }}</td><td>{{ row.property_name }}</td><td>{{ row.bill_count }}</td><td>{{ row.rent_amount | money_int }}</td><td>{{ row.electricity_amount | money_int }}</td><td>{{ row.public_electricity | money_int }}</td><td>{{ row.water_amount | money_int }}</td><td>{{ row.other_charges | money_int }}</td><td>{{ row.previous_balance | money_int }}</td><td>{{ row.total_amount | money_int }}</td><td>{{ row.paid_amount | money_int }}</td><td>{{ row.outstanding_amount | money_int }}</td><td>{{ row.expense_amount | money_int }}</td><td>{{ row.net_amount | money_int }}</td>
     </tr>
   {% else %}
-    <tr><td colspan="12">符合條件的物件彙總尚無資料</td></tr>
+    <tr><td colspan="14">符合條件的物件彙總尚無資料</td></tr>
   {% endfor %}
   </tbody>
   <tfoot><tr class="tfoot-desktop">
-    <th colspan="2">合計</th><th>{{ totals.bill_count }}</th><th>{{ totals.rent_amount | money_int }}</th><th>{{ totals.electricity_amount | money_int }}</th><th>{{ totals.public_electricity | money_int }}</th><th>{{ totals.water_amount | money_int }}</th><th>{{ totals.other_charges | money_int }}</th><th>{{ totals.previous_balance | money_int }}</th><th>{{ totals.total_amount | money_int }}</th><th>{{ totals.paid_amount | money_int }}</th><th>{{ totals.outstanding_amount | money_int }}</th>
+    <th colspan="2">合計</th><th>{{ totals.bill_count }}</th><th>{{ totals.rent_amount | money_int }}</th><th>{{ totals.electricity_amount | money_int }}</th><th>{{ totals.public_electricity | money_int }}</th><th>{{ totals.water_amount | money_int }}</th><th>{{ totals.other_charges | money_int }}</th><th>{{ totals.previous_balance | money_int }}</th><th>{{ totals.total_amount | money_int }}</th><th>{{ totals.paid_amount | money_int }}</th><th>{{ totals.outstanding_amount | money_int }}</th><th>{{ totals.expense_amount | money_int }}</th><th>{{ totals.net_amount | money_int }}</th>
   </tr><tr class="tfoot-mobile">
-    <th>合計</th><th class="show-mobile">{{ totals.bill_count }}</th><th class="show-mobile">{{ totals.total_amount | money_int }}</th><th class="show-mobile">{{ totals.paid_amount | money_int }}</th><th class="show-mobile">{{ totals.outstanding_amount | money_int }}</th>
+    <th>合計</th><th class="show-mobile">{{ totals.bill_count }}</th><th class="show-mobile">{{ totals.total_amount | money_int }}</th><th class="show-mobile">{{ totals.paid_amount | money_int }}</th><th class="show-mobile">{{ totals.net_amount | money_int }}</th>
   </tr></tfoot>
 </table>
 </div>

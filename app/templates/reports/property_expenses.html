@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}物件支出明細{% endblock %}
+{% block content %}
+<h1>物件支出明細</h1>
+<p>僅列入已過帳支出；草稿、取消與作廢紀錄不影響房東結算。</p>
+<form method="post" class="report-filter">
+  {{ form.hidden_tag() }}
+  <label>{{ form.year_month.label }} {{ form.year_month() }}</label>
+  <label>{{ form.property_ids.label }} {{ form.property_ids(size=6) }}</label>
+  {{ form.submit() }}
+</form>
+<p class="report-actions">
+  匯出：<a href="{{ url_for('reports.property_expenses_report_export', year_month=year_month, property_id=selected_property_ids, format='csv') }}">CSV</a>
+  <a href="{{ url_for('reports.property_expenses_report_export', year_month=year_month, property_id=selected_property_ids, format='xlsx') }}">XLSX</a>
+</p>
+<div class="report-table-scroll">
+<table data-table="property-expenses" style="min-width:1160px;">
+  <thead><tr><th>日期</th><th>房東</th><th>物件</th><th>類別</th><th>金額</th><th>收款／受款人</th><th>憑證號碼</th><th>備註</th></tr></thead>
+  <tbody>
+  {% for row in rows %}
+    <tr><td>{{ row.transaction_date }}</td><td>{{ row.landlord_name }}</td><td>{{ row.property_name }}</td><td>{{ row.category }}</td><td>{{ row.amount | money_int }}</td><td>{{ row.payee or '-' }}</td><td>{{ row.reference_no or '-' }}</td><td>{{ row.notes or '-' }}</td></tr>
+  {% else %}
+    <tr><td colspan="8">符合條件的已過帳支出尚無資料</td></tr>
+  {% endfor %}
+  </tbody>
+  <tfoot><tr><th colspan="4">合計</th><th>{{ totals.amount | money_int }}</th><th colspan="3"></th></tr></tfoot>
+</table>
+</div>
+{% include "reports/_report_table_style.html" %}
+{% endblock %}

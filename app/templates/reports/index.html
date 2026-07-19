@@ -24,8 +24,13 @@
   </div>
   <div class="card">
     <h2>物件收款彙總</h2>
-    <p>依物件彙總當月帳單金額與已連結付款。</p>
+    <p>依物件彙總當月帳單、已連結付款、支出與淨額。</p>
     <a href="{{ url_for('reports.property_settlement_report', year_month=current_month) }}">開啟 {{ current_month }}</a>
+  </div>
+  <div class="card">
+    <h2>物件支出明細</h2>
+    <p>查看指定月份已過帳的物件支出，支援物件篩選與匯出。</p>
+    <a href="{{ url_for('reports.property_expenses_report', year_month=current_month) }}">開啟 {{ current_month }}</a>
   </div>
   <div class="card">
     <h2>新增房客明細</h2>

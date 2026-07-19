@@ -12,7 +12,7 @@ Author: box (tests / scripts / runbook agent)
 
 Verified R3 PropertyExpense against 8 acceptance criteria: migration, draft CRUD, state machine, immutability, validation, filters, exports. No regressions. No defects.
 
-**pytest: 131 passed, 15 skipped, 0 failures** (baseline 128 + 3 new test_property_expense_crud_states tests)
+**pytest: 133 passed, 15 skipped, 0 failures** (baseline 128 + 3 expense-state tests + 2 R3 report tests)
 
 ---
 
@@ -33,7 +33,8 @@ Verified R3 PropertyExpense against 8 acceptance criteria: migration, draft CRUD
 | 5 | Invalid category; amount ≤ 0 rejection | ✅ |
 | 6 | Property/status/category filters | ✅ |
 | 7 | CSV/XLSX only posted | ✅ |
-| 8 | Full integration suite | ✅ 131/131 |
+| 8 | Property-expense report and settlement | ✅ posted-only / CSV / XLSX / no-bill property |
+| 9 | Full integration suite | ✅ 133/133 |
 
 ## Constraints Honored
 

@@ -29,9 +29,9 @@ cd D:\CodexRuntime\rental\rebuild-main && py -3 -m pytest tests\integration\test
 py -3 -m pytest tests\integration -q --tb=long
 ```
 
-**結果：131 passed, 15 skipped in 91.84s**
+**結果：133 passed, 15 skipped in 94.61s**
 
-無失敗、無錯誤、無 traceback。Baseline 為 128 passed (+3 property expense tests)。
+無失敗、無錯誤、無 traceback。Baseline 為 128 passed (+3 property expense tests, +2 R3 report tests)。
 
 ---
 
@@ -83,7 +83,15 @@ py -3 -m pytest tests\integration -q --tb=long
 - `PropertyExpenseRepository.list_filtered()` 存在，支援 property_id/status/category 參數
 - ✅通過
 
-### 2.7 Posted 合計與 CSV/XLSX 僅含 posted
+### 2.7 物件支出明細與房東結算
+
+- `GET /reports/property-expenses` 支援月份與物件多選篩選
+- 僅 `posted` 支出會顯示在明細，並計入物件結算的支出與淨額
+- 即使物件當月沒有帳單，只要有已過帳支出，仍會顯示在結算中
+- 淨額定義為已連結付款扣除已過帳支出
+- ✅通過
+
+### 2.8 Posted 合計與 CSV/XLSX 僅含 posted
 
 - CSV export: 僅 posted 狀態的 expense 出現（draft 被刪除不出現）
 - CSV Content-Type: `text/csv`，包含金額
@@ -100,4 +108,4 @@ py -3 -m pytest tests\integration -q --tb=long
 
 ## 4. 結論
 
-所有 R3 PropertyExpense 驗收項目通過。功能正常，無回歸，可合併至 `codex-phase2-mainline-01`。
+所有 R3 PropertyExpense 與支出報表驗收項目通過。功能正常，無回歸，可合併至 `codex-phase2-mainline-01`。

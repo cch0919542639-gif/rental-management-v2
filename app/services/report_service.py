@@ -24,6 +24,14 @@ class ReportService:
         return max(ReportService._money(total) - ReportService._money(paid_amount), Decimal("0"))
 
     @staticmethod
+    def _month_bounds(year_month: str):
+        db_year_month = to_db_year_month(year_month)
+        year, month = int(db_year_month[:4]), int(db_year_month[4:])
+        start_date = date(year, month, 1)
+        end_date = date(year + 1, 1, 1) if month == 12 else date(year, month + 1, 1)
+        return start_date, end_date
+
+    @staticmethod
     def export_money_rows(rows, money_fields):
         """Normalize exported money to the same whole-dollar rule used by the UI."""
         normalized = []
@@ -165,8 +173,15 @@ class ReportService:
     def property_settlement(year_month: str, property_ids=None):
         db_year_month = to_db_year_month(year_month)
         rows = ReportRepository.property_settlement_rows(db_year_month, ReportService._property_ids(property_ids))
-        return [
-            {
+        selected_ids = ReportService._property_ids(property_ids)
+        start_date, end_date = ReportService._month_bounds(year_month)
+        expense_rows = ReportRepository.property_expense_summary_rows(start_date, end_date, selected_ids)
+        expenses_by_property = {row.property_id: row for row in expense_rows}
+        result = []
+        for row in rows:
+            expense_amount = (expenses_by_property.get(row.property_id).expense_amount or 0) if row.property_id in expenses_by_property else 0
+            result.append(
+                {
                 "property_id": row.property_id,
                 "property_name": row.property_name,
                 "landlord_name": row.landlord_name,
@@ -180,6 +195,56 @@ class ReportService:
                 "total_amount": row.total_amount or 0,
                 "paid_amount": row.paid_amount or 0,
                 "outstanding_amount": ReportService._outstanding_amount(row.total_amount, row.paid_amount),
+                "expense_amount": expense_amount,
+                "net_amount": ReportService._money(row.paid_amount) - ReportService._money(expense_amount),
+                }
+            )
+        settled_property_ids = {row["property_id"] for row in result}
+        for expense_row in expense_rows:
+            if expense_row.property_id in settled_property_ids:
+                continue
+            expense_amount = expense_row.expense_amount or 0
+            result.append(
+                {
+                    "property_id": expense_row.property_id,
+                    "property_name": expense_row.property_name,
+                    "landlord_name": expense_row.landlord_name,
+                    "bill_count": 0,
+                    "rent_amount": 0,
+                    "electricity_amount": 0,
+                    "public_electricity": 0,
+                    "water_amount": 0,
+                    "other_charges": 0,
+                    "previous_balance": 0,
+                    "total_amount": 0,
+                    "paid_amount": 0,
+                    "outstanding_amount": 0,
+                    "expense_amount": expense_amount,
+                    "net_amount": -ReportService._money(expense_amount),
+                }
+            )
+        result.sort(key=lambda row: (row["landlord_name"], row["property_name"]))
+        return result
+
+    @staticmethod
+    def property_expenses(year_month: str, property_ids=None):
+        start_date, end_date = ReportService._month_bounds(year_month)
+        rows = ReportRepository.property_expense_rows(
+            start_date,
+            end_date,
+            ReportService._property_ids(property_ids),
+        )
+        return [
+            {
+                "transaction_date": row.transaction_date,
+                "property_id": row.property_id,
+                "property_name": row.property_name,
+                "landlord_name": row.landlord_name,
+                "category": row.category,
+                "amount": row.amount or 0,
+                "payee": row.payee,
+                "reference_no": row.reference_no,
+                "notes": row.notes,
             }
             for row in rows
         ]

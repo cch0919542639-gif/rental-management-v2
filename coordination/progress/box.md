@@ -14,7 +14,8 @@ PropertyExpense Verification (Round 04)
 ## Completed
 
 - [x] Ran `test_property_expense_crud_states.py` — 3/3 passed
-- [x] Ran full `tests/integration` — 131 passed, 15 skipped, 0 failures
+- [x] Added R3 property-expense report and settlement integration coverage
+- [x] Ran full `tests/integration` — 133 passed, 15 skipped, 0 failures
 - [x] Verified migration dry-run/execute/idempotency
 - [x] Verified draft create/edit/delete
 - [x] Verified draft→posted→voided; void requires reason
@@ -29,7 +30,8 @@ PropertyExpense Verification (Round 04)
 | Check | Status |
 |------|--------|
 | R3 PropertyExpense tests | ✅ 3/3 |
-| Full integration suite | ✅ 131/131 (15 skipped) |
+| R3 report integration suite | ✅ 10/10 combined targeted checks |
+| Full integration suite | ✅ 133/133 (15 skipped) |
 | Migration dry-run/execute/rerun | ✅ idempotent |
 | Draft CRUD | ✅ create/edit/delete |
 | State machine | ✅ draft→posted→voided |

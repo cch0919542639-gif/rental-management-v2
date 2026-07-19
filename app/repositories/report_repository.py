@@ -1,7 +1,7 @@
 from sqlalchemy import case, func
 
 from app.core.db import db
-from app.models import Contract, Landlord, MonthlyBill, PaymentRecord, Property, Room, Tenant
+from app.models import Contract, Landlord, MonthlyBill, PaymentRecord, Property, PropertyExpense, Room, Tenant
 from app.models.maintenance import MaintenanceRequest
 
 
@@ -162,6 +162,58 @@ class ReportRepository:
             .order_by(Landlord.name.asc(), Property.name.asc())
             .all()
         )
+
+    @staticmethod
+    def property_expense_rows(start_date, end_date, property_ids: list[int] | None = None):
+        query = (
+            db.session.query(
+                PropertyExpense.transaction_date.label("transaction_date"),
+                Property.id.label("property_id"),
+                Property.name.label("property_name"),
+                Landlord.name.label("landlord_name"),
+                PropertyExpense.category.label("category"),
+                PropertyExpense.amount.label("amount"),
+                PropertyExpense.payee.label("payee"),
+                PropertyExpense.reference_no.label("reference_no"),
+                PropertyExpense.notes.label("notes"),
+            )
+            .join(Property, Property.id == PropertyExpense.property_id)
+            .join(Landlord, Landlord.id == Property.landlord_id)
+            .filter(
+                PropertyExpense.record_status == "posted",
+                PropertyExpense.transaction_date >= start_date,
+                PropertyExpense.transaction_date < end_date,
+            )
+        )
+        if property_ids:
+            query = query.filter(Property.id.in_(property_ids))
+        return query.order_by(
+            PropertyExpense.transaction_date.asc(),
+            Landlord.name.asc(),
+            Property.name.asc(),
+            PropertyExpense.id.asc(),
+        ).all()
+
+    @staticmethod
+    def property_expense_summary_rows(start_date, end_date, property_ids: list[int] | None = None):
+        query = (
+            db.session.query(
+                PropertyExpense.property_id.label("property_id"),
+                Property.name.label("property_name"),
+                Landlord.name.label("landlord_name"),
+                func.coalesce(func.sum(PropertyExpense.amount), 0).label("expense_amount"),
+            )
+            .join(Property, Property.id == PropertyExpense.property_id)
+            .join(Landlord, Landlord.id == Property.landlord_id)
+            .filter(
+                PropertyExpense.record_status == "posted",
+                PropertyExpense.transaction_date >= start_date,
+                PropertyExpense.transaction_date < end_date,
+            )
+        )
+        if property_ids:
+            query = query.filter(PropertyExpense.property_id.in_(property_ids))
+        return query.group_by(PropertyExpense.property_id, Property.name, Landlord.name).all()
 
     @staticmethod
     def new_tenant_rows(start_date, end_date, property_ids: list[int] | None = None):

@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import sqlite3
 import subprocess
 import sys
 
@@ -48,6 +49,38 @@ def test_phase5_bridge_runs_in_dry_run_mode():
     result = _run_script(script, "--id", "20260701_000002_alembic_bridge")
     assert "Dry-run only." in result.stdout
     assert "alembic_version" in result.stdout
+
+
+def test_migration_dry_run_does_not_create_migration_log_table(tmp_path):
+    root = Path(__file__).resolve().parents[2]
+    script = root / "scripts" / "migration" / "run_migrations.py"
+    db_path = tmp_path / "dry-run.db"
+    env = os.environ.copy()
+    env["DATABASE_URL"] = f"sqlite:///{db_path}"
+    env["SCRIPT_APP_CONFIG"] = "default"
+    env["SECRET_KEY"] = "test-secret"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(script),
+            "--id",
+            "20260717_000005_property_expenses",
+        ],
+        capture_output=True,
+        text=True,
+        cwd=root,
+        env=env,
+        check=True,
+    )
+
+    assert "Dry-run only. No migration log written." in result.stdout
+    with sqlite3.connect(db_path) as connection:
+        tables = {
+            row[0]
+            for row in connection.execute("SELECT name FROM sqlite_master WHERE type = 'table'")
+        }
+    assert "schema_migration_log" not in tables
 
 
 def test_phase5_bridge_execute_requires_explicit_gate(tmp_path):

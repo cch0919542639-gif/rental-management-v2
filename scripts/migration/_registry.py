@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 
-from sqlalchemy import text
+from sqlalchemy import inspect, text
 
 
 MIGRATION_LOG_TABLE = "schema_migration_log"
@@ -40,8 +40,11 @@ def ensure_migration_log_table(db):
     db.session.commit()
 
 
-def get_applied_migration_ids(db) -> set[str]:
-    ensure_migration_log_table(db)
+def get_applied_migration_ids(db, *, create_if_missing: bool = True) -> set[str]:
+    if create_if_missing:
+        ensure_migration_log_table(db)
+    elif not inspect(db.engine).has_table(MIGRATION_LOG_TABLE):
+        return set()
     rows = db.session.execute(text(f"SELECT migration_id FROM {MIGRATION_LOG_TABLE}")).all()
     return {row[0] for row in rows}
 

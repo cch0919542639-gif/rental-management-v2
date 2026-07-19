@@ -79,8 +79,9 @@ def main(argv: list[str]):
     all_migrations = discover_migrations(ROOT)
 
     with app.app_context():
-        ensure_migration_log_table(db)
-        applied_ids = get_applied_migration_ids(db)
+        if args.execute:
+            ensure_migration_log_table(db)
+        applied_ids = get_applied_migration_ids(db, create_if_missing=args.execute)
         selected = _select_migrations(all_migrations, args.migration_id)
         _assert_bridge_execute_allowed(selected, all_migrations, applied_ids, args.allow_bridge, args.execute)
 

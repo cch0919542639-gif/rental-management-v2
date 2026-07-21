@@ -5,6 +5,7 @@ from flask_login import current_user, login_required
 
 from app.modules.reports.forms import (
     MaintenanceReportForm,
+    MoveOutSettlementReportForm,
     PropertyReportMonthForm,
     PropertyReportYearForm,
     ReportMonthForm,
@@ -319,6 +320,64 @@ def property_expenses_report_export():
         headers=headers,
         filename_base=f"property-expenses-{year_month}",
         export_format=export_format,
+    )
+
+
+@reports_bp.route("/move-out-settlements", methods=["GET", "POST"])
+@login_required
+def move_out_settlements_report():
+    form = MoveOutSettlementReportForm()
+    landlord_view = not current_user.is_admin
+    if landlord_view:
+        form.status.choices = [("", "全部"), ("settled", "已結算"), ("unsettled", "未結算")]
+    visible_properties = _visible_properties()
+    _populate_property_choices(form, visible_properties)
+    year_month = request.args.get("year_month") or date.today().strftime("%Y-%m")
+    status = (request.args.get("status") or "").strip()
+    if form.validate_on_submit():
+        year_month = form.year_month.data.strip()
+        status = (form.status.data or "").strip()
+    else:
+        form.year_month.data = year_month
+        form.status.data = status
+        form.property_ids.data = request.args.getlist("property_id", type=int)
+    if landlord_view and status not in {"", "settled", "unsettled"}:
+        abort(403)
+    property_ids = _selected_property_ids(form, visible_properties)
+    rows = ReportService.move_out_settlements(year_month, property_ids, status)
+    money_fields = ["deposit_held", "refund_amount", "gross_charges", "allocated_amount", "outstanding_amount", "suggested_cash_refund"]
+    return render_template(
+        "reports/move_out_settlements.html", form=form, rows=rows, year_month=year_month, status=status,
+        selected_property_ids=property_ids, totals=ReportService.totals(rows, money_fields), landlord_view=landlord_view,
+    )
+
+
+@reports_bp.get("/move-out-settlements/export")
+@login_required
+def move_out_settlements_report_export():
+    year_month = request.args.get("year_month") or date.today().strftime("%Y-%m")
+    status = (request.args.get("status") or "").strip()
+    visible_properties = _visible_properties()
+    landlord_view = not current_user.is_admin
+    if landlord_view and status not in {"", "settled", "unsettled"}:
+        abort(403)
+    property_ids = _selected_property_ids(MoveOutSettlementReportForm(meta={"csrf": False}), visible_properties)
+    export_format = request.args.get("format") or "csv"
+    rows = ReportService.move_out_settlements(year_month, property_ids, status)
+    headers = [
+        "settlement_id", "move_out_date", "status", "landlord_name", "property_name", "room_number", "tenant_name", "tenant_phone",
+        "deposit_held", "refund_amount", "final_rent", "electricity_amount", "water_amount", "management_fee", "previous_debt",
+        "cleaning_fee", "repair_fee", "other_charge", "other_desc", "gross_charges", "allocated_amount", "outstanding_amount",
+        "suggested_cash_refund", "evidence_type", "evidence_reference",
+    ]
+    if landlord_view:
+        headers[2:3] = ["landlord_status", "unsettled_reason"]
+    rows = ReportService.export_money_rows(rows, [
+        "deposit_held", "refund_amount", "final_rent", "electricity_amount", "water_amount", "management_fee", "previous_debt",
+        "cleaning_fee", "repair_fee", "other_charge", "gross_charges", "allocated_amount", "outstanding_amount", "suggested_cash_refund",
+    ])
+    return _download_export(
+        rows=rows, headers=headers, filename_base=f"move-out-settlements-{year_month}", export_format=export_format,
     )
 
 

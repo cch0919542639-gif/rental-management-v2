@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}退租結清明細{% endblock %}
+{% block content %}
+<h1>退租結清明細</h1>
+<p>「已結算」表示退款分攤已確認，不代表已付款或已退款。</p>
+<form method="post" class="report-filter">
+  {{ form.hidden_tag() }}
+  <label>{{ form.year_month.label }} {{ form.year_month() }}</label>
+  <label>{{ form.property_ids.label }} {{ form.property_ids(size=6) }}</label>
+  <label>{{ form.status.label }} {{ form.status() }}</label>
+  {{ form.submit() }}
+</form>
+<p class="report-actions">
+  匯出：<a href="{{ url_for('reports.move_out_settlements_report_export', year_month=year_month, status=status, property_id=selected_property_ids, format='csv') }}">CSV</a>
+  <a href="{{ url_for('reports.move_out_settlements_report_export', year_month=year_month, status=status, property_id=selected_property_ids, format='xlsx') }}">XLSX</a>
+</p>
+<div class="report-table-scroll"><table data-table="move-out-settlements" style="min-width:2100px;">
+  <thead><tr><th>退租日</th><th>{% if landlord_view %}結算狀態{% else %}狀態{% endif %}</th>{% if landlord_view %}<th>未結算原因</th>{% endif %}<th>房東</th><th>物件</th><th>房號</th><th>租客</th><th>押金／全額退款</th><th>最後租金</th><th>電費</th><th>水費</th><th>前期未收</th><th>清潔</th><th>維修</th><th>其他</th><th>費用合計</th><th>退款支付費用</th><th>應收餘額</th><th>建議實付退款</th><th>憑證</th></tr></thead>
+  <tbody>{% for row in rows %}<tr><td>{{ row.move_out_date }}</td><td>{{ row.landlord_status if landlord_view else row.status }}</td>{% if landlord_view %}<td>{{ row.unsettled_reason or '-' }}</td>{% endif %}<td>{{ row.landlord_name }}</td><td>{{ row.property_name }}</td><td>{{ row.room_number }}</td><td>{{ row.tenant_name }}</td><td>{{ row.refund_amount | money_int }}</td><td>{{ row.final_rent | money_int }}</td><td>{{ row.electricity_amount | money_int }}</td><td>{{ row.water_amount | money_int }}</td><td>{{ row.previous_debt | money_int }}</td><td>{{ row.cleaning_fee | money_int }}</td><td>{{ row.repair_fee | money_int }}</td><td>{{ row.other_charge | money_int }}</td><td>{{ row.gross_charges | money_int }}</td><td>{{ row.allocated_amount | money_int }}</td><td>{{ row.outstanding_amount | money_int }}</td><td>{{ row.suggested_cash_refund | money_int }}</td><td>{{ row.evidence_type or '-' }}{% if row.evidence_reference %}：{{ row.evidence_reference }}{% endif %}</td></tr>{% else %}<tr><td colspan="{{ 20 if landlord_view else 19 }}">查無符合條件的退租結清資料。</td></tr>{% endfor %}</tbody>
+  <tfoot><tr class="tfoot-desktop"><th colspan="{{ 7 if landlord_view else 6 }}">合計</th><th>{{ totals.refund_amount | money_int }}</th><th colspan="7"></th><th>{{ totals.gross_charges | money_int }}</th><th>{{ totals.allocated_amount | money_int }}</th><th>{{ totals.outstanding_amount | money_int }}</th><th>{{ totals.suggested_cash_refund | money_int }}</th><th></th></tr></tfoot>
+</table></div>
+{% include "reports/_report_table_style.html" %}
+{% endblock %}

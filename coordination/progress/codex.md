@@ -1,7 +1,16 @@
 # codex
 
-Status: IN_PROGRESS - REPORTING_EXPANSION_R1_R2_R4_R5
-Last Updated: 2026-07-15
+Status: COMPLETED - R6_MOVE_OUT_SETTLEMENT
+Last Updated: 2026-07-19
+
+## 2026-07-19 R6 Move-Out Settlement
+- Owner has approved the R6 accounting boundary: retain the full deposit refund as a separate settlement fact, and record a tenant payment allocation from that refund across multiple move-out charges when an operator confirms it.
+- This first implementation must provide draft/finalized charge calculations and manual allocation confirmation only. It must not auto-recognize refunds or payments, infer evidence, or transition a settlement to `closed`.
+- Planned verification: migration contract, settlement invariants and status transitions, allocation validation, routes/forms, report rendering, and regression integration tests.
+- Completed: independent settlement/allocation ledger, draft and manual-confirmation UI, immutable settled records, void flow, and R6 contract documentation.
+- Verification: `pytest tests\\integration\\test_move_out_settlements.py -q` (3 passed); `pytest tests\\integration -q` (137 passed, 15 skipped); migration dry-run only (no runtime database changed).
+- 2026-07-19 production-readiness follow-up completed: R6 now scopes every list/export/detail/write path to the authenticated landlord's properties and supports property/status/date filters plus CSV/XLSX export. Verification: `test_move_out_settlements.py` (4 passed); full integration suite (138 passed, 15 skipped).
+- 2026-07-19 R6 migration rehearsal passed on the populated-data copy `backups/runtime_20260719_143424.db`: R6 tables, foreign keys, migration log, unchanged baseline counts (`properties=13`, `contracts=80`, `monthly_bills=421`, `payment_records=175`), and idempotent retry verified. The source was `D:/CodexRuntime/rental/rebuild/runtime-real.db`; it was not modified.
 
 ## 2026-07-15 Reporting Expansion (R1 / R2 / R4 / R5)
 - Added read-only report routes for property collection, selected-property settlement, new-tenant details, and property annual monthly statistics.

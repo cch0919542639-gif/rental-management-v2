@@ -250,6 +250,53 @@ class ReportService:
         ]
 
     @staticmethod
+    def move_out_settlements(year_month: str, property_ids=None, status=None):
+        start_date, end_date = ReportService._month_bounds(year_month)
+        rows = ReportRepository.move_out_settlement_rows(
+            start_date, end_date, ReportService._property_ids(property_ids), status or None
+        )
+        result = []
+        charge_fields = (
+            "final_rent", "electricity_amount", "water_amount", "management_fee",
+            "previous_debt", "cleaning_fee", "repair_fee", "other_charge",
+        )
+        for row in rows:
+            exported = {field: getattr(row, field) or 0 for field in charge_fields}
+            gross_charges = sum((ReportService._money(exported[field]) for field in charge_fields), Decimal("0"))
+            allocated_amount = ReportService._money(row.allocated_amount)
+            refund_amount = ReportService._money(row.refund_amount)
+            landlord_status = "已結算" if row.status == "settled" else "未結算"
+            unsettled_reason = {
+                "draft": "尚待完成結算資料",
+                "voided": "此結算已作廢",
+                "cancelled": "此結算已取消",
+            }.get(row.status, "尚待確認結算原因")
+            result.append({
+                "settlement_id": row.settlement_id,
+                "move_out_date": row.move_out_date,
+                "status": row.status,
+                "landlord_status": landlord_status,
+                "unsettled_reason": "" if row.status == "settled" else unsettled_reason,
+                "landlord_name": row.landlord_name,
+                "property_id": row.property_id,
+                "property_name": row.property_name,
+                "room_number": row.room_number,
+                "tenant_name": row.tenant_name,
+                "tenant_phone": row.tenant_phone,
+                "deposit_held": row.deposit_held or 0,
+                "refund_amount": row.refund_amount or 0,
+                **exported,
+                "other_desc": row.other_desc,
+                "gross_charges": gross_charges,
+                "allocated_amount": allocated_amount,
+                "outstanding_amount": max(gross_charges - allocated_amount, Decimal("0")),
+                "suggested_cash_refund": max(refund_amount - allocated_amount, Decimal("0")),
+                "evidence_type": row.evidence_type,
+                "evidence_reference": row.evidence_reference,
+            })
+        return result
+
+    @staticmethod
     def new_tenants(year_month: str, property_ids=None):
         db_year_month = to_db_year_month(year_month)
         year, month = int(db_year_month[:4]), int(db_year_month[4:])

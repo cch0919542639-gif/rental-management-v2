@@ -1,7 +1,10 @@
 from sqlalchemy import case, func
 
 from app.core.db import db
-from app.models import Contract, Landlord, MonthlyBill, PaymentRecord, Property, PropertyExpense, Room, Tenant
+from app.models import (
+    Contract, Landlord, MonthlyBill, MoveOutSettlement, MoveOutSettlementAllocation,
+    PaymentRecord, Property, PropertyExpense, Room, Tenant,
+)
 from app.models.maintenance import MaintenanceRequest
 
 
@@ -214,6 +217,58 @@ class ReportRepository:
         if property_ids:
             query = query.filter(PropertyExpense.property_id.in_(property_ids))
         return query.group_by(PropertyExpense.property_id, Property.name, Landlord.name).all()
+
+    @staticmethod
+    def move_out_settlement_rows(start_date, end_date, property_ids: list[int] | None = None, status: str | None = None):
+        allocations = (
+            db.session.query(
+                MoveOutSettlementAllocation.settlement_id.label("settlement_id"),
+                func.coalesce(func.sum(MoveOutSettlementAllocation.amount), 0).label("allocated_amount"),
+            )
+            .group_by(MoveOutSettlementAllocation.settlement_id)
+            .subquery()
+        )
+        query = (
+            db.session.query(
+                MoveOutSettlement.id.label("settlement_id"),
+                MoveOutSettlement.move_out_date.label("move_out_date"),
+                MoveOutSettlement.status.label("status"),
+                Landlord.name.label("landlord_name"),
+                Property.id.label("property_id"),
+                Property.name.label("property_name"),
+                Room.room_number.label("room_number"),
+                Tenant.name.label("tenant_name"),
+                Tenant.phone.label("tenant_phone"),
+                MoveOutSettlement.deposit_held.label("deposit_held"),
+                MoveOutSettlement.refund_amount.label("refund_amount"),
+                MoveOutSettlement.final_rent.label("final_rent"),
+                MoveOutSettlement.electricity_amount.label("electricity_amount"),
+                MoveOutSettlement.water_amount.label("water_amount"),
+                MoveOutSettlement.management_fee.label("management_fee"),
+                MoveOutSettlement.previous_debt.label("previous_debt"),
+                MoveOutSettlement.cleaning_fee.label("cleaning_fee"),
+                MoveOutSettlement.repair_fee.label("repair_fee"),
+                MoveOutSettlement.other_charge.label("other_charge"),
+                MoveOutSettlement.other_desc.label("other_desc"),
+                MoveOutSettlement.evidence_type.label("evidence_type"),
+                MoveOutSettlement.evidence_reference.label("evidence_reference"),
+                func.coalesce(allocations.c.allocated_amount, 0).label("allocated_amount"),
+            )
+            .join(Contract, Contract.id == MoveOutSettlement.contract_id)
+            .join(Room, Room.id == Contract.room_id)
+            .join(Property, Property.id == Room.property_id)
+            .join(Landlord, Landlord.id == Property.landlord_id)
+            .join(Tenant, Tenant.id == Contract.tenant_id)
+            .outerjoin(allocations, allocations.c.settlement_id == MoveOutSettlement.id)
+            .filter(MoveOutSettlement.move_out_date >= start_date, MoveOutSettlement.move_out_date < end_date)
+        )
+        if property_ids:
+            query = query.filter(Property.id.in_(property_ids))
+        if status == "unsettled":
+            query = query.filter(MoveOutSettlement.status != "settled")
+        elif status:
+            query = query.filter(MoveOutSettlement.status == status)
+        return query.order_by(MoveOutSettlement.move_out_date.asc(), Property.name.asc(), Room.room_number.asc()).all()
 
     @staticmethod
     def new_tenant_rows(start_date, end_date, property_ids: list[int] | None = None):

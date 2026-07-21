@@ -1,0 +1,6 @@
+tenant_name,property_address,room_number,confirmed_move_out_date,contract_id,contract_start_date,contract_end_date,contract_status,contract_deposit,system_full_refund,final_rent,electricity_amount,water_amount,cleaning_fee,repair_fee,previous_debt,evidence_type,evidence_reference,draft_status,review_status,blocker
+潘文宏,自強27巷36號,13,2026-04-24,,,,,,,,,,,,,,,,not-created,blocked,"Tenant and matching new contract are absent from backups/runtime_20260719_143424.db; manual charge inputs unavailable"
+柯明寰,昌裕71巷,3A,2026-05-31,,,,,,,,,,,,,,,,not-created,blocked,"Tenant and matching new contract are absent from backups/runtime_20260719_143424.db; manual charge inputs unavailable"
+何佾洋,苓中路33巷,5B,2026-05-05,81,2025-01-01,2099-12-31,terminated,,, , , , , , ,,,not-created,blocked,"Contract deposit is NULL, so system full-refund cannot be validated; manual charge inputs unavailable"
+陳雅鈴,苓中路33巷,7B,2026-05-28,85,2025-01-01,2099-12-31,terminated,,, , , , , , ,,,not-created,blocked,"Contract deposit is NULL, so system full-refund cannot be validated; manual charge inputs unavailable"
+陳夢翰,楠都東街183號5樓之3,532,2026-05-24,173,2025-11-25,2026-05-24,ended,0,0, , , , , , ,,,not-created,blocked,"Manual charge inputs unavailable; deposit/refund check is 0 = 0 but requires reviewer confirmation"

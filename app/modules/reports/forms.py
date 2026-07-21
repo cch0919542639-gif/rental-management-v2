@@ -23,6 +23,14 @@ class PropertyReportMonthForm(ReportMonthForm):
     property_ids = SelectMultipleField("物件（可複選）", coerce=int, choices=[], validators=[Optional()])
 
 
+class MoveOutSettlementReportForm(PropertyReportMonthForm):
+    status = SelectField(
+        "結算狀態",
+        choices=[("", "全部"), ("draft", "草稿"), ("settled", "已結算（非付款）"), ("voided", "已作廢"), ("cancelled", "已取消")],
+        validators=[Optional()],
+    )
+
+
 class PropertyReportYearForm(ReportYearForm):
     property_ids = SelectMultipleField("物件（可複選）", coerce=int, choices=[], validators=[Optional()])
 

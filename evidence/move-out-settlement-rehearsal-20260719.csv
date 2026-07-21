@@ -1,0 +1,6 @@
+﻿tenant_name,settlement_id,contract_id,move_out_date,status,contract_deposit,full_refund,final_rent,electricity,water,previous_debt,charges_total,reviewer_proposed_refund_allocation,reviewer_proposed_cash_refund,refund_formula_ok,charges_formula_ok,reviewer_name,evidence_type,evidence_reference
+潘文宏,1,215,2026-04-24,draft,9500,9500,0,678,328,0,1006,1006,8494,True,True,,,
+柯明寰,2,216,2026-05-31,draft,13000,13000,0,1010,0,0,1010,1010,11990,True,True,,,
+何佾洋,3,81,2026-05-05,draft,10000,10000,5000,0,0,5000,10000,10000,0,True,True,,,
+陳雅鈴,4,85,2026-05-28,draft,12000,12000,0,880,0,0,880,880,11120,True,True,,,
+陳夢翰,5,173,2026-05-24,draft,11600,11600,0,41,176,0,217,217,11383,True,True,,,

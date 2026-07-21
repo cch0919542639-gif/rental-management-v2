@@ -1,5 +1,57 @@
 # codex completed log
 
+## 2026-07-22 工作流程技能登錄
+
+Completed:
+- 已完整閱讀並登錄「初始化專案」、「開工」與「收工」技能。
+- 已於 `AGENTS.md` 記錄三份技能的固定路徑與觸發用語。
+- 明確規定：`handoff.md` 不存在時，收工流程必須先取得使用者同意才可建立；提交、推送與部署均需另行明確授權。
+
+Verification:
+- 已重新讀取 `AGENTS.md` 與三份技能指引確認內容。
+
+## 2026-07-19 R6 Migration Rehearsal
+
+Completed:
+- Created `backups/runtime_20260719_143424.db` from the populated imported-data source `D:/CodexRuntime/rental/rebuild/runtime-real.db` and executed only migration `20260719_000006_move_out_settlements` on that copy.
+- Verified both R6 tables, their foreign keys, migration-log entry, unchanged core-table counts, and idempotent re-run behavior.
+
+Result:
+- Schema rehearsal passed. Evidence: `evidence/r6-move-out-settlement-migration-drill-2026-07-19.md`.
+- No source or runtime database was migrated.
+
+Limitation:
+- The similarly named `rebuild-main/runtime-real.db` has only `schema_migration_log` and was not used. The accepted rehearsal used the populated imported-data source and is sufficient migration evidence for the current schema snapshot.
+
+## 2026-07-19 R6 Production-Readiness Follow-Up
+
+Completed:
+- Restricted R6 list, export, detail, edit, settle, void, delete, and create choices to the authenticated landlord's own properties.
+- Added R6 property, status, and move-out-date range filters.
+- Added CSV and XLSX exports that preserve the same access scope and selected filters.
+
+Verification:
+- `pytest tests\\integration\\test_move_out_settlements.py -q`: `4 passed`.
+- `pytest tests\\integration -q`: `138 passed, 15 skipped`.
+
+## 2026-07-19 R6 Move-Out Settlement
+
+Completed:
+- Added an independent `MoveOutSettlement` ledger and migration, separate from `MonthlyBill` and `PaymentRecord`.
+- Captures full contract-deposit refund separately from manually confirmed, multi-charge allocations.
+- Added draft, manual settlement confirmation, immutable settled record, void, and report/list/detail screens.
+- Deliberately omitted `closed`; confirmation does not create payments or mark refund/payment complete.
+- Documented the Owner-approved accounting boundary and the manual-only allocation behavior.
+
+Verification:
+- `pytest tests\\integration\\test_move_out_settlements.py -q`: `3 passed`.
+- `pytest tests\\integration -q`: `137 passed, 15 skipped`.
+- `python scripts\\migration\\run_migrations.py --id 20260719_000006_move_out_settlements`: dry-run reports creation of the two R6 tables; no database was changed.
+
+Known limits:
+- No automatic allocation priority is assumed; the operator enters each allocation explicitly.
+- The migration is delivered but has not been executed against a runtime database.
+
 ## 2026-07-15 Reporting Expansion R1 / R2 / R4 / R5
 
 Completed:

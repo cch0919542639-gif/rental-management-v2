@@ -1,0 +1,3 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}<h1>{{ title }}</h1><p>此頁僅建立費用與退款試算；不會認列付款、退款完成或關閉結清單。</p><form method="post" class="card" style="display:grid;gap:12px;max-width:720px;">{{ form.hidden_tag() }}{% for field in [form.contract_id, form.move_out_date, form.final_rent, form.electricity_amount, form.water_amount, form.management_fee, form.previous_debt, form.cleaning_fee, form.repair_fee, form.other_charge, form.other_desc, form.evidence_type, form.evidence_reference, form.notes] %}{{ field.label }} {{ field() }}{% endfor %}{{ form.submit() }}</form>{% endblock %}

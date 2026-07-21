@@ -1,0 +1,3 @@
+{% extends "base.html" %}
+{% block title %}確認退租結算{% endblock %}
+{% block content %}<h1>人工確認退租結算</h1><p>請依現場實際協議填寫「全額退款」用於支付各項費用的分攤。系統不會建立 PaymentRecord、不會認列退款完成，亦不會關閉結清單。</p><p class="card">費用合計：{{ settlement.gross_charges | money_int }}；全額退款：{{ settlement.refund_amount | money_int }}</p><form method="post" class="card" style="display:grid;gap:12px;max-width:620px;">{{ form.hidden_tag() }}{% for field in [form.final_rent, form.electricity_amount, form.water_amount, form.management_fee, form.previous_debt, form.cleaning_fee, form.repair_fee, form.other_charge] %}{{ field.label }} {{ field() }}{% endfor %}{{ form.submit() }}</form>{% endblock %}

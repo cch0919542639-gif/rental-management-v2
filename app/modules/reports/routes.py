@@ -16,6 +16,31 @@ from app.services import ReportExportService, ReportService
 
 reports_bp = Blueprint("reports", __name__, url_prefix="/reports")
 
+OWNER_RELEASED_MONTHS = frozenset({"2026-05", "2026-06"})
+OWNER_MONTHLY_ENDPOINTS = {
+    "reports.monthly_report", "reports.monthly_report_export",
+    "reports.landlord_summary", "reports.landlord_summary_export",
+    "reports.collection_report", "reports.collection_report_export",
+    "reports.property_settlement_report", "reports.property_settlement_report_export",
+    "reports.property_expenses_report", "reports.property_expenses_report_export",
+    "reports.move_out_settlements_report", "reports.move_out_settlements_report_export",
+    "reports.new_tenants_report", "reports.new_tenants_report_export",
+}
+def _default_year_month():
+    if not current_user.is_admin:
+        return max(OWNER_RELEASED_MONTHS)
+    return date.today().strftime("%Y-%m")
+
+
+@reports_bp.before_request
+def restrict_owner_report_period():
+    if not current_user.is_authenticated or current_user.is_admin:
+        return
+    if request.endpoint in OWNER_MONTHLY_ENDPOINTS:
+        year_month = request.values.get("year_month") or _default_year_month()
+        if year_month not in OWNER_RELEASED_MONTHS:
+            abort(403)
+
 
 def _populate_maintenance_property_choices(form: MaintenanceReportForm):
     form.property_id.choices = [(0, "全部")] + [(prop.id, prop.name) for prop in PropertyRepository.list_all()]
@@ -25,8 +50,9 @@ def _visible_properties():
     properties = PropertyRepository.list_all()
     if current_user.is_admin:
         return properties
-    if current_user.landlord_id:
-        return [property_obj for property_obj in properties if property_obj.landlord_id == current_user.landlord_id]
+    if current_user.property_accesses:
+        property_ids = {access.property_id for access in current_user.property_accesses}
+        return [property_obj for property_obj in properties if property_obj.id in property_ids]
     return []
 
 
@@ -41,6 +67,10 @@ def _selected_property_ids(form, visible_properties):
     if not set(requested_ids).issubset(visible_ids):
         abort(403)
     return requested_ids
+
+
+def _visible_property_ids():
+    return [property_obj.id for property_obj in _visible_properties()]
 
 
 def _download_export(*, rows: list[dict], headers: list[str], filename_base: str, export_format: str):
@@ -59,12 +89,13 @@ def _download_export(*, rows: list[dict], headers: list[str], filename_base: str
 @reports_bp.get("/")
 @login_required
 def report_index():
-    current_month = date.today().strftime("%Y-%m")
+    current_month = _default_year_month()
     current_year = date.today().year
     return render_template(
         "reports/index.html",
         current_month=current_month,
         current_year=current_year,
+        landlord_view=not current_user.is_admin,
     )
 
 
@@ -72,21 +103,21 @@ def report_index():
 @login_required
 def monthly_report():
     form = ReportMonthForm()
-    year_month = request.args.get("year_month") or date.today().strftime("%Y-%m")
+    year_month = request.args.get("year_month") or _default_year_month()
     if form.validate_on_submit():
         year_month = form.year_month.data.strip()
     else:
         form.year_month.data = year_month
-    rows = ReportService.monthly_report(year_month)
+    rows = ReportService.monthly_report(year_month, _visible_property_ids())
     return render_template("reports/monthly.html", form=form, rows=rows, year_month=year_month)
 
 
 @reports_bp.get("/monthly/export")
 @login_required
 def monthly_report_export():
-    year_month = request.args.get("year_month") or date.today().strftime("%Y-%m")
+    year_month = request.args.get("year_month") or _default_year_month()
     export_format = request.args.get("format") or "csv"
-    rows = ReportService.monthly_report(year_month)
+    rows = ReportService.monthly_report(year_month, _visible_property_ids())
     headers = [
         "year_month",
         "landlord_name",
@@ -111,21 +142,21 @@ def monthly_report_export():
 @login_required
 def landlord_summary():
     form = ReportMonthForm()
-    year_month = request.args.get("year_month") or date.today().strftime("%Y-%m")
+    year_month = request.args.get("year_month") or _default_year_month()
     if form.validate_on_submit():
         year_month = form.year_month.data.strip()
     else:
         form.year_month.data = year_month
-    rows = ReportService.landlord_summary(year_month)
+    rows = ReportService.landlord_summary(year_month, _visible_property_ids())
     return render_template("reports/landlord_summary.html", form=form, rows=rows, year_month=year_month)
 
 
 @reports_bp.get("/landlord-summary/export")
 @login_required
 def landlord_summary_export():
-    year_month = request.args.get("year_month") or date.today().strftime("%Y-%m")
+    year_month = request.args.get("year_month") or _default_year_month()
     export_format = request.args.get("format") or "csv"
-    rows = ReportService.landlord_summary(year_month)
+    rows = ReportService.landlord_summary(year_month, _visible_property_ids())
     headers = [
         "landlord_id",
         "landlord_name",
@@ -148,7 +179,7 @@ def yearly_overview():
         year = form.year.data
     else:
         form.year.data = year
-    rows = ReportService.yearly_overview(year)
+    rows = ReportService.yearly_overview(year, _visible_property_ids())
     return render_template("reports/yearly.html", form=form, rows=rows, year=year)
 
 
@@ -157,13 +188,14 @@ def yearly_overview():
 def yearly_overview_export():
     year = request.args.get("year", type=int) or date.today().year
     export_format = request.args.get("format") or "csv"
-    rows = ReportService.yearly_overview(year)
+    rows = ReportService.yearly_overview(year, _visible_property_ids())
     headers = [
         "year_month",
         "total_amount",
         "paid_amount",
         "unpaid_amount",
     ]
+    rows = ReportService.export_money_rows(rows, ["total_amount", "paid_amount", "unpaid_amount"])
     return _download_export(rows=rows, headers=headers, filename_base=f"yearly-overview-{year}", export_format=export_format)
 
 
@@ -173,7 +205,7 @@ def collection_report():
     form = PropertyReportMonthForm()
     visible_properties = _visible_properties()
     _populate_property_choices(form, visible_properties)
-    year_month = request.args.get("year_month") or date.today().strftime("%Y-%m")
+    year_month = request.args.get("year_month") or _default_year_month()
     if form.validate_on_submit():
         year_month = form.year_month.data.strip()
     else:
@@ -187,14 +219,17 @@ def collection_report():
         rows=rows,
         year_month=year_month,
         selected_property_ids=property_ids,
-        totals=ReportService.totals(rows, ["total", "paid_amount", "outstanding_amount"]),
+        totals=ReportService.totals(
+            rows,
+            ["total", "paid_amount", "offset_adjustment", "balance_amount", "outstanding_amount"],
+        ),
     )
 
 
 @reports_bp.get("/collection/export")
 @login_required
 def collection_report_export():
-    year_month = request.args.get("year_month") or date.today().strftime("%Y-%m")
+    year_month = request.args.get("year_month") or _default_year_month()
     visible_properties = _visible_properties()
     property_ids = _selected_property_ids(PropertyReportMonthForm(meta={"csrf": False}), visible_properties)
     export_format = request.args.get("format") or "csv"
@@ -226,7 +261,7 @@ def property_settlement_report():
     form = PropertyReportMonthForm()
     visible_properties = _visible_properties()
     _populate_property_choices(form, visible_properties)
-    year_month = request.args.get("year_month") or date.today().strftime("%Y-%m")
+    year_month = request.args.get("year_month") or _default_year_month()
     if form.validate_on_submit():
         year_month = form.year_month.data.strip()
     else:
@@ -254,7 +289,7 @@ def property_settlement_report():
 @reports_bp.get("/property-settlement/export")
 @login_required
 def property_settlement_report_export():
-    year_month = request.args.get("year_month") or date.today().strftime("%Y-%m")
+    year_month = request.args.get("year_month") or _default_year_month()
     visible_properties = _visible_properties()
     property_ids = _selected_property_ids(PropertyReportMonthForm(meta={"csrf": False}), visible_properties)
     export_format = request.args.get("format") or "csv"
@@ -285,7 +320,7 @@ def property_expenses_report():
     form = PropertyReportMonthForm()
     visible_properties = _visible_properties()
     _populate_property_choices(form, visible_properties)
-    year_month = request.args.get("year_month") or date.today().strftime("%Y-%m")
+    year_month = request.args.get("year_month") or _default_year_month()
     if form.validate_on_submit():
         year_month = form.year_month.data.strip()
     else:
@@ -306,7 +341,7 @@ def property_expenses_report():
 @reports_bp.get("/property-expenses/export")
 @login_required
 def property_expenses_report_export():
-    year_month = request.args.get("year_month") or date.today().strftime("%Y-%m")
+    year_month = request.args.get("year_month") or _default_year_month()
     visible_properties = _visible_properties()
     property_ids = _selected_property_ids(PropertyReportMonthForm(meta={"csrf": False}), visible_properties)
     export_format = request.args.get("format") or "csv"

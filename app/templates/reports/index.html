@@ -2,19 +2,27 @@
 {% block title %}報表中心{% endblock %}
 {% block content %}
 <div class="grid">
+  {% if landlord_view %}
+  <div class="card">
+    <h2>我的月報</h2>
+    <p>僅顯示您名下物件的五份唯讀月報與下載。</p>
+  </div>
+  {% endif %}
+  {% if not landlord_view %}
   <div class="card">
     <h2>月報表</h2>
     <p>依月份查看每筆房間/房客帳單。</p>
     <a href="{{ url_for('reports.monthly_report', year_month=current_month) }}">開啟 {{ current_month }}</a>
   </div>
+  {% endif %}
   <div class="card">
     <h2>房東彙總</h2>
-    <p>依房東與物件彙總已收/未收。</p>
+    <p>依可查看物件彙總已收/未收。</p>
     <a href="{{ url_for('reports.landlord_summary', year_month=current_month) }}">開啟 {{ current_month }}</a>
   </div>
   <div class="card">
     <h2>年度總覽</h2>
-    <p>查看全年總額 / 已收 / 未收趨勢。</p>
+    <p>查看可查看物件的全年總額 / 已收 / 未收趨勢。</p>
     <a href="{{ url_for('reports.yearly_overview', year=current_year) }}">開啟 {{ current_year }}</a>
   </div>
   <div class="card">
@@ -42,10 +50,12 @@
     <p>查看指定月份起租的新合約與基本資料。</p>
     <a href="{{ url_for('reports.new_tenants_report', year_month=current_month) }}">開啟 {{ current_month }}</a>
   </div>
+  {% if not landlord_view %}
   <div class="card">
     <h2>物件年度月別統計</h2>
     <p>按物件查看全年每月帳單、實收與未收。</p>
     <a href="{{ url_for('reports.property_yearly_report', year=current_year) }}">開啟 {{ current_year }}</a>
   </div>
+  {% endif %}
 </div>
 {% endblock %}

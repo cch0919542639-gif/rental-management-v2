@@ -7,7 +7,7 @@ from flask import current_app
 
 config = context.config
 
-if config.config_file_name is not None:
+if config.config_file_name is not None and config.file_config.has_section("formatters"):
     fileConfig(config.config_file_name)
 
 

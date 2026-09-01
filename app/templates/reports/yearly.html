@@ -17,9 +17,9 @@
     {% for row in rows %}
     <tr>
       <td>{{ row.year_month }}</td>
-      <td>{{ row.total_amount }}</td>
-      <td>{{ row.paid_amount }}</td>
-      <td>{{ row.unpaid_amount }}</td>
+      <td>{{ row.total_amount | money_int }}</td>
+      <td>{{ row.paid_amount | money_int }}</td>
+      <td>{{ row.unpaid_amount | money_int }}</td>
     </tr>
     {% else %}
     <tr><td colspan="4">無資料</td></tr>

@@ -2,6 +2,7 @@ from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import login_required
 
 from app.core.errors import ConflictError
+from app.core.security.auth import admin_required
 from app.modules.tenants.forms import TenantForm
 from app.repositories import TenantRepository
 from app.services import TenantService
@@ -11,6 +12,7 @@ tenants_bp = Blueprint("tenants", __name__, url_prefix="/tenants")
 
 @tenants_bp.get("/")
 @login_required
+@admin_required
 def tenant_list():
     tenants = TenantRepository.list_all()
     return render_template("tenants/list.html", tenants=tenants)
@@ -18,6 +20,7 @@ def tenant_list():
 
 @tenants_bp.route("/create", methods=["GET", "POST"])
 @login_required
+@admin_required
 def tenant_create():
     form = TenantForm()
     if form.validate_on_submit():
@@ -36,6 +39,7 @@ def tenant_create():
 
 @tenants_bp.route("/<int:tenant_id>/edit", methods=["GET", "POST"])
 @login_required
+@admin_required
 def tenant_edit(tenant_id: int):
     tenant = TenantRepository.get_or_404(tenant_id)
     form = TenantForm(obj=tenant)
@@ -56,6 +60,7 @@ def tenant_edit(tenant_id: int):
 
 @tenants_bp.post("/<int:tenant_id>/delete")
 @login_required
+@admin_required
 def tenant_delete(tenant_id: int):
     tenant = TenantRepository.get_or_404(tenant_id)
     try:

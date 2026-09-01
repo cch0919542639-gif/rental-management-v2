@@ -2,7 +2,7 @@ from datetime import date
 from decimal import Decimal
 
 from app.core.db import db
-from app.models import Contract, MoveOutSettlement, User
+from app.models import Contract, MoveOutSettlement, User, UserPropertyAccess
 from app.services import MoveOutSettlementService, ReportService
 
 
@@ -57,6 +57,13 @@ def test_landlord_report_uses_two_statuses_and_explains_unsettled_rows(app, clie
         landlord_user = User(username="owner", name="Owner", role="landlord", landlord_id=seeded_data["landlord_id"])
         landlord_user.set_password("owner123")
         db.session.add(landlord_user)
+        db.session.flush()
+        db.session.add(
+            UserPropertyAccess(
+                user_id=landlord_user.id,
+                property_id=seeded_data["property_id"],
+            )
+        )
         db.session.commit()
 
         rows = ReportService.move_out_settlements("2026-06", [seeded_data["property_id"]], "unsettled")

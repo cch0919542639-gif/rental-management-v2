@@ -12,6 +12,10 @@ class ReportService:
         return sorted({int(property_id) for property_id in (property_ids or []) if int(property_id) > 0})
 
     @staticmethod
+    def _optional_property_ids(property_ids):
+        return None if property_ids is None else ReportService._property_ids(property_ids)
+
+    @staticmethod
     def totals(rows, fields):
         return {field: sum((row.get(field) or 0) for row in rows) for field in fields}
 
@@ -45,9 +49,9 @@ class ReportService:
         return normalized
 
     @staticmethod
-    def monthly_report(year_month: str):
+    def monthly_report(year_month: str, property_ids: list[int] | None = None):
         db_year_month = to_db_year_month(year_month)
-        rows = ReportRepository.monthly_report_rows(db_year_month)
+        rows = ReportRepository.monthly_report_rows(db_year_month, ReportService._optional_property_ids(property_ids))
         return [
             {
                 "year_month": to_ui_year_month(row.year_month),
@@ -71,9 +75,9 @@ class ReportService:
         ]
 
     @staticmethod
-    def landlord_summary(year_month: str):
+    def landlord_summary(year_month: str, property_ids: list[int] | None = None):
         db_year_month = to_db_year_month(year_month)
-        rows = ReportRepository.landlord_summary_rows(db_year_month)
+        rows = ReportRepository.landlord_summary_rows(db_year_month, ReportService._optional_property_ids(property_ids))
         return [
             {
                 "landlord_id": row.landlord_id,
@@ -89,8 +93,8 @@ class ReportService:
         ]
 
     @staticmethod
-    def yearly_overview(year: int):
-        rows = ReportRepository.yearly_overview_rows(year)
+    def yearly_overview(year: int, property_ids: list[int] | None = None):
+        rows = ReportRepository.yearly_overview_rows(year, ReportService._optional_property_ids(property_ids))
         result = OrderedDict()
         for month in range(1, 13):
             key = f"{year}-{month:02d}"
@@ -144,6 +148,18 @@ class ReportService:
         for row in rows:
             paid_amount = row.paid_amount or 0
             total = row.total or 0
+            balance_amount = total - paid_amount
+            offset_adjustment = abs(balance_amount) if balance_amount < 0 else 0
+            if balance_amount < 0:
+                collection_status = "溢繳/預收"
+            elif total <= 0 and paid_amount == 0:
+                collection_status = "抵扣/調整結清"
+            elif balance_amount == 0:
+                collection_status = "已結清"
+            elif paid_amount > 0:
+                collection_status = "部分未收"
+            else:
+                collection_status = "尚未收款"
             result.append(
                 {
                     "year_month": to_ui_year_month(row.year_month),
@@ -165,6 +181,9 @@ class ReportService:
                     "total": total,
                     "paid_amount": paid_amount,
                     "outstanding_amount": ReportService._outstanding_amount(total, paid_amount),
+                    "offset_adjustment": offset_adjustment,
+                    "balance_amount": balance_amount,
+                    "collection_status": collection_status,
                 }
             )
         return result
@@ -324,13 +343,13 @@ class ReportService:
 
     @staticmethod
     def property_yearly(year: int, property_ids=None):
-        selected_ids = ReportService._property_ids(property_ids)
+        selected_ids = None if property_ids is None else ReportService._property_ids(property_ids)
         rows = ReportRepository.property_yearly_rows(year, selected_ids)
         by_property_month = {(row.property_id, row.year_month): row for row in rows}
         properties = [
             property_obj
             for property_obj in PropertyRepository.list_all()
-            if not selected_ids or property_obj.id in selected_ids
+            if selected_ids is None or property_obj.id in selected_ids
         ]
         result = []
         for property_obj in properties:

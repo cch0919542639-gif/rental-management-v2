@@ -14,8 +14,8 @@ class ReportRepository:
         return func.coalesce(MonthlyBill.paid, False)
 
     @staticmethod
-    def monthly_report_rows(year_month: str):
-        return (
+    def monthly_report_rows(year_month: str, property_ids: list[int] | None = None):
+        query = (
             db.session.query(
                 MonthlyBill.year_month.label("year_month"),
                 Landlord.name.label("landlord_name"),
@@ -40,13 +40,14 @@ class ReportRepository:
             .join(Landlord, Landlord.id == Property.landlord_id)
             .join(Tenant, Tenant.id == Contract.tenant_id)
             .filter(MonthlyBill.year_month == year_month)
-            .order_by(Landlord.name.asc(), Property.name.asc(), Room.room_number.asc())
-            .all()
         )
+        if property_ids is not None:
+            query = query.filter(Property.id.in_(property_ids))
+        return query.order_by(Landlord.name.asc(), Property.name.asc(), Room.room_number.asc()).all()
 
     @staticmethod
-    def landlord_summary_rows(year_month: str):
-        return (
+    def landlord_summary_rows(year_month: str, property_ids: list[int] | None = None):
+        query = (
             db.session.query(
                 Landlord.id.label("landlord_id"),
                 Landlord.name.label("landlord_name"),
@@ -62,25 +63,30 @@ class ReportRepository:
             .join(MonthlyBill, MonthlyBill.contract_id == Contract.id)
             .join(Landlord, Landlord.id == Property.landlord_id)
             .filter(MonthlyBill.year_month == year_month)
-            .group_by(Landlord.id, Landlord.name, Property.id, Property.name)
-            .order_by(Landlord.name.asc(), Property.name.asc())
-            .all()
         )
+        if property_ids is not None:
+            query = query.filter(Property.id.in_(property_ids))
+        return query.group_by(Landlord.id, Landlord.name, Property.id, Property.name).order_by(
+            Landlord.name.asc(), Property.name.asc()
+        ).all()
 
     @staticmethod
-    def yearly_overview_rows(year: int):
-        return (
+    def yearly_overview_rows(year: int, property_ids: list[int] | None = None):
+        query = (
             db.session.query(
                 MonthlyBill.year_month.label("year_month"),
                 func.sum(MonthlyBill.total).label("total_amount"),
                 func.sum(case((ReportRepository._paid_expr().is_(True), MonthlyBill.total), else_=0)).label("paid_amount"),
                 func.sum(case((ReportRepository._paid_expr().is_(False), MonthlyBill.total), else_=0)).label("unpaid_amount"),
             )
+            .join(Contract, Contract.id == MonthlyBill.contract_id)
+            .join(Room, Room.id == Contract.room_id)
+            .join(Property, Property.id == Room.property_id)
             .filter(MonthlyBill.year_month.like(f"{year}%"))
-            .group_by(MonthlyBill.year_month)
-            .order_by(MonthlyBill.year_month.asc())
-            .all()
         )
+        if property_ids is not None:
+            query = query.filter(Property.id.in_(property_ids))
+        return query.group_by(MonthlyBill.year_month).order_by(MonthlyBill.year_month.asc()).all()
 
     @staticmethod
     def _linked_payment_amounts():
@@ -129,7 +135,7 @@ class ReportRepository:
             .outerjoin(linked_payments, linked_payments.c.monthly_bill_id == MonthlyBill.id)
             .filter(MonthlyBill.year_month == year_month)
         )
-        if property_ids:
+        if property_ids is not None:
             query = query.filter(Property.id.in_(property_ids))
         return query.order_by(Property.name.asc(), Room.room_number.asc(), Tenant.name.asc()).all()
 
@@ -158,7 +164,7 @@ class ReportRepository:
             .outerjoin(linked_payments, linked_payments.c.monthly_bill_id == MonthlyBill.id)
             .filter(MonthlyBill.year_month == year_month)
         )
-        if property_ids:
+        if property_ids is not None:
             query = query.filter(Property.id.in_(property_ids))
         return (
             query.group_by(Property.id, Property.name, Landlord.name)
@@ -188,7 +194,7 @@ class ReportRepository:
                 PropertyExpense.transaction_date < end_date,
             )
         )
-        if property_ids:
+        if property_ids is not None:
             query = query.filter(Property.id.in_(property_ids))
         return query.order_by(
             PropertyExpense.transaction_date.asc(),
@@ -214,7 +220,7 @@ class ReportRepository:
                 PropertyExpense.transaction_date < end_date,
             )
         )
-        if property_ids:
+        if property_ids is not None:
             query = query.filter(PropertyExpense.property_id.in_(property_ids))
         return query.group_by(PropertyExpense.property_id, Property.name, Landlord.name).all()
 
@@ -262,7 +268,7 @@ class ReportRepository:
             .outerjoin(allocations, allocations.c.settlement_id == MoveOutSettlement.id)
             .filter(MoveOutSettlement.move_out_date >= start_date, MoveOutSettlement.move_out_date < end_date)
         )
-        if property_ids:
+        if property_ids is not None:
             query = query.filter(Property.id.in_(property_ids))
         if status == "unsettled":
             query = query.filter(MoveOutSettlement.status != "settled")
@@ -293,7 +299,7 @@ class ReportRepository:
             .join(Tenant, Tenant.id == Contract.tenant_id)
             .filter(Contract.start_date >= start_date, Contract.start_date < end_date)
         )
-        if property_ids:
+        if property_ids is not None:
             query = query.filter(Property.id.in_(property_ids))
         return query.order_by(Property.name.asc(), Room.room_number.asc(), Tenant.name.asc()).all()
 
@@ -321,7 +327,7 @@ class ReportRepository:
             .outerjoin(linked_payments, linked_payments.c.monthly_bill_id == MonthlyBill.id)
             .filter(MonthlyBill.year_month.like(f"{year}%"))
         )
-        if property_ids:
+        if property_ids is not None:
             query = query.filter(Property.id.in_(property_ids))
         return (
             query.group_by(MonthlyBill.year_month, Property.id, Property.name)

@@ -26,6 +26,7 @@
     <div><strong>租屋管理系統</strong></div>
     <nav>
       {% if current_user.is_authenticated %}
+      {% if current_user.is_admin %}
       <a href="{{ url_for('dashboard.dashboard_home') }}" style="color:#fff; margin-right:16px;">儀表板</a>
       <a href="{{ url_for('billing.billing_list') }}" style="color:#fff; margin-right:16px;">帳單</a>
       <a href="{{ url_for('payments.payment_list') }}" style="color:#fff; margin-right:16px;">付款</a>
@@ -40,6 +41,7 @@
       <a href="{{ url_for('rooms.room_list') }}" style="color:#fff; margin-right:16px;">房間</a>
       <a href="{{ url_for('tenants.tenant_list') }}" style="color:#fff; margin-right:16px;">房客</a>
       <a href="{{ url_for('contracts.contract_list') }}" style="color:#fff; margin-right:16px;">合約</a>
+      {% endif %}
       <a href="{{ url_for('auth.logout') }}" style="color:#fff;">登出</a>
       {% endif %}
     </nav>

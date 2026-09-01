@@ -1,6 +1,7 @@
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
+from app.core.security.auth import admin_required
 from app.modules.payments.forms import PaymentCreateForm, PaymentLinkForm, PaymentReviewForm
 from app.repositories import BillingRepository, PaymentRepository
 from app.services import PaymentService
@@ -16,6 +17,7 @@ def _populate_bill_choices(form):
 
 @payments_bp.get("/")
 @login_required
+@admin_required
 def payment_list():
     payments = PaymentRepository.list_all()
     return render_template("payments/list.html", payments=payments)
@@ -23,6 +25,7 @@ def payment_list():
 
 @payments_bp.route("/create", methods=["GET", "POST"])
 @login_required
+@admin_required
 def payment_create():
     form = PaymentCreateForm()
     _populate_bill_choices(form)
@@ -52,6 +55,7 @@ def payment_create():
 
 @payments_bp.route("/<int:payment_id>/verify", methods=["GET", "POST"])
 @login_required
+@admin_required
 def payment_verify(payment_id: int):
     record = PaymentRepository.get_or_404(payment_id)
     form = PaymentReviewForm(obj=record)
@@ -64,6 +68,7 @@ def payment_verify(payment_id: int):
 
 @payments_bp.route("/<int:payment_id>/reject", methods=["GET", "POST"])
 @login_required
+@admin_required
 def payment_reject(payment_id: int):
     record = PaymentRepository.get_or_404(payment_id)
     form = PaymentReviewForm(obj=record)
@@ -76,6 +81,7 @@ def payment_reject(payment_id: int):
 
 @payments_bp.route("/<int:payment_id>/link", methods=["GET", "POST"])
 @login_required
+@admin_required
 def payment_link(payment_id: int):
     record = PaymentRepository.get_or_404(payment_id)
     form = PaymentLinkForm()

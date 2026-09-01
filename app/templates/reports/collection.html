@@ -2,7 +2,7 @@
 {% block title %}物件收租明細{% endblock %}
 {% block content %}
 <h1>物件收租明細</h1>
-<p>依月份與物件查看每位房客應收、實收與未收金額。</p>
+<p>依月份與物件查看房客帳務：當月應繳、本月收款、抵扣或調整、期末餘額與狀態。</p>
 <form method="post" class="report-filter">
   {{ form.hidden_tag() }}
   <label>{{ form.year_month.label }} {{ form.year_month() }}</label>
@@ -10,29 +10,73 @@
   {{ form.submit() }}
 </form>
 <p class="report-actions">
-  匯出：<a href="{{ url_for('reports.collection_report_export', year_month=year_month, property_id=selected_property_ids, format='csv') }}">CSV</a>
+  匯出：
+  <a href="{{ url_for('reports.collection_report_export', year_month=year_month, property_id=selected_property_ids, format='csv') }}">CSV</a>
   <a href="{{ url_for('reports.collection_report_export', year_month=year_month, property_id=selected_property_ids, format='xlsx') }}">XLSX</a>
 </p>
+<div class="report-summary-cards" aria-label="收租摘要">
+  <div><span>筆數</span><strong>{{ rows | length }}</strong></div>
+  <div><span>當月應繳</span><strong>{{ totals.total | money_int }}</strong></div>
+  <div><span>本月收款</span><strong>{{ totals.paid_amount | money_int }}</strong></div>
+  <div><span>抵扣/調整</span><strong>{{ totals.offset_adjustment | money_int }}</strong></div>
+  <div><span>期末餘額</span><strong>{{ totals.balance_amount | money_int }}</strong></div>
+</div>
 <div class="report-table-scroll">
-<table data-table="collection" style="min-width:1740px;">
+<table data-table="collection" class="report-table-compact">
   <thead><tr>
-    <th>月份</th><th>房東</th><th>物件</th><th>房號</th><th>房客</th><th>電話</th><th>起租</th><th>到約</th><th>租金</th><th>電費</th><th>公設電費</th><th>水費</th><th>其他</th><th>其他說明</th><th>前期未收</th><th>應收總額</th><th>已繳</th><th>未收</th>
+    <th>物件</th>
+    <th>房號</th>
+    <th>房客</th>
+    <th class="money-col">當月應繳</th>
+    <th class="money-col">本月收款</th>
+    <th class="money-col">抵扣/調整</th>
+    <th class="money-col">期末餘額</th>
+    <th>狀態</th>
   </tr></thead>
   <tbody>
   {% for row in rows %}
     <tr>
-      <td>{{ row.year_month }}</td><td>{{ row.landlord_name }}</td><td>{{ row.property_name }}</td><td>{{ row.room_number }}</td><td>{{ row.tenant_name }}</td><td>{{ row.tenant_phone or '-' }}</td><td>{{ row.contract_start_date }}</td><td>{{ row.contract_end_date }}</td>
-      <td>{{ row.rent | money_int }}</td><td>{{ row.electricity_amount | money_int }}</td><td>{{ row.public_electricity | money_int }}</td><td>{{ row.water_amount | money_int }}</td><td>{{ row.other_charges | money_int }}</td><td>{{ row.other_desc or '-' }}</td><td>{{ row.previous_balance | money_int }}</td><td>{{ row.total | money_int }}</td><td>{{ row.paid_amount | money_int }}</td><td>{{ row.outstanding_amount | money_int }}</td>
+      <td>{{ row.property_name }}</td>
+      <td>{{ row.room_number }}</td>
+      <td>{{ row.tenant_name }}</td>
+      <td class="money-col">{{ row.total | money_int }}</td>
+      <td class="money-col">{{ row.paid_amount | money_int }}</td>
+      <td class="money-col">{{ row.offset_adjustment | money_int }}</td>
+      <td class="money-col">{{ row.balance_amount | money_int }}</td>
+      <td>{{ row.collection_status }}</td>
     </tr>
+    {% if row.balance_amount %}
+      <tr class="collection-detail-row">
+        <td colspan="8">
+          <details class="inline-details" open>
+            <summary>差額明細</summary>
+            <dl>
+              <div><dt>租金</dt><dd>{{ row.rent | money_int }}</dd></div>
+              <div><dt>電費</dt><dd>{{ row.electricity_amount | money_int }}</dd></div>
+              <div><dt>公設電費</dt><dd>{{ row.public_electricity | money_int }}</dd></div>
+              <div><dt>水費</dt><dd>{{ row.water_amount | money_int }}</dd></div>
+              <div><dt>其他</dt><dd>{{ row.other_charges | money_int }}</dd></div>
+              <div><dt>前期餘額</dt><dd>{{ row.previous_balance | money_int }}</dd></div>
+              {% if row.other_desc %}<div><dt>說明</dt><dd>{{ row.other_desc }}</dd></div>{% endif %}
+            </dl>
+          </details>
+        </td>
+      </tr>
+    {% endif %}
   {% else %}
-    <tr><td colspan="18">符合條件的收租資料尚無資料</td></tr>
+    <tr><td colspan="8">沒有符合條件的收租資料</td></tr>
   {% endfor %}
   </tbody>
-  <tfoot><tr class="tfoot-desktop">
-    <th colspan="15">合計</th><th>{{ totals.total | money_int }}</th><th>{{ totals.paid_amount | money_int }}</th><th>{{ totals.outstanding_amount | money_int }}</th>
-  </tr><tr class="tfoot-mobile">
-    <th>合計</th><th class="show-mobile">{{ totals.total | money_int }}</th><th class="show-mobile">{{ totals.paid_amount | money_int }}</th><th class="show-mobile">{{ totals.outstanding_amount | money_int }}</th>
-  </tr></tfoot>
+  <tfoot>
+    <tr>
+      <th colspan="3">合計</th>
+      <th class="money-col">{{ totals.total | money_int }}</th>
+      <th class="money-col">{{ totals.paid_amount | money_int }}</th>
+      <th class="money-col">{{ totals.offset_adjustment | money_int }}</th>
+      <th class="money-col">{{ totals.balance_amount | money_int }}</th>
+      <th></th>
+    </tr>
+  </tfoot>
 </table>
 </div>
 {% include "reports/_report_table_style.html" %}

@@ -1,8 +1,10 @@
+import csv
 from datetime import date
 from decimal import Decimal
+from io import StringIO
 
 from app.core.db import db
-from app.models import Contract, Landlord, MonthlyBill, PaymentRecord, Property, PropertyExpense, Room, Tenant, User
+from app.models import Contract, Landlord, MonthlyBill, PaymentRecord, Property, PropertyExpense, Room, Tenant, User, UserPropertyAccess
 from app.services import ReportService
 
 
@@ -104,7 +106,20 @@ def test_property_collection_filters_and_uses_linked_payment_amount(app, logged_
     assert "物件收租明細" in text
     assert "South House" in text
     assert "Tenant Two" in text
-    assert "2026-06-03" in text
+    assert "<th>物件</th>" in text
+    assert "<th>房號</th>" in text
+    assert "<th>房客</th>" in text
+    assert '<th class="money-col">當月應繳</th>' in text
+    assert '<th class="money-col">本月收款</th>' in text
+    assert '<th class="money-col">抵扣/調整</th>' in text
+    assert '<th class="money-col">期末餘額</th>' in text
+    assert "<th>狀態</th>" in text
+    assert "collection-detail-row" in text
+    assert "<summary>差額明細</summary>" in text
+    assert "<dt>租金</dt>" in text
+    assert "部分未收" in text
+    assert "report-summary-cards" in text
+    assert "2026-06-03" not in text
     assert "<td>North House</td>" not in text
     assert "10,100" in text
     assert "4,000" in text
@@ -182,6 +197,198 @@ def test_property_reports_reject_property_outside_landlord_scope(app, seeded_dat
     assert response.status_code == 200
     response = client.get(f"/reports/collection?year_month=2026-06&property_id={second['property_id']}")
     assert response.status_code == 403
+    response = client.get("/reports/monthly?year_month=2026-06")
+    assert response.status_code == 200
+    assert "South House" not in response.get_data(as_text=True)
+
+
+def test_landlord_without_explicit_property_access_sees_no_property_data(app, seeded_data):
+    with app.app_context():
+        landlord = Landlord(name="No Access Owner")
+        db.session.add(landlord)
+        db.session.flush()
+        user = User(
+            username="owner-no-access",
+            name="No Access Account",
+            role="landlord",
+            landlord_id=landlord.id,
+        )
+        user.set_password("owner-no-access-password")
+        db.session.add(user)
+        db.session.commit()
+
+    client = app.test_client()
+    login = client.post(
+        "/auth/login",
+        data={"username": "owner-no-access", "password": "owner-no-access-password"},
+        follow_redirects=True,
+    )
+    assert login.status_code == 200
+
+    for url in [
+        "/reports/monthly?year_month=2026-06",
+        "/reports/landlord-summary?year_month=2026-06",
+    ]:
+        response = client.get(url)
+        assert response.status_code == 200
+        assert "North House" not in response.get_data(as_text=True)
+
+    for url in [
+        "/reports/monthly/export?year_month=2026-06&format=csv",
+        "/reports/landlord-summary/export?year_month=2026-06&format=csv",
+        "/reports/collection/export?year_month=2026-06&format=csv",
+    ]:
+        response = client.get(url)
+        assert response.status_code == 200
+        assert "North House" not in response.get_data(as_text=True)
+
+    for url in [
+        "/reports/monthly/export?year_month=2026-06&format=xlsx",
+        "/reports/landlord-summary/export?year_month=2026-06&format=xlsx",
+        "/reports/collection/export?year_month=2026-06&format=xlsx",
+    ]:
+        response = client.get(url)
+        assert response.status_code == 200
+        assert response.headers["Content-Type"].startswith(
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
+    collection = client.get("/reports/collection?year_month=2026-06")
+    assert collection.status_code == 200
+    assert "North House" not in collection.get_data(as_text=True)
+
+    property_yearly = client.get("/reports/property-yearly?year=2026")
+    assert property_yearly.status_code == 200
+    assert "North House" not in property_yearly.get_data(as_text=True)
+
+    property_yearly_csv = client.get("/reports/property-yearly/export?year=2026&format=csv")
+    assert property_yearly_csv.status_code == 200
+    assert "North House" not in property_yearly_csv.get_data(as_text=True)
+
+    property_yearly_xlsx = client.get("/reports/property-yearly/export?year=2026&format=xlsx")
+    assert property_yearly_xlsx.status_code == 200
+    assert property_yearly_xlsx.headers["Content-Type"].startswith(
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+    yearly = client.get("/reports/yearly?year=2026")
+    assert yearly.status_code == 200
+    assert ">0<" in yearly.get_data(as_text=True)
+    assert ">12000<" not in yearly.get_data(as_text=True)
+
+    yearly_csv = client.get("/reports/yearly/export?year=2026&format=csv")
+    assert yearly_csv.status_code == 200
+    yearly_rows = list(csv.DictReader(StringIO(yearly_csv.get_data(as_text=True).lstrip("\ufeff"))))
+    june = next(row for row in yearly_rows if row["year_month"] == "2026-06")
+    assert june["total_amount"] == "0"
+
+    yearly_xlsx = client.get("/reports/yearly/export?year=2026&format=xlsx")
+    assert yearly_xlsx.status_code == 200
+    assert yearly_xlsx.headers["Content-Type"].startswith(
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+    response = client.get(
+        f"/reports/collection?year_month=2026-06&property_id={seeded_data['property_id']}"
+    )
+    assert response.status_code == 403
+
+
+def test_landlord_portal_scopes_summary_monthly_yearly_and_downloads(app, seeded_data):
+    with app.app_context():
+        unrelated_landlord = Landlord(name="Owner B")
+        db.session.add(unrelated_landlord)
+        db.session.flush()
+        foreign_property = Property(
+            landlord_id=unrelated_landlord.id,
+            name="Private House",
+            address="Kaohsiung City",
+            total_rooms=1,
+        )
+        foreign_room = Room(property=foreign_property, room_number="P01", rent=Decimal("9000"), status="occupied")
+        foreign_tenant = Tenant(name="Private Tenant", phone="0977000000")
+        db.session.add_all([foreign_property, foreign_room, foreign_tenant])
+        db.session.flush()
+        foreign_property_id = foreign_property.id
+        foreign_contract = Contract(
+            tenant_id=foreign_tenant.id,
+            room_id=foreign_room.id,
+            start_date=date(2026, 6, 1),
+            end_date=date(2027, 5, 31),
+            rent=Decimal("9000"),
+            deposit=Decimal("18000"),
+            status="active",
+        )
+        db.session.add(foreign_contract)
+        db.session.flush()
+        db.session.add(
+            MonthlyBill(
+                contract_id=foreign_contract.id,
+                year_month="202606",
+                rent=Decimal("9000"),
+                total=Decimal("9000"),
+                paid=False,
+            )
+        )
+        landlord_user = User(
+            username="owner-a",
+            name="Owner A Account",
+            role="landlord",
+            landlord_id=seeded_data["landlord_id"],
+        )
+        landlord_user.set_password("owner-a-password")
+        db.session.add(landlord_user)
+        db.session.flush()
+        db.session.add(UserPropertyAccess(user_id=landlord_user.id, property_id=seeded_data["property_id"]))
+        db.session.commit()
+
+    client = app.test_client()
+    login = client.post(
+        "/auth/login",
+        data={"username": "owner-a", "password": "owner-a-password"},
+        follow_redirects=True,
+    )
+    assert login.status_code == 200
+
+    for url in [
+        "/reports/monthly?year_month=2026-06",
+        "/reports/landlord-summary?year_month=2026-06",
+        "/reports/monthly/export?year_month=2026-06&format=csv",
+        "/reports/landlord-summary/export?year_month=2026-06&format=csv",
+    ]:
+        response = client.get(url)
+        assert response.status_code == 200
+        assert "Private House" not in response.get_data(as_text=True)
+
+    for url in ["/reports/monthly?year_month=2026-04"]:
+        response = client.get(url)
+        assert response.status_code == 403
+        assert "Private House" not in response.get_data(as_text=True)
+
+    yearly = client.get("/reports/yearly?year=2026")
+    assert yearly.status_code == 200
+    yearly_text = yearly.get_data(as_text=True)
+    assert ">12,000<" in yearly_text
+    assert ">21,000<" not in yearly_text
+
+    yearly_csv = client.get("/reports/yearly/export?year=2026&format=csv")
+    assert yearly_csv.status_code == 200
+    yearly_rows = list(csv.DictReader(StringIO(yearly_csv.get_data(as_text=True).lstrip("\ufeff"))))
+    june = next(row for row in yearly_rows if row["year_month"] == "2026-06")
+    assert june["total_amount"] == "12000"
+
+    yearly_xlsx = client.get("/reports/yearly/export?year=2026&format=xlsx")
+    assert yearly_xlsx.status_code == 200
+    assert yearly_xlsx.headers["Content-Type"].startswith(
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+    hub = client.get("/reports/")
+    hub_text = hub.get_data(as_text=True)
+    assert "我的月報" in hub_text
+    assert "年度總覽" in hub_text
+    assert "房東彙總" in hub_text
+    assert client.get(f"/reports/collection?year_month=2026-06&property_id={foreign_property_id}").status_code == 403
 
 
 def test_property_collection_caps_overpayment_and_rounds_export_money(app, logged_in_client, seeded_data):

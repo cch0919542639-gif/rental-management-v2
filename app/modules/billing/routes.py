@@ -3,6 +3,7 @@ from datetime import date
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
+from app.core.security.auth import admin_required
 from app.modules.billing.forms import BillingGenerateForm, MonthlyBillForm
 from app.repositories import BillingRepository, ContractRepository
 from app.services import BillingGenerationService, DashboardService
@@ -19,6 +20,7 @@ def _populate_contract_choices(form: MonthlyBillForm):
 
 @billing_bp.get("/")
 @login_required
+@admin_required
 def billing_list():
     year_month = request.args.get("month") or request.args.get("year_month") or date.today().strftime("%Y-%m")
     bills = BillingRepository.list_for_month(year_month)
@@ -34,6 +36,7 @@ def billing_list():
 
 @billing_bp.route("/create", methods=["GET", "POST"])
 @login_required
+@admin_required
 def billing_create():
     form = MonthlyBillForm()
     _populate_contract_choices(form)
@@ -64,6 +67,7 @@ def billing_create():
 
 @billing_bp.route("/<int:monthly_bill_id>/edit", methods=["GET", "POST"])
 @login_required
+@admin_required
 def billing_edit(monthly_bill_id: int):
     bill = BillingRepository.get_or_404(monthly_bill_id)
     form = MonthlyBillForm(obj=bill)
@@ -97,6 +101,7 @@ def billing_edit(monthly_bill_id: int):
 
 @billing_bp.post("/<int:monthly_bill_id>/toggle-paid")
 @login_required
+@admin_required
 def billing_toggle_paid(monthly_bill_id: int):
     bill = BillingRepository.get_or_404(monthly_bill_id)
     BillingGenerationService.toggle_paid(bill)
@@ -106,6 +111,7 @@ def billing_toggle_paid(monthly_bill_id: int):
 
 @billing_bp.get("/contracts/<int:contract_id>")
 @login_required
+@admin_required
 def billing_contract_list(contract_id: int):
     contract = ContractRepository.get_or_404(contract_id)
     bills = BillingRepository.list_for_contract(contract_id)
@@ -114,6 +120,7 @@ def billing_contract_list(contract_id: int):
 
 @billing_bp.route("/contracts/<int:contract_id>/generate", methods=["GET", "POST"])
 @login_required
+@admin_required
 def billing_contract_generate(contract_id: int):
     contract = ContractRepository.get_or_404(contract_id)
     form = BillingGenerateForm()
@@ -134,6 +141,7 @@ def billing_contract_generate(contract_id: int):
 
 @billing_bp.route("/batch", methods=["GET", "POST"])
 @login_required
+@admin_required
 def billing_batch_generate():
     form = BillingGenerateForm()
     if request.method == "GET":

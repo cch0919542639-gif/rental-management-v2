@@ -13,6 +13,7 @@ class User(UserMixin, BaseModel):
     name = db.Column(db.String(100), nullable=False)
     role = db.Column(db.String(20), nullable=False, default="viewer")
     landlord_id = db.Column(db.Integer, db.ForeignKey("landlords.id"), nullable=True)
+    property_accesses = db.relationship("UserPropertyAccess", back_populates="user", cascade="all, delete-orphan")
 
     def set_password(self, password: str):
         self.password_hash = generate_password_hash(password)
@@ -23,6 +24,17 @@ class User(UserMixin, BaseModel):
     @property
     def is_admin(self) -> bool:
         return self.role == "admin"
+
+
+class UserPropertyAccess(BaseModel):
+    __tablename__ = "user_property_accesses"
+    __table_args__ = (db.UniqueConstraint("user_id", "property_id", name="uq_user_property_access"),)
+
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    property_id = db.Column(db.Integer, db.ForeignKey("properties.id"), nullable=False)
+
+    user = db.relationship("User", back_populates="property_accesses")
+    property = db.relationship("Property")
 
 
 @login_manager.user_loader

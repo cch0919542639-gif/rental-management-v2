@@ -29,4 +29,11 @@
 
 ## 更新者
 
-Codex，2026-09-19。此次只提交水電 OCR 作業入口相關檔案；未推送遠端。
+Codex，2026-09-20。
+
+## 提交狀態
+
+- `59e7099 Add utility bill OCR intake workflow`
+- `c55c5ad Make bridge migration test track Alembic head`
+
+兩筆提交皆未推送遠端。工作區其餘既有未提交變更仍保留，未包含在上述提交中。

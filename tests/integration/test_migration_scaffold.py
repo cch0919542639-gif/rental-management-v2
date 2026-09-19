@@ -178,7 +178,9 @@ def test_phase5_bridge_execute_stamps_revision_after_prior_migrations(tmp_path):
         env=env,
         check=True,
     )
-    assert "Alembic stamped at revision 20260724_000002" in bridge.stdout
+    from scripts.migration.apply_20260701_000002_alembic_bridge import _find_head_revision
+
+    assert f"Alembic stamped at revision {_find_head_revision()}" in bridge.stdout
     assert "Applied and recorded." in bridge.stdout
 
 

@@ -20,7 +20,7 @@
 ## 驗證
 
 - `py -3 -m pytest -q tests\\integration\\test_utility_intake.py tests\\integration\\test_electricity_property_workflows.py tests\\integration\\test_water_property_preview.py`：4 passed。
-- `py -3 -m pytest -q tests\\integration`：183 passed、15 skipped、1 failed。失敗為既有 `test_phase5_bridge_execute_stamps_revision_after_prior_migrations`，其預期 Alembic revision `20260903_000003` 已與工作區既有後續水電草稿 migration 不一致；本次功能未修改 migration runner 或 migration scaffold。
+- `py -3 -m pytest -q tests\\integration`：184 passed、15 skipped。migration bridge 測試已改為比對 bridge 實際偵測到的 Alembic head，不再硬編碼版本號。
 - 正式 VM：`rental-v2.service` active，`/readyz` 回傳 200；新入口未登入時導向登入頁。
 
 ## 後續

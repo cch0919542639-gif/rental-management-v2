@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}水電費作業{% endblock %}
+{% block content %}
+<h1>水電費作業</h1>
+<p>上傳水電單後先取得辨識原文；你可依原始單據手動修正，再進入既有的電費單／水費單與抄表流程。此步驟不會建立月帳單或向房客收費。</p>
+<div class="card">
+  <form method="post" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    <p>{{ form.property_id.label }}<br>{{ form.property_id() }}</p>
+    <p>{{ form.utility_type.label }}<br>{{ form.utility_type() }}</p>
+    <p>{{ form.document.label }}<br>{{ form.document() }}<br><small>接受 PDF、PNG、JPG、WEBP；檔案只供本次辨識，雲端暫存 30 天自動刪除。</small></p>
+    {{ form.submit() }}
+  </form>
+</div>
+{% if result %}
+<h2>人工校正草稿</h2>
+<div class="card">
+  <p><strong>{{ result.property_name }}</strong>／{{ '電費' if result.utility_type == 'electricity' else '水費' }}／{{ result.filename }}</p>
+  <p>辨識狀態：{{ result.status }}{% if result.message %}（{{ result.message }}）{% endif %}</p>
+  <label for="ocr-text"><strong>辨識原文（請對照原始單據後手動修正數字與日期）</strong></label>
+  <textarea id="ocr-text" rows="16" style="width:100%; margin-top:8px;">{{ result.text }}</textarea>
+  <p>
+    {% if result.utility_type == 'electricity' %}
+    <a href="{{ url_for('electricity.electricity_property_new_bill', property_id=result.property_id) }}">下一步：建立電費單</a>　
+    <a href="{{ url_for('electricity.electricity_property_quick_reading', property_id=result.property_id) }}">輸入各房電表度數</a>
+    {% else %}
+    <a href="{{ url_for('water.water_create') }}">下一步：建立水費單</a>
+    {% endif %}
+  </p>
+  <p><small>注意：這份文字草稿不會自動寫入帳單；開立單據與分攤試算仍需逐欄確認。</small></p>
+</div>
+{% endif %}
+{% endblock %}

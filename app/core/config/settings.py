@@ -25,6 +25,8 @@ class BaseConfig:
     LINE_CHANNEL_SECRET = os.getenv("LINE_CHANNEL_SECRET")
     OCR_API_KEY = os.getenv("OCR_API_KEY")
     OCR_PROVIDER = os.getenv("OCR_PROVIDER")
+    OCR_GCS_BUCKET = os.getenv("OCR_GCS_BUCKET")
+    OCR_MAX_UPLOAD_BYTES = int(os.getenv("OCR_MAX_UPLOAD_BYTES", str(20 * 1024 * 1024)))
 
 
 class DevelopmentConfig(BaseConfig):

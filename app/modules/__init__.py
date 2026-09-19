@@ -14,6 +14,7 @@ from app.modules.reports import reports_bp
 from app.modules.rooms import rooms_bp
 from app.modules.tenants import tenants_bp
 from app.modules.water import water_bp
+from app.modules.utility_intake import utility_intake_bp
 
 
 def register_blueprints(app):
@@ -33,4 +34,5 @@ def register_blueprints(app):
     app.register_blueprint(rooms_bp)
     app.register_blueprint(tenants_bp)
     app.register_blueprint(water_bp)
+    app.register_blueprint(utility_intake_bp)
     app.register_blueprint(line_webhook_bp)

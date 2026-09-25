@@ -17,6 +17,7 @@ Constraints:
 import pytest
 from app.core.db import db
 from app.models import MonthlyBill, WaterBill
+from app.services.utility_draft_service import UtilityDraftService
 
 
 def test_water_bill_edit(app, logged_in_client, seeded_data):
@@ -96,6 +97,30 @@ def test_water_independent_post(app, logged_in_client, seeded_data):
         water_bill = WaterBill.query.filter_by(total_amount=350).first()
         assert water_bill is not None
         water_bill_id = water_bill.id
+        draft = UtilityDraftService.create_draft(
+            utility_type="water",
+            property_id=seeded_data["property_id"],
+            year_month="202606",
+            billing_start=water_bill.billing_start,
+            billing_end=water_bill.billing_end,
+            billed_total=water_bill.total_amount,
+            policy_code="independent_meter",
+            rounding_mode=UtilityDraftService.BILL_RECONCILED,
+            water_bill_id=water_bill.id,
+        )
+        UtilityDraftService.replace_lines(
+            draft,
+            [{
+                "room_id": seeded_data["room_id"],
+                "contract_id": seeded_data["contract_id"],
+                "monthly_bill_id": seeded_data["monthly_bill_id"],
+                "room_number_snapshot": "A01",
+                "occupancy_status": "occupied",
+                "stay_days": 30,
+                "calculated_amount": 350,
+            }],
+        )
+        UtilityDraftService.confirm(draft)
 
     # Post with independent mode
     response = client.post(

@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from app.core.db import db
 from app.models import ElectricityBill, ElectricityMeter, ElectricityReading, MonthlyBill, WaterBill
+from app.services.utility_draft_service import UtilityDraftService
 
 
 def test_electricity_rate_fallback_and_bill_aggregation(app, logged_in_client, seeded_data):
@@ -101,6 +102,30 @@ def test_water_shared_post_updates_usage_proportionally(app, logged_in_client, s
         assert water_bill is not None
         water_bill_id = water_bill.id
         assert monthly_bill is not None
+        draft = UtilityDraftService.create_draft(
+            utility_type="water",
+            property_id=seeded_data["property_id"],
+            year_month=monthly_bill.year_month,
+            billing_start=water_bill.billing_start,
+            billing_end=water_bill.billing_end,
+            billed_total=water_bill.total_amount,
+            policy_code="water_bill_by_stay_days",
+            rounding_mode=UtilityDraftService.BILL_RECONCILED,
+            water_bill_id=water_bill.id,
+        )
+        UtilityDraftService.replace_lines(
+            draft,
+            [{
+                "room_id": seeded_data["room_id"],
+                "contract_id": seeded_data["contract_id"],
+                "monthly_bill_id": monthly_bill.id,
+                "room_number_snapshot": "A01",
+                "occupancy_status": "occupied",
+                "stay_days": 30,
+                "calculated_amount": 300,
+            }],
+        )
+        UtilityDraftService.confirm(draft)
 
     response = client.post(
         f"/water/{water_bill_id}/post",

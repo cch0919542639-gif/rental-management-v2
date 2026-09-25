@@ -3,10 +3,11 @@ from decimal import Decimal
 from app.core.db import db
 from app.core.errors import DomainValidationError
 from app.core.year_month import to_db_year_month
-from app.models import ElectricityBill, ElectricityMeter, ElectricityReading, MonthlyBill
+from app.models import ElectricityBill, ElectricityMeter, ElectricityReading, MonthlyBill, Room
 from app.repositories import BillingRepository, ContractRepository, ElectricityReadingRepository
 from app.services.billing_service import BillingService
 from app.services.rate_policy_service import RatePolicyService
+from app.services.utility_draft_service import UtilityDraftService
 from app.services.utility_policy_resolver import UtilityPolicyResolver
 
 
@@ -24,7 +25,10 @@ class ElectricityService:
         candidates = [
             item
             for item in ContractRepository.list_active()
-            if item.room_id == room_id and item.start_date <= period_end and item.end_date >= period_start
+            # Active is the actual residence flag.  A still-active tenant is
+            # kept in the allocation even when the original contract end date
+            # has passed.
+            if item.room_id == room_id and item.start_date <= period_end
         ]
         if candidates:
             return sorted(candidates, key=lambda item: item.start_date, reverse=True)[0]
@@ -35,7 +39,7 @@ class ElectricityService:
         return [
             item
             for item in ContractRepository.list_active()
-            if item.room.property_id == property_id and item.start_date <= period_end and item.end_date >= period_start
+            if item.room.property_id == property_id and item.start_date <= period_end
         ]
 
     @staticmethod
@@ -191,8 +195,163 @@ class ElectricityService:
         return bill
 
     @staticmethod
+    def preview_property_bill(*, bill: ElectricityBill):
+        """Build a read-only reconciliation for every room on an electricity bill."""
+        readings = ElectricityReadingRepository.list_for_bill(bill.id)
+        rooms = Room.query.filter_by(property_id=bill.property_id).order_by(Room.room_number.asc()).all()
+        blockers = ElectricityService._preview_blockers(bill=bill, readings=readings)
+        total_usage = sum((Decimal(str(item.usage or 0)) for item in readings), Decimal("0.0"))
+        rows = []
+
+        if not blockers:
+            for reading in readings:
+                breakdown = ElectricityService._calculate_reading_amount(
+                    bill=bill,
+                    reading=reading,
+                    total_usage=total_usage,
+                )
+                rows.append(ElectricityService._preview_reading_row(reading=reading, breakdown=breakdown))
+        else:
+            for reading in readings:
+                rows.append(ElectricityService._preview_reading_row(reading=reading))
+
+        read_room_ids = {reading.room_id for reading in readings if reading.room_id}
+        for room in rooms:
+            if room.id not in read_room_ids:
+                rows.append(
+                    {
+                        "address": room.property.address or room.property.name,
+                        "room_number": room.room_number,
+                        "meter_number": None,
+                        "prev_reading": None,
+                        "curr_reading": None,
+                        "usage": Decimal("0.0"),
+                        "policy_code": None,
+                        "flow_amount": Decimal("0.00"),
+                        "public_amount": Decimal("0.00"),
+                        "allocated_amount": Decimal("0.00"),
+                        "reason": "空房未抄表" if room.status == "vacant" else "缺少房間抄表資料",
+                    }
+                )
+
+        allocated_total = sum((row["allocated_amount"] for row in rows), Decimal("0.00"))
+        return {
+            "bill": bill,
+            "property": bill.property,
+            "rows": sorted(rows, key=lambda row: (row["room_number"] or "", row["meter_number"] or "")),
+            "total_usage": total_usage,
+            "billed_total": Decimal(str(bill.total_amount or 0)),
+            "allocated_total": allocated_total,
+            "unallocated_difference": (Decimal(str(bill.total_amount or 0)) - allocated_total).quantize(Decimal("0.01")),
+            "blockers": blockers,
+            "can_create_draft": not blockers,
+        }
+
+    @staticmethod
+    def create_property_draft(*, bill: ElectricityBill):
+        preview = ElectricityService.preview_property_bill(bill=bill)
+        if preview["blockers"]:
+            raise DomainValidationError("資料核對未通過，不能產生電費草稿")
+        draft = UtilityDraftService.create_draft(
+            utility_type=UtilityDraftService.ELECTRICITY,
+            property_id=bill.property_id,
+            year_month=bill.year_month,
+            billing_start=bill.period_start,
+            billing_end=bill.period_end,
+            billed_total=bill.total_amount,
+            policy_code="property_electricity_preview",
+            rounding_mode=UtilityDraftService.BILL_RECONCILED,
+            electricity_bill_id=bill.id,
+        )
+        lines = []
+        for row in preview["rows"]:
+            contract = ElectricityService._resolve_contract_for_period(
+                row["room_id"], period_start=bill.period_start, period_end=bill.period_end
+            )
+            monthly_bill = (
+                MonthlyBill.query.filter_by(contract_id=contract.id, year_month=bill.year_month).one_or_none()
+                if contract
+                else None
+            )
+            lines.append({
+                "room_id": row["room_id"],
+                "contract_id": contract.id if contract else None,
+                "monthly_bill_id": monthly_bill.id if monthly_bill else None,
+                "room_number_snapshot": row["room_number"],
+                "occupancy_status": "vacant" if row["reason"] == "空房未抄表" else "occupied",
+                "exclusion_reason": row["reason"] if row["allocated_amount"] == 0 else None,
+                "stay_days": 0,
+                "calculated_amount": row["allocated_amount"],
+            })
+        return UtilityDraftService.replace_lines(draft, lines)
+
+    @staticmethod
+    def _preview_blockers(*, bill: ElectricityBill, readings):
+        blockers = []
+        bill_usage = Decimal(str(bill.curr_reading or 0)) - Decimal(str(bill.prev_reading or 0))
+        if bill_usage < 0:
+            blockers.append("電費單主表讀數倒退")
+        if bill.period_end <= bill.period_start:
+            blockers.append("電費單帳期不完整或結束日早於開始日")
+
+        reading_usage = Decimal("0.0")
+        for reading in readings:
+            usage = Decimal(str(reading.curr_reading or 0)) - Decimal(str(reading.prev_reading or 0))
+            if usage < 0:
+                blockers.append(f"房間 {reading.room.room_number if reading.room else reading.room_id or '-'} 的讀數倒退")
+            if Decimal(str(reading.usage or 0)) != usage:
+                blockers.append(f"房間 {reading.room.room_number if reading.room else reading.room_id or '-'} 的儲存度數與前後讀數不一致")
+            reading_usage += Decimal(str(reading.usage or 0))
+            if reading.meter is None or reading.meter.property_id != bill.property_id:
+                blockers.append(f"抄表 #{reading.id} 的電表不屬於此物件")
+            if reading.room is not None and reading.room.property_id != bill.property_id:
+                blockers.append(f"抄表 #{reading.id} 的房間不屬於此物件")
+            if reading.meter and reading.meter.room_id and reading.room_id and reading.meter.room_id != reading.room_id:
+                blockers.append(f"抄表 #{reading.id} 的表號與房號不符")
+            if bill.meter and not bill.meter.is_main and reading.meter_id != bill.meter_id:
+                blockers.append(f"抄表 #{reading.id} 的表號與電費單指定表號不符")
+
+        if bill.meter and bill.meter.is_main and readings and reading_usage != bill_usage:
+            blockers.append("分表度數合計與主表帳期度數不一致")
+        if not readings:
+            blockers.append("尚無房間抄表資料")
+        return list(dict.fromkeys(blockers))
+
+    @staticmethod
+    def _preview_reading_row(*, reading: ElectricityReading, breakdown=None):
+        breakdown = breakdown or {
+            "policy_code": None,
+            "flow_amount": Decimal("0.00"),
+            "public_amount": Decimal("0.00"),
+            "total_amount": Decimal("0.00"),
+        }
+        room = reading.room
+        meter = reading.meter
+        return {
+            "room_id": room.id if room else None,
+            "address": room.property.address if room and room.property.address else (meter.property.address if meter else "-"),
+            "room_number": room.room_number if room else "未指定",
+            "meter_number": meter.meter_number if meter and meter.meter_number else str(reading.meter_id),
+            "prev_reading": reading.prev_reading,
+            "curr_reading": reading.curr_reading,
+            "usage": reading.usage,
+            "policy_code": breakdown["policy_code"],
+            "flow_amount": breakdown["flow_amount"],
+            "public_amount": breakdown["public_amount"],
+            "allocated_amount": breakdown["total_amount"],
+            "reason": "待修正資料後才可產生草稿" if breakdown["policy_code"] is None else "依策略計算",
+        }
+
+    @staticmethod
     def post_to_monthly_bill(*, monthly_bill: MonthlyBill, reading: ElectricityReading, public_electricity=0):
         bill = reading.bill
+        if bill is None:
+            raise DomainValidationError("抄表缺少來源電費單，不能入帳")
+        line = UtilityDraftService.confirmed_line_for_monthly_bill(
+            utility_type=UtilityDraftService.ELECTRICITY,
+            monthly_bill=monthly_bill,
+            electricity_bill_id=bill.id,
+        )
         resolved_public = Decimal(str(public_electricity or 0))
         electricity_amount = Decimal(str(reading.confirmed_amount or reading.calculated_amount or 0))
         if bill is not None:
@@ -204,6 +363,10 @@ class ElectricityService:
             if breakdown["policy_code"] == UtilityPolicyResolver.BILL_USAGE_RATIO_PLUS_PUBLIC and not public_electricity:
                 resolved_public = breakdown["public_amount"]
                 electricity_amount = breakdown["flow_amount"]
+
+        reviewed_amount = Decimal(str(line.confirmed_amount if line.confirmed_amount is not None else line.calculated_amount))
+        if (electricity_amount + resolved_public).quantize(Decimal("0.01")) != reviewed_amount.quantize(Decimal("0.01")):
+            raise DomainValidationError("來源讀數與已確認草稿金額不一致，請重新產生並確認草稿")
 
         monthly_bill.electricity_prev = reading.prev_reading
         monthly_bill.electricity_curr = reading.curr_reading

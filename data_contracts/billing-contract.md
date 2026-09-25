@@ -62,11 +62,18 @@
 - `other_charges`
   - 其他附加費用
 
+## 水電草稿與入帳邊界
+
+- 水電試算結果必須先存在 `UtilityCalculationDraft`；它不是 `MonthlyBill` 的替代品。
+- 每張草稿必須且只能連結一張同類型來源水／電費單；草稿的物件、帳期與總額必須和來源帳單一致。
+- `MonthlyBill.electricity_amount` 與 `MonthlyBill.water_amount` 只能由已確認草稿中、且明確對應該月帳單的水電 posting flow 更新。
+- 草稿與水電單的分攤差額需分開保存；不得以 `other_charges` 或前期未收吸收差額。
+
 ## total 規則
 
 正式公式：
 
-`total = rent + electricity_amount + public_electricity + water_amount + other_charges`
+`total = rent + electricity_amount + public_electricity + water_amount + other_charges + previous_balance`
 
 要求：
 

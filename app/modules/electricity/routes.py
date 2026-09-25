@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import login_required
 
 from app.modules.electricity.forms import (
@@ -17,6 +17,8 @@ from app.repositories import (
     RoomRepository,
 )
 from app.services import ElectricityService
+from app.models.billing import UtilityCalculationDraft
+from app.services.utility_draft_service import UtilityDraftService
 
 electricity_bp = Blueprint("electricity", __name__, url_prefix="/electricity")
 
@@ -287,6 +289,36 @@ def bill_detail(bill_id: int):
     bill = ElectricityBillRepository.get_or_404(bill_id)
     readings = ElectricityReadingRepository.list_for_bill(bill_id)
     return render_template("electricity/bill_detail.html", bill=bill, readings=readings)
+
+
+@electricity_bp.get("/bills/<int:bill_id>/property-preview")
+@login_required
+def bill_property_preview(bill_id: int):
+    bill = ElectricityBillRepository.get_or_404(bill_id)
+    preview = ElectricityService.preview_property_bill(bill=bill)
+    draft = None
+    draft_id = request.args.get("draft_id", type=int)
+    if draft_id:
+        draft = UtilityCalculationDraft.query.filter_by(id=draft_id, electricity_bill_id=bill.id).one_or_none()
+    return render_template("electricity/property_preview.html", preview=preview, draft=draft, title="電費全物件計算草稿")
+
+
+@electricity_bp.post("/bills/<int:bill_id>/property-draft")
+@login_required
+def bill_property_draft_create(bill_id: int):
+    bill = ElectricityBillRepository.get_or_404(bill_id)
+    draft = ElectricityService.create_property_draft(bill=bill)
+    flash(f"已建立電費草稿 #{draft.id}，請核對後確認。", "success")
+    return redirect(url_for("electricity.bill_property_preview", bill_id=bill.id, draft_id=draft.id))
+
+
+@electricity_bp.post("/bills/<int:bill_id>/drafts/<int:draft_id>/confirm")
+@login_required
+def bill_property_draft_confirm(bill_id: int, draft_id: int):
+    draft = UtilityCalculationDraft.query.filter_by(id=draft_id, electricity_bill_id=bill_id).one_or_404()
+    UtilityDraftService.confirm(draft)
+    flash(f"電費草稿 #{draft.id} 已確認，可回寫對應月帳單。", "success")
+    return redirect(url_for("electricity.bill_property_preview", bill_id=bill_id, draft_id=draft.id))
 
 
 @electricity_bp.post("/bills/<int:bill_id>/calculate")

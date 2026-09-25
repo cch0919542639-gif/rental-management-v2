@@ -7,6 +7,7 @@
 - `admin`
 - `landlord`
 - `viewer`
+- `tenant`
 
 ## Room.status
 
@@ -71,6 +72,22 @@
 說明：
 
 - 若未來加入複核，可新增 `confirmed`
+
+## UtilityCalculationDraft.status
+
+- `draft`
+- `confirmed`
+- `posted`
+
+建議轉換：
+
+- `draft -> confirmed -> posted`
+
+限制：
+
+- 只有 `draft` 可修改分攤明細。
+- `confirmed` 與 `posted` 都不可回到前一狀態。
+- `posted` 僅記錄已核准進入入帳流程；本階段不會直接更新 `MonthlyBill`。
 
 ## 禁止事項
 

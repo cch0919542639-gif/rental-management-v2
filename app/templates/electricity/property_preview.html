@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+<div class="card" style="margin-bottom:16px;">
+  <p><strong>物件：</strong>{{ preview.property.name }}{% if preview.property.address %}（{{ preview.property.address }}）{% endif %}</p>
+  <p><strong>帳期：</strong>{{ preview.bill.period_start }} 至 {{ preview.bill.period_end }}</p>
+  <p><strong>電單總額：</strong>NT {{ preview.billed_total }}</p>
+  <p><strong>房客分攤合計：</strong>NT {{ preview.allocated_total }}</p>
+  <p><strong>未分攤差額：</strong>NT {{ preview.unallocated_difference }}</p>
+</div>
+{% if preview.blockers %}
+<div class="card" style="margin-bottom:16px;border-color:#b42318;">
+  <h2>目前不可建立草稿</h2>
+  <ul>{% for blocker in preview.blockers %}<li>{{ blocker }}</li>{% endfor %}</ul>
+</div>
+{% else %}
+<div class="card" style="margin-bottom:16px;"><strong>資料核對通過：</strong>此頁僅為草稿預覽，尚未改寫月帳單。</div>
+{% endif %}
+{% if preview.can_create_draft %}
+  {% if draft %}
+  <div class="card" style="margin-bottom:16px;">
+    <p><strong>草稿 #{{ draft.id }}</strong>：{{ draft.status }}</p>
+    {% if draft.status == 'draft' %}
+    <form method="post" action="{{ url_for('electricity.bill_property_draft_confirm', bill_id=preview.bill.id, draft_id=draft.id) }}">
+      <button type="submit">確認草稿</button>
+    </form>
+    {% endif %}
+  </div>
+  {% else %}
+  <form method="post" action="{{ url_for('electricity.bill_property_draft_create', bill_id=preview.bill.id) }}" class="card" style="margin-bottom:16px;">
+    <button type="submit">產生電費草稿</button>
+  </form>
+  {% endif %}
+{% endif %}
+<div class="card" style="overflow-x:auto;">
+  <table>
+    <thead><tr><th>地址</th><th>房號</th><th>表號</th><th>前次</th><th>本次</th><th>度數</th><th>策略</th><th>流動電費</th><th>公電</th><th>合計</th><th>原因</th></tr></thead>
+    <tbody>{% for row in preview.rows %}
+      <tr><td>{{ row.address }}</td><td>{{ row.room_number }}</td><td>{{ row.meter_number or '-' }}</td><td>{{ row.prev_reading if row.prev_reading is not none else '-' }}</td><td>{{ row.curr_reading if row.curr_reading is not none else '-' }}</td><td>{{ row.usage }}</td><td>{{ row.policy_code or '-' }}</td><td>NT {{ row.flow_amount }}</td><td>NT {{ row.public_amount }}</td><td>NT {{ row.allocated_amount }}</td><td>{{ row.reason }}</td></tr>
+    {% endfor %}</tbody>
+  </table>
+</div>
+<p style="margin-top:16px;"><a href="{{ url_for('electricity.bill_detail', bill_id=preview.bill.id) }}">返回電費單</a></p>
+{% endblock %}

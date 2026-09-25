@@ -88,3 +88,69 @@ class WaterBill(BaseModel):
     notes = db.Column(db.Text)
 
     property = db.relationship("Property", backref="water_bills", lazy=True)
+
+
+class UtilityCalculationDraft(BaseModel):
+    __tablename__ = "utility_calculation_drafts"
+
+    DRAFT = "draft"
+    CONFIRMED = "confirmed"
+    POSTED = "posted"
+
+    utility_type = db.Column(db.String(20), nullable=False, index=True)
+    property_id = db.Column(db.Integer, db.ForeignKey("properties.id"), nullable=False, index=True)
+    water_bill_id = db.Column(db.Integer, db.ForeignKey("water_bills.id"), nullable=True, index=True)
+    electricity_bill_id = db.Column(db.Integer, db.ForeignKey("electricity_bills.id"), nullable=True, index=True)
+    year_month = db.Column(db.String(6), nullable=False, index=True)
+    billing_start = db.Column(db.Date, nullable=False)
+    billing_end = db.Column(db.Date, nullable=False)
+    policy_code = db.Column(db.String(50), nullable=False)
+    rounding_mode = db.Column(db.String(40), nullable=False)
+    billed_total = db.Column(db.Numeric(10, 2), nullable=False, default=0)
+    allocated_total = db.Column(db.Numeric(10, 2), nullable=False, default=0)
+    reconciliation_difference = db.Column(db.Numeric(10, 2), nullable=False, default=0)
+    status = db.Column(db.String(20), nullable=False, default=DRAFT, index=True)
+    confirmed_at = db.Column(db.DateTime, nullable=True)
+    posted_at = db.Column(db.DateTime, nullable=True)
+    notes = db.Column(db.Text, default="")
+
+    __table_args__ = (
+        db.CheckConstraint(
+            "(water_bill_id IS NOT NULL AND electricity_bill_id IS NULL) "
+            "OR (water_bill_id IS NULL AND electricity_bill_id IS NOT NULL)",
+            name="ck_utility_draft_has_exactly_one_source_bill",
+        ),
+    )
+
+    property = db.relationship("Property", backref="utility_calculation_drafts", lazy=True)
+    water_bill = db.relationship("WaterBill", backref="calculation_drafts", lazy=True)
+    electricity_bill = db.relationship("ElectricityBill", backref="calculation_drafts", lazy=True)
+
+
+class UtilityCalculationLine(BaseModel):
+    __tablename__ = "utility_calculation_lines"
+
+    draft_id = db.Column(
+        db.Integer,
+        db.ForeignKey("utility_calculation_drafts.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    room_id = db.Column(db.Integer, db.ForeignKey("rooms.id"), nullable=True, index=True)
+    contract_id = db.Column(db.Integer, db.ForeignKey("contracts.id"), nullable=True, index=True)
+    monthly_bill_id = db.Column(db.Integer, db.ForeignKey("monthly_bills.id"), nullable=True, index=True)
+    room_number_snapshot = db.Column(db.String(20), nullable=False)
+    occupant_name_snapshot = db.Column(db.String(100), nullable=True)
+    occupancy_status = db.Column(db.String(20), nullable=False)
+    exclusion_reason = db.Column(db.String(200), nullable=True)
+    stay_days = db.Column(db.Integer, nullable=False, default=0)
+    calculated_amount = db.Column(db.Numeric(10, 2), nullable=False, default=0)
+    confirmed_amount = db.Column(db.Numeric(10, 2), nullable=True)
+
+    draft = db.relationship(
+        "UtilityCalculationDraft",
+        backref=db.backref("lines", lazy=True, cascade="all, delete-orphan", order_by="UtilityCalculationLine.id"),
+    )
+    room = db.relationship("Room", lazy=True)
+    contract = db.relationship("Contract", lazy=True)
+    monthly_bill = db.relationship("MonthlyBill", lazy=True)

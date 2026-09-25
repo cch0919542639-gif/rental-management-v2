@@ -18,6 +18,7 @@ import pytest
 from app.core.db import db
 from app.models import ElectricityBill, ElectricityMeter, MonthlyBill
 from app.repositories import ElectricityReadingRepository
+from app.services.utility_draft_service import UtilityDraftService
 
 
 def test_electricity_meter_edit(app, logged_in_client, seeded_data):
@@ -146,6 +147,31 @@ def test_electricity_bill_post_to_monthly_bill(app, logged_in_client, seeded_dat
         readings = ElectricityReadingRepository.list_for_bill(bill_id)
         reading_id = readings[0].id if readings else None
         assert reading_id is not None, "No reading found after calculate"
+        bill = db.session.get(ElectricityBill, bill_id)
+        draft = UtilityDraftService.create_draft(
+            utility_type="electricity",
+            property_id=seeded_data["property_id"],
+            year_month=bill.year_month,
+            billing_start=bill.period_start,
+            billing_end=bill.period_end,
+            billed_total=bill.total_amount,
+            policy_code="fixed_electricity",
+            rounding_mode=UtilityDraftService.BILL_RECONCILED,
+            electricity_bill_id=bill.id,
+        )
+        UtilityDraftService.replace_lines(
+            draft,
+            [{
+                "room_id": seeded_data["room_id"],
+                "contract_id": seeded_data["contract_id"],
+                "monthly_bill_id": seeded_data["monthly_bill_id"],
+                "room_number_snapshot": "A01",
+                "occupancy_status": "occupied",
+                "stay_days": 30,
+                "calculated_amount": 500,
+            }],
+        )
+        UtilityDraftService.confirm(draft)
 
     response = client.post(
         f"/electricity/bills/{bill_id}/post",
